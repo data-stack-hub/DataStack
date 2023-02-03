@@ -1,8 +1,6 @@
 from flask import Flask
 from flask import request
 from flask_cors import CORS
-# from  test_app import *
-# import ex_test
 from utils import *
 app = Flask(__name__)
 cors = CORS(app)
@@ -19,10 +17,9 @@ def load_app():
     return fn()
 
 def run_fn():
-    # print(request.json)
+
     fn = getattr(my_module, request.json['prop']['on_click_name'])
     fn(request.json)
-    # print(ex.__dict__)
     return getattr(my_module, 'rerun')()
 
 def fn(method_name):
