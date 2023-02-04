@@ -2,6 +2,7 @@ import inspect
 class datastack():
     def __init__(self):
         self.app=[]
+        self.blocks = []
         self.count = 0
 
 
@@ -30,7 +31,7 @@ class datastack():
                 "title_args":args[0]
             }
         }
-        self.app.append(component)
+        self.blocks.append(component)
 
     def input(self,value):
         frame = inspect.currentframe()
@@ -48,7 +49,7 @@ class datastack():
 
             }
         }
-        self.app.append(component)
+        self.blocks.append(component)
 
     def select(self, options, value):
         # list options args to be corrected
@@ -70,7 +71,7 @@ class datastack():
             }
         }
         # print('selec comp', component)
-        self.app.append(component)
+        self.blocks.append(component)
 
     # test
     def select_t(self, options):
@@ -91,12 +92,12 @@ class datastack():
             }
         }
         # print('selec comp', component)
-        self.app.append(component)
+        self.blocks.append(component)
         def r_fn(a):
             return a
         return r_fn
 
-    def list(self, data, on_click=''):
+    def list(self, data, on_click='', location=''):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
@@ -112,6 +113,7 @@ class datastack():
         component = {
             "id":500,
             "type":"list",
+            "location":location,
             "prop":{
                 "list":data,
                 "on_click":click_fn,
@@ -120,10 +122,10 @@ class datastack():
             }
         }
 
-        self.app.append(component)
+        self.blocks.append(component)
 
 
-    def write(self, data):
+    def write(self, data,  location=''):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
@@ -131,12 +133,13 @@ class datastack():
         component = {
             "id":100,
             "type":'text',
+            "location":location,
             "prop":{
                 "data":data,
                 "args":args[0]
             }
         }
-        self.app.append(component)
+        self.blocks.append(component)
 
     def html(self, html):
         frame = inspect.currentframe()
@@ -152,7 +155,13 @@ class datastack():
                 'args':args[0]
             }
         }
-        self.app.append(component)
+        self.blocks.append(component)
+
+    def container(self):
+        # prevent nesting insider the layout element
+        cls = datastack()
+        self.blocks.append(cls)
+        return cls
 
     def iframe(self, url):
         frame = inspect.currentframe()
@@ -168,7 +177,13 @@ class datastack():
                 "url_var":args[0]
             }
         }
-        self.app.append(component)
+        self.blocks.append(component)
+
+    def build_app(self):
+        _app =  [ x.blocks if isinstance(x, object) and x.__class__.__name__ =='datastack' else [x] for x in self.blocks]
+        self.app = [item for sublist in _app for item in sublist]
+        return self.app
+
     def rerun(self, my_vars, old_app):
 
         # print('my_vasrs',{k: v for k, v in my_vars.items() if not k.startswith("__")})
@@ -177,6 +192,7 @@ class datastack():
 
         for k,v in my_vars.items():
             globals()[k] = v
+        self.build_app()
         for c in self.app:
             if c['type'] == 'text' or c['type'] == 'html':
                 c['prop']['data'] = eval(c['prop']['args'])

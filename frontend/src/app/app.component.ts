@@ -13,12 +13,14 @@ import { ApiService } from './services/api.service';
 export class AppComponent {
   title = 'frontend';
   container:any
+  sidebar:any
 
   constructor(private api:ApiService, public sanitizer: DomSanitizer){
     this.api.get('http://localhost:5000/')
-    .subscribe(res=>{
-      this.container = res
-      console.log(this.container)
+    .subscribe((res:any)=>{
+      this.container = JSON.parse(JSON.stringify(res.filter((element:any)=>element.location != 'sidebar')))
+      this.sidebar = res.filter((element:any)=>element.location == 'sidebar')
+      console.log(this.container, this.sidebar)
     })
   }
 
@@ -47,7 +49,10 @@ export class AppComponent {
     this.api.post('http://localhost:5000/run_fn',{...e, ...{"payload":payload}})
     .subscribe((res:any)=>{
       console.log('resp')
-      this.container= res})
+      this.container = JSON.parse(JSON.stringify(res.filter((element:any)=>element.location != 'sidebar')))
+      this.sidebar = res.filter((element:any)=>element.location == 'sidebar')
+
+    })
   }
 
   trackElement(i:any, d:any){
