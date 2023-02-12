@@ -1,0 +1,2 @@
+for interactive element value assignment usa ast module to add the value to class method
+copy local variables inside the fuctions to global globals().update(locals())

@@ -3,35 +3,32 @@ from ds_class import datastack
 import pandas as pd
 
 # -------------------------------- user py file ------------------------------
-def dummy_fn(a):
+def dummy_fn():
     pass
 
 ds = datastack()
 
-#  this should be moved to ds class
-def test():
-    print(ds.app)
-    return jsonify(ds.build_app())
+def load_page1(a):
+    ds.set_page('/page1')
 
-def rerun():
-    global a1
-    a1 = {k: v for k, v in globals().items() if not k.startswith("__")}
-    return jsonify(ds.rerun(a1, {}))
-
-
-def update_var_select(aaa):
-    globals()[aaa['prop']['value_frm']]=aaa['payload']
-
-def update_var(aaa):
-    globals()[f"input_value"]=aaa['payload']
-
-
+def load_main_page(a):
+    ds.set_page('main_page')
 #  user defined functions and script
+
+# pages
+ds.sidebar().button('Page1', on_click=load_page1)
+page1 = ds.page('/page1')
+page1.write('This is new page')
+page1.button('go to main page', on_click=load_main_page)
 
 # sildebar
 ds.write('Inside sidebar', location='sidebar')
+ds.write('pages', location='sidebar')
 ds.write('-------------------------------------', location='sidebar')
 
+# sidebar class
+ds.write("sidebar as class method")
+ds.sidebar().write('inside sidebar class')
 # list
 ds.write('List')
 def list_click(a):
@@ -46,8 +43,8 @@ ds.write('-------------------------------------')
 
 #  dropdown
 ds.write('Dropdown Selection')
-selected_value = 'b'
-ds.select(['a','b','c'], value=selected_value )
+# selected_value = 'b'
+selected_value = ds.select(['a','b','c'], on_change=dummy_fn )
 ds.write('selected value: ' + selected_value)
 ds.write('-------------------------------------')
 
@@ -79,14 +76,18 @@ ds.html(df.to_html())
 ds.html("<div style='color:green'>HTML Text</div>")
 ds.write('-------------------------------------')
 
-# outoforder
-ds.write('Out of order')
+# outOfOrder Container
+ds.write('Out of order container')
 container = ds.container()
 container.write('inside the container')
 ds.write('out side the container')
 container.write('inside the container again ')
 ds.write('-------------------------------------')
 
+# Expander
+expander = ds.sidebar().expander('expander')
+expander.write('this is inside the expander from py')
+ds.sidebar().write('-------------------------------------')
 # Iframe
 ds.write('Iframe')
 def change_iframe(a):

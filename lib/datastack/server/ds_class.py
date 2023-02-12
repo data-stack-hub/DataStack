@@ -1,9 +1,22 @@
 import inspect
+from contextlib import contextmanager
+
 class datastack():
-    def __init__(self):
-        self.app=[]
-        self.blocks = []
-        self.count = 0
+    def __init__(self, type='main_page', path='', title=''):
+        self.type = type
+        self.path = path
+        self.title = title
+        self.app={
+            'current_page':'main_page',
+            'sidebar':[],
+            'main_page':[],
+            'pages':[]
+        }
+        self.blocks = {
+            'sidebar':[],
+            'main_page':[],
+            'pages':[]
+        }
 
 
 #  change to on_click = function name and on_click_source = function code
@@ -12,7 +25,8 @@ class datastack():
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        args = string[string.find('(') + 1:-1].split(',')
+        # print(string.replace('.sidebar()',''), string.find('(')+1)
+        args = string.replace(".sidebar(",'')[string.find('(')+1 :-1].split(',')
         # print('button_args', args)
         if on_click :
             click_fn = inspect.getsource(on_click)
@@ -21,7 +35,7 @@ class datastack():
             click_fn =''
             click_fn_name =''
 
-        component = {
+        block = {
             "id":1,
             "type":'button',
             "prop":{
@@ -31,14 +45,14 @@ class datastack():
                 "title_args":args[0]
             }
         }
-        self.blocks.append(component)
+        self.append_block(block)
 
     def input(self,value):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         args = string[string.find('(') + 1:-1].split(',')
-        component = {
+        block = {
             "id":50,
             "type":"input",
             'prop':{
@@ -46,63 +60,48 @@ class datastack():
                 "input_var":args[0],
                 "on_click":"update_var",
                 "on_click_name":"update_var",
-
             }
         }
-        self.blocks.append(component)
+        self.append_block(block)
 
-    def select(self, options, value):
+    def select(self, options, value='', on_change=''):
         # list options args to be corrected
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        args = string[string.find('value=') + 6:-1].split(',')
+        args = string[string.find('on_change=') + 6:-1].split(',')
         # print('selected arge',type(args), args)
-        component = {
+        print('assigned var', self.get_value_assign_var(inspect.currentframe().f_back))
+        if on_change :
+            change_fn = inspect.getsource(on_change)
+            change_fn_name = string[string.find('on_change=') + 10:-1].split(',')[0].replace("on_change=",'').replace(' ','')
+        else:
+            change_fn =''
+            change_fn_name =''
+
+        block = {
             "id":60,
             "type":"select",
             "prop":{
                 "options":options,
                 # "options_frm":args[0],
                 "value":value,
-                "value_frm":args[0].replace(' ',''),
+                # "value_frm":args[0].replace(' ',''),
+                'value_frm':self.get_value_assign_var(inspect.currentframe().f_back),
                 "on_click":"update_var_select",
-                "on_click_name":"update_var_select"
+                "on_click_name":"update_var_select",
+                "on_change_name":change_fn_name
             }
         }
         # print('selec comp', component)
-        self.blocks.append(component)
-
-    # test
-    def select_t(self, options):
-        frame = inspect.currentframe()
-        frame = inspect.getouterframes(frame)[1]
-        string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        args = string[string.find('value=') + 6:-1].split(',')
-        component = {
-            "id":60,
-            "type":"select_t",
-            "prop":{
-                "options":options,
-                # "options_frm":args[0],
-                "value":'',
-                "value_frm":'',
-                "on_click":"update_var_select",
-                "on_click_name":"update_var_select"
-            }
-        }
-        # print('selec comp', component)
-        self.blocks.append(component)
-        def r_fn(a):
-            return a
-        return r_fn
-
+        self.append_block(block)
+        return 'default'
     def list(self, data, on_click='', location=''):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         args = string[string.find('on_click=') + 9:-1].split(',')
-        args_options = string[string.find('(')+1:string.find(', on_click=')]
+        args_options = string[string.find('(')+1:string.find(', on_click=')].replace(').list(','')
         # .replace(',','').replace(' ','')
         if on_click :
             click_fn = inspect.getsource(on_click)
@@ -110,7 +109,7 @@ class datastack():
         else:
             click_fn =''
             click_fn_name =''
-        component = {
+        block = {
             "id":500,
             "type":"list",
             "location":location,
@@ -122,15 +121,49 @@ class datastack():
             }
         }
 
-        self.blocks.append(component)
+        self.append_block(block)
 
+
+    def get_value_assign_var(self, f):
+        import dis
+        """
+        # method 1
+        frame = inspect.currentframe()
+        frame = inspect.getouterframes(frame)[1]
+        s = inspect.getframeinfo(frame[0])
+        code = inspect.currentframe().f_back.f_code
+        print('code', dis.code_info(code))
+
+        it = iter(dis.get_instructions(code))
+        for instr in it:
+            if instr.offset == inspect.currentframe().f_back.f_lasti:
+                print('inspect',instr)
+                break
+        assert instr.opname.startswith('CALL_') 
+        print(next(it).argval)       
+        """
+
+        # method 2
+        import sys
+        # f = inspect.currentframe().f_back # get stack frame of caller (depth=1)
+        # next op should be STORE_NAME (current op calls the constructor)
+        opname = dis.opname[f.f_code.co_code[f.f_lasti+2]]
+        print('opname',opname)
+        if opname == 'STORE_NAME' or  opname =='STORE_GLOBAL' : # not all objects will be assigned a name
+            # STORE_NAME argument is the name index
+            namei = f.f_code.co_code[f.f_lasti+3]
+            name = f.f_code.co_names[namei]
+            # print('is this?', name)
+            return name
+        else:
+            return None
 
     def write(self, data,  location=''):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        args = string[string.find('(') + 1:-1].split(',')
-        component = {
+        args = string[string.find('.write(') + 7:-1].split(',')
+        block = {
             "id":100,
             "type":'text',
             "location":location,
@@ -139,7 +172,7 @@ class datastack():
                 "args":args[0]
             }
         }
-        self.blocks.append(component)
+        self.append_block(block)
 
     def html(self, html):
         frame = inspect.currentframe()
@@ -147,7 +180,7 @@ class datastack():
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         args = string[string.find('(') + 1:-1].split(',')
 
-        component = {
+        block = {
             "id":200,
             "type":'html',
             "prop":{
@@ -155,13 +188,60 @@ class datastack():
                 'args':args[0]
             }
         }
-        self.blocks.append(component)
+        self.append_block(block)
 
+    def editable_html(self, name):
+        default_html = """<h1 contenteditable >Title</h1>
+      <div contenteditable></div>
+      <ul #ul_list>
+        <li contenteditable></li>
+      </ul>"""
+        try:
+            with open(name+'.txt', 'r') as file:
+                html = file.read()
+        except:
+            html = default_html
+        if not html:
+            html = default_html
+        block={
+            "id":1000,
+            "type":'editable_html',
+            "prop":{
+                "name":name,
+                "html":html
+            },
+        }
+        self.append_block(block)
+
+
+    def sidebar(self):
+        cls = datastack(type='sidebar')
+        self.append_block(cls, 'sidebar')
+        return cls
+
+    def expander(self, name):
+        cls = datastack(type='expander', title=name)
+        self.append_block(cls)
+        return cls
+
+    # # @classmethod
+    # @contextmanager
     def container(self):
         # prevent nesting insider the layout element
-        cls = datastack()
-        self.blocks.append(cls)
+        cls = datastack(type ="container")
+        self.append_block(cls)
         return cls
+    
+
+    def page(self, path):
+        cls = datastack(type='page', path=path)
+        self.append_block(cls, 'pages')
+        return cls
+
+    @contextmanager
+    def code_block(self, vars):
+        print(vars)
+        yield 'code block'
 
     def iframe(self, url):
         frame = inspect.currentframe()
@@ -169,7 +249,7 @@ class datastack():
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         args = string[string.find('(') + 1:-1].split(',')
 
-        component = {
+        block = {
             "id":600,
             "type":"iframe",
             "prop":{
@@ -177,42 +257,92 @@ class datastack():
                 "url_var":args[0]
             }
         }
-        self.blocks.append(component)
+        self.append_block(block)
 
+    def set_page(self, page_name):
+        self.app['current_page'] = page_name
+
+    def append_block(self,block, location='main_page'):
+        self.blocks[location].append(block)
+
+
+    def build_element_from_blocks(self,blocks):
+        # with parent
+        # return [ dict(each_one, **{'parent':x.type}) for each_one in x.blocks['main_page']] 
+
+        _app =  [ {"id":"", "type":x.type, "title":x.title, "data":x.blocks['main_page']}  if isinstance(x, object) and x.__class__.__name__ =='datastack' and x.type != 'sidebar' else x for x in blocks]
+        # return [item for sublist in _app for item in sublist]
+        return _app
+
+    def update_state(self):
+        def _update_state(location):
+          for c in location:
+                if c['type'] == 'text' or c['type'] == 'html':
+                    c['prop']['data'] = eval(c['prop']['args'])
+                if c['type'] == 'button':
+                    c['prop']['title'] = eval(c['prop']['title_args'])
+                if c['type'] =='select':
+                    c['prop']['value'] = eval(c['prop']['value_frm'])
+                if c['type'] == 'iframe':
+                    c['prop']['url'] = eval(c['prop']['url_var'])
+                if c['type'] == 'list':
+                    c['prop']['list'] = eval(c['prop']['args_options'])
+                if c['type'] == 'expander':
+                    _update_state(c['data'])
+                    pass
+                if c['type'] == 'editable_html':
+                    default_html = """<h1 contenteditable >Title</h1>
+                        <div contenteditable></div>
+                        <ul #ul_list>
+                            <li contenteditable></li>
+                        </ul>"""
+                    try:
+                        with open( c['prop']['name']+'.txt', 'r') as file:
+                            html = file.read()
+                    except:
+                        html = default_html
+                    if not html:
+                        html = default_html
+                    c['prop']['html'] = html
+        for location in ['main_page', 'sidebar'] + self.app['pages']:
+            _update_state(self.app[location])
     def build_app(self):
-        _app =  [ x.blocks if isinstance(x, object) and x.__class__.__name__ =='datastack' else [x] for x in self.blocks]
-        self.app = [item for sublist in _app for item in sublist]
+        # Transfer blocks to app
+        # main page
+        # _app =  [ self.build_element_from_cls(x) if isinstance(x, object) and x.__class__.__name__ =='datastack' else [x] for x in self.blocks['main_page']]
+        # self.app['main_page'] = [item for sublist in _app for item in sublist]
+        self.app['main_page'] = self.build_element_from_blocks(self.blocks['main_page'])
+
+        # all pages
+        for page in self.blocks['pages']:
+            self.app['pages'].append(page.path)
+            # _page = [ x.blocks['main_page'] if isinstance(x, object) and x.__class__.__name__ =='datastack' else [x] for x in page.blocks['main_page']]
+            # self.app[page.__dict__['path']] = [item for sublist in _page for item in sublist]
+            self.app[page.__dict__['path']] = self.build_element_from_blocks(page.blocks['main_page'])
+
+        #  sidebar
+        _app =  [x.blocks['main_page'] if isinstance(x, object) and x.__class__.__name__ =='datastack' else [x] for x in self.blocks['sidebar']]
+        # # if any class in sidebar
+        # # _app = [a[0] for a in _app]
+        # _app =  self.build_element_from_blocks(_app)
+        # print(_app)
+        # self.app['sidebar'] = [ item for sublist in _app for item in sublist]
+        t = self.build_element_from_blocks([a[0] for a in _app])
+        self.app['sidebar'] = t
+
         return self.app
 
     def rerun(self, my_vars, old_app):
 
-        # print('my_vasrs',{k: v for k, v in my_vars.items() if not k.startswith("__")})
-        # old_app = self.app.copy()
-        # print('old app',old_app)
-
         for k,v in my_vars.items():
             globals()[k] = v
+
         self.build_app()
-        for c in self.app:
-            if c['type'] == 'text' or c['type'] == 'html':
-                c['prop']['data'] = eval(c['prop']['args'])
-            if c['type'] == 'button':
-                c['prop']['title'] = eval(c['prop']['title_args'])
-            if c['type'] =='select':
-                c['prop']['value'] = eval(c['prop']['value_frm'])
-            if c['type'] == 'iframe':
-                c['prop']['url'] = eval(c['prop']['url_var'])
-            if c['type'] == 'list':
-                c['prop']['list'] = eval(c['prop']['args_options'])
-        # print(self.app)
-        # print('old app',old_app)
-        # print('new app',self.app)
+        self.update_state()
+        # old_app = self.app.copy()
+
         # diff = [x for x in self.app if x not in old_app else x]
         # diff = [x.update(is_change=True) if x not in old_app else x for x in self.app]
         # diff = [{**x, 'is_change':True} if x  not in old_app else {**x, 'is_change':False}  for x in self.app ]
-
-        # print('diff',diff)
+        # print(self.blocks)
         return self.app
-    def inc(self):
-        self.count = self.count + 1
-        return self.count
