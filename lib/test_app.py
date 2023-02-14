@@ -1,12 +1,13 @@
 from flask import jsonify
-from ds_class import datastack
+import datastack as ds
 import pandas as pd
 
 # -------------------------------- user py file ------------------------------
 def dummy_fn():
     pass
-
-ds = datastack()
+ds.write('wriet')
+ds.sidebar().write('in sidebar')
+# ds = datastack()
 
 def load_page1(a):
     ds.set_page('/page1')

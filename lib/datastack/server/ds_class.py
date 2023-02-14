@@ -1,8 +1,9 @@
 import inspect
 from contextlib import contextmanager
+from datastack.runtime import runtime
 
 class datastack():
-    def __init__(self, type='main_page', path='', title=''):
+    def __init__(self, type='main_page', path='', title='', main=False):
         self.type = type
         self.path = path
         self.title = title
@@ -17,7 +18,8 @@ class datastack():
             'main_page':[],
             'pages':[]
         }
-
+        if main:
+            runtime.set_main_class(self)
 
 #  change to on_click = function name and on_click_source = function code
 #  move frame logic to somewhere else
@@ -162,6 +164,7 @@ class datastack():
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
+        print(string)
         args = string[string.find('.write(') + 7:-1].split(',')
         block = {
             "id":100,
