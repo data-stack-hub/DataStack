@@ -15,10 +15,6 @@ routes = [
         {'path':'/editable', 'fn':'save_editable'}
     ]
 
-# print(utils.read_notebook("test_app.ipynb"))
-# my_module = utils.code_to_module(utils.read_notebook('test_app.ipynb'))
-# print('module',my_module)
-
 file_name = 'test_app.py'
 if os.path.splitext(file_name)[1] == '.ipynb':
     filebody = utils.read_notebook(file_name)
@@ -26,10 +22,8 @@ else:
     with open(file_name) as f:
         filebody = f.read()
 
-# print(filebody)
 try:
     code = compile(filebody,filename=file_name, mode="exec",flags=0,dont_inherit=1,optimize=-1)
-    print(code)
 except Exception as e:
     print(e)
 spec = importlib.util.spec_from_loader('my_module', loader=None)
