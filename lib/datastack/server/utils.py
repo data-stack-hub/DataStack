@@ -27,3 +27,32 @@ def code_to_fn(function_name, code=''):
 
 def run_fn_by_name(function_name):
     print({k: v for k, v in globals().items() if not k.startswith("__")})
+
+def read_notebook(path):
+    import codecs
+    import json, os
+    notebook_name = path
+    ROOT_DIR = os.path.abspath('')
+    # data_path = os.path.join(ROOT_DIR, r'data\notebooks')
+    f = codecs.open(os.path.join(ROOT_DIR , notebook_name), 'r')
+    source = f.read()
+
+    y = json.loads(source)
+    pySource = '##Python .py code from .jpynb:\n'
+    for x in y['cells']:
+        if x['cell_type'] == 'code':
+            for x2 in x['source']:
+                pySource = pySource + x2
+                if x2[-1] != '\n':
+                    pySource = pySource + '\n'
+    return pySource
+
+def code_to_module(code, module_name = 'mymodule'):
+    print('code_to_module', module_name)
+    import sys, imp
+    mymodule = imp.new_module(code)
+    # exec(code, mymodule.__dict__)
+    sys.modules[module_name] = mymodule
+    globals()[module_name] = mymodule
+    # print(module_name, globals()[module_name])
+    return mymodule
