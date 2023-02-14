@@ -5,7 +5,7 @@ import pandas as pd
 # -------------------------------- user py file ------------------------------
 def dummy_fn():
     pass
-ds.write('wriet')
+
 ds.sidebar().write('in sidebar')
 # ds = datastack()
 
@@ -30,6 +30,7 @@ ds.write('-------------------------------------', location='sidebar')
 # sidebar class
 ds.write("sidebar as class method")
 ds.sidebar().write('inside sidebar class')
+
 # list
 ds.write('List')
 def list_click(a):
@@ -44,10 +45,24 @@ ds.write('-------------------------------------')
 
 #  dropdown
 ds.write('Dropdown Selection')
-# selected_value = 'b'
 selected_value = ds.select(['a','b','c'], on_change=dummy_fn )
 ds.write('selected value: ' + selected_value)
 ds.write('-------------------------------------')
+
+
+#  dropdown in sidebar
+ds.sidebar().write('-------------------------------------')
+ds.sidebar().write('Dropdown Selection - sidebar')
+selected_value_sidebar = ds.sidebar().select(['a','b','c'], on_change=dummy_fn )
+ds.sidebar().write('selected value: ' + selected_value_sidebar)
+ds.sidebar().write('-------------------------------------')
+
+#  dropdown in container
+container = ds.container()
+container.write('Dropdown Selection - container')
+selected_value_container = container.select(['a','b','c'], on_change=dummy_fn )
+container.write('selected value: ' + selected_value_container)
+container.write('-------------------------------------')
 
 # Button
 def inc_count(a):

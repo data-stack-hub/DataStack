@@ -290,7 +290,7 @@ class datastack():
                     c['prop']['url'] = eval(c['prop']['url_var'])
                 if c['type'] == 'list':
                     c['prop']['list'] = eval(c['prop']['args_options'])
-                if c['type'] == 'expander':
+                if c['type'] == 'expander' or c['type'] == 'container':
                     _update_state(c['data'])
                     pass
                 if c['type'] == 'editable_html':

@@ -19,7 +19,7 @@ routes = [
 # my_module = utils.code_to_module(utils.read_notebook('test_app.ipynb'))
 # print('module',my_module)
 
-file_name = 'test_app.ipynb'
+file_name = 'test_app.py'
 if os.path.splitext(file_name)[1] == '.ipynb':
     filebody = utils.read_notebook(file_name)
 else:
@@ -67,7 +67,9 @@ def update_var(aaa):
     # print(globals()[f"input_var"], aaa['payload'])
 
 def update_var_select(aaa):
+    print(aaa)
     setattr(my_module, aaa['prop']['value_frm'], aaa['payload'])
+    print(getattr(my_module, aaa['prop']['value_frm']))
     # globals()[aaa['prop']['value_frm']]=aaa['payload']
     getattr(my_module,aaa['prop']['on_change_name'])()
     # globals()[aaa['prop']['on_change_name']]()
