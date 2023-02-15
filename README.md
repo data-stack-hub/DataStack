@@ -4,12 +4,15 @@ https://datastackhu-datastackrd-wjnoie5n7t7.ws-us86.gitpod.io
 run front end:
 ```
   cd frontend
+  npm install --force
   ng serve
  ```
 
 run python server
 ```
-python start.py
+pip install --editable .
+datastack run test_app.py
+datastack run test_app.ipynb
 ```
 
 

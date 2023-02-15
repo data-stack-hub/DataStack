@@ -16,10 +16,6 @@ routes = [
         {'path':'/editable', 'fn':'save_editable'}
     ]
 
-file_name = 'test_app.py'
-
-runtime.run_script(file_name)
-my_module = runtime.get_module()
 
 def load_app():
     """
@@ -72,7 +68,11 @@ def fn(method_name):
 for route in routes:
     app.add_url_rule(route['path'], view_func=fn(route['fn']), methods = ["get","post"])
 
-def start_server():
+def start_server(file_path):
+    global my_module
+    runtime.run_script(file_path)
+    my_module = runtime.get_module()
+
     logger.debug("Starting server...")
     app.run(debug=True)
     logger.debug("Server started on port 5000")
