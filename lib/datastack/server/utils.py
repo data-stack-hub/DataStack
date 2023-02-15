@@ -18,23 +18,28 @@ def code_to_fn(function_name, code=''):
     namespace  = _module_to_namespace(my_module)
     if function_name in namespace:
         fn = namespace[function_name]
-        print(fn)
+        # print(fn)
         params = {}
         return fn(**params)
     else:
-        print('function not found')
+        # print('function not found')
         return {'error':'not found'}
 
 def run_fn_by_name(function_name):
-    print({k: v for k, v in globals().items() if not k.startswith("__")})
+    # print({k: v for k, v in globals().items() if not k.startswith("__")})
+    pass
 
 def read_notebook(path):
     import codecs
     import json, os
+    from urllib.parse import urlparse
     notebook_name = path
     ROOT_DIR = os.path.abspath('')
     # data_path = os.path.join(ROOT_DIR, r'data\notebooks')
-    f = codecs.open(os.path.join(ROOT_DIR , notebook_name), 'r')
+    result = urlparse(path)
+    if not result.netloc:
+        path = os.path.join(ROOT_DIR , notebook_name)
+    f = codecs.open(path, 'r')
     source = f.read()
 
     y = json.loads(source)
@@ -48,7 +53,7 @@ def read_notebook(path):
     return pySource
 
 def code_to_module(code, module_name = 'mymodule'):
-    print('code_to_module', module_name)
+    # print('code_to_module', module_name)
     import sys, imp
     mymodule = imp.new_module(code)
     # exec(code, mymodule.__dict__)

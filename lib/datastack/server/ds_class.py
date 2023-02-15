@@ -11,7 +11,8 @@ class datastack():
             'current_page':'main_page',
             'sidebar':[],
             'main_page':[],
-            'pages':[]
+            'pages':[],
+            'appstate':{"session_id":"default"}
         }
         self.blocks = {
             'sidebar':[],
@@ -73,7 +74,7 @@ class datastack():
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         args = string[string.find('on_change=') + 6:-1].split(',')
         # print('selected arge',type(args), args)
-        print('assigned var', self.get_value_assign_var(inspect.currentframe().f_back))
+        # print('assigned var', self.get_value_assign_var(inspect.currentframe().f_back))
         if on_change :
             change_fn = inspect.getsource(on_change)
             change_fn_name = string[string.find('on_change=') + 10:-1].split(',')[0].replace("on_change=",'').replace(' ','')
@@ -150,7 +151,7 @@ class datastack():
         # f = inspect.currentframe().f_back # get stack frame of caller (depth=1)
         # next op should be STORE_NAME (current op calls the constructor)
         opname = dis.opname[f.f_code.co_code[f.f_lasti+2]]
-        print('opname',opname)
+        # print('opname',opname)
         if opname == 'STORE_NAME' or  opname =='STORE_GLOBAL' : # not all objects will be assigned a name
             # STORE_NAME argument is the name index
             namei = f.f_code.co_code[f.f_lasti+3]
@@ -164,7 +165,7 @@ class datastack():
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        print(string)
+        # print(string)
         args = string[string.find('.write(') + 7:-1].split(',')
         block = {
             "id":100,
@@ -243,7 +244,7 @@ class datastack():
 
     @contextmanager
     def code_block(self, vars):
-        print(vars)
+        # print(vars)
         yield 'code block'
 
     def iframe(self, url):
@@ -268,7 +269,19 @@ class datastack():
     def append_block(self,block, location='main_page'):
         self.blocks[location].append(block)
 
-
+    def dump_app(self):
+        self.app ={
+            'current_page':'main_page',
+            'sidebar':[],
+            'main_page':[],
+            'pages':[],
+            'appstate':{"session_id":"default"}
+        }
+        self.blocks = {
+            'sidebar':[],
+            'main_page':[],
+            'pages':[]
+        }
     def build_element_from_blocks(self,blocks):
         # with parent
         # return [ dict(each_one, **{'parent':x.type}) for each_one in x.blocks['main_page']] 
