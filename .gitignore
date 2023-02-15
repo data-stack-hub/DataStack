@@ -1,2 +1,6 @@
 enovix_test_app.py
 enovix_test_app1.py
+__pycache__/
+*.py[cod]
+*$py.class
+
