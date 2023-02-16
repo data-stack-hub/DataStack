@@ -15,4 +15,6 @@ html = main.html
 expander = main.expander
 iframe = main.iframe
 container = main.container
+code = main.code
+query = main.query
 

@@ -242,11 +242,29 @@ class datastack():
         self.append_block(cls, 'pages')
         return cls
 
-    @contextmanager
-    def code_block(self, vars):
-        # print(vars)
-        yield 'code block'
+    
+    def code(self, data):
+        block = {
+            "id":1200,
+            "type":"code",
+            "prop":{
+                "code":data
+            }
+        }
+        self.append_block(block)
+        return ''
 
+    def query(self, data):
+        block = {
+            "id":1500,
+            "type":"query",
+            "prop":{
+                'query':data
+            }
+        }
+        self.append_block(block)
+        return ''
+        
     def iframe(self, url):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]

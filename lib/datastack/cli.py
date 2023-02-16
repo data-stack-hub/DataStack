@@ -13,3 +13,6 @@ def run(target: str, args=None, **kwargs):
     """
     print(target)
     server.start_server(target)
+
+if __name__ == '__main__':
+    run('test_app.py')

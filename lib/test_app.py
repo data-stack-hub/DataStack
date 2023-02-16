@@ -81,6 +81,19 @@ ds.input(input_value)
 ds.write('Input: '+ input_value)
 ds.write('-------------------------------------')
 
+# code
+ds.write('code')
+ds.code("print(count)")
+ds.write('-------------------------------------')
+
+# query
+ds.write('SQL Query')
+ds.query("""select 1 as a, 2 as b, 3 as c
+union all
+select 4 as a, 5 as b, 6 as c""")
+ds.write('-------------------------------------')
+
+
 #  HTML
 ds.write("HTML")
 df = pd.DataFrame(

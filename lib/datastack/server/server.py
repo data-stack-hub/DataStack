@@ -13,7 +13,9 @@ cors = CORS(app)
 routes = [
         {'path':'/', 'fn':'load_app'},
         {'path':'/run_fn','fn':'run_fn'},
-        {'path':'/editable', 'fn':'save_editable'}
+        {'path':'/editable', 'fn':'save_editable'},
+        {'path':'/run_block', 'fn':'run_block'},
+        {'path':'/run_query_block', 'fn':'run_query_block'}
     ]
 
 
@@ -39,6 +41,26 @@ def save_editable():
         file.write(request.json['payload'])
     return {'True':"true"}
 
+def run_block():
+
+    from io import StringIO
+    from contextlib import redirect_stdout
+
+    f = StringIO()
+    with redirect_stdout(f):
+        # exec(request.json['prop']['code'])
+        exec(request.json['prop']['code'], my_module.__dict__)
+    s = f.getvalue()
+    print(s)
+    return {'res':s}
+
+def run_query_block():
+    query = request.json['prop']['query']
+    import sqlite3
+    import pandas as pd
+    cnx = sqlite3.connect('file.db')
+    print(runtime.get_main_class().__dict__)
+    return {'res':pd.read_sql(query,cnx).to_html()}
 
 def update_var(aaa):
     setattr(my_module,aaa['prop']['input_var'], aaa['payload'])
@@ -70,6 +92,7 @@ for route in routes:
 
 def start_server(file_path):
     global my_module
+    runtime.set_file_path(file_path)
     runtime.run_script(file_path)
     my_module = runtime.get_module()
 

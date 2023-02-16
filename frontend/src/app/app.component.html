@@ -95,6 +95,16 @@ side bar
         <details><summary>{{element.title}}</summary> <ng-container *ngTemplateOutlet="elements; context:{value:element.data}"></ng-container></details>
         
       </div>
+      <div *ngIf="element.type == 'code'">
+        <textarea [(ngModel)]="element.prop.code" name="" id="" cols="30" rows="10"></textarea>
+        <button (click)="run_block(element)">run</button>
+        <div>{{code_output}}</div>
+      </div>
+      <div *ngIf ="element.type == 'query'">
+        <textarea [(ngModel)] ="element.prop.query" name="" id="" cols="30" rows="10"></textarea>
+        <button (click)="run_query(element)">run</button>
+        <div [innerHTML]="query_output"></div>
+      </div>
     </div>
 
   </ng-template>

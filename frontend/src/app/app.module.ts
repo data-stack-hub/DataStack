@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { MyComponentWrapperComponent} from './MyReactComponentWrapper'
 import { APP_BASE_HREF, LocationStrategy, HashLocationStrategy } from '@angular/common';
-
+import { FormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     AppComponent,
@@ -16,7 +16,8 @@ import { APP_BASE_HREF, LocationStrategy, HashLocationStrategy } from '@angular/
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule
   ],
   providers: [{ provide: APP_BASE_HREF, useValue: '/' },
   { provide: LocationStrategy, useClass: HashLocationStrategy },],

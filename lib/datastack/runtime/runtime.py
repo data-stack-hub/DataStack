@@ -18,6 +18,12 @@ def update_module(module):
 def get_module():
     return ctx['module']
 
+def set_file_path(path):
+    ctx['file_path'] = path
+
+def get_file_path():
+    return ctx['file_path']
+
 def run_script(path):
     if os.path.splitext(path)[1] == '.ipynb':
         filebody = utils.read_notebook(path)
@@ -41,5 +47,5 @@ def create_session():
     id,script data, state, script runner, user info, session state
     """
     reset_main_class()
-    run_script('test_app.py')
+    run_script(get_file_path())
     return 'session_id'

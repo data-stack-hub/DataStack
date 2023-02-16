@@ -18,7 +18,9 @@ export class AppComponent {
   @ViewChild('editableDiv') editableDiv: any;
   @ViewChild('ul_list') ul_list: any;
   innerHTML:any
-
+  url = 'http://localhost:5000/'
+  code_output =''
+  query_output: any;
   constructor(private api:ApiService, public sanitizer: DomSanitizer){
     this.api.get('http://localhost:5000/')
     .subscribe((res:any)=>{
@@ -86,5 +88,21 @@ export class AppComponent {
   add_new_editable_filed(){
     console.log(this.ul_list.nativeElement.innerHTML)
     this.ul_list.nativeElement.innerHTML = this.ul_list.nativeElement.innerHTML + "<li contenteditable></li>"
+  }
+
+  run_block(e:any){
+    console.log(e)
+    this.api.post(this.url + '/run_block', {...e}).subscribe(res=>{
+      console.log(res)
+      this.code_output = res['res']
+    })
+  }
+
+  run_query(e:any){
+    console.log(e)
+    this.api.post(this.url + '/run_query_block', {...e}).subscribe(res=>{
+      console.log(res)
+      this.query_output = res['res']
+    })
   }
 }
