@@ -96,8 +96,9 @@ side bar
         
       </div>
       <div *ngIf="element.type == 'code'">
-        <textarea [(ngModel)]="element.prop.code" name="" id="" cols="30" rows="10"></textarea>
+        <textarea [(ngModel)]="element.prop.code" (input)="change_cell(element)" name="" id="" cols="30" rows="10"></textarea>
         <button (click)="run_block(element)">run</button>
+        <div>{{element.prop.last_run_result}}</div>
         <div>{{code_output}}</div>
       </div>
       <div *ngIf ="element.type == 'query'">
@@ -110,21 +111,26 @@ side bar
   </ng-template>
 
   <ng-template #editable let-element="element">
-    
-    <div #editableDiv contenteditable (input)="change_editable(element,$event)" [innerHTML]="element.prop.html">
-      <!-- <div  contenteditable ></div> -->
-      <!-- <h1 contenteditable >Title</h1>
-      <div contenteditable></div>
-      <ul #ul_list>
-        <li contenteditable></li>
-      </ul> -->
-      <!-- <ng-container *ngTemplateOutlet="editable_list;"></ng-container> -->
+    <div #editableDiv>
+    <div *ngFor="let block of element.prop.html, index as i" >
+      <h1 *ngIf="block.tag == 'h1'" contenteditable [id]="block._id" (input)="block_change(element, block, $event)" (keydown)="enter($event, i, element, block)" >{{block.html}}</h1>
+      <p *ngIf="block.tag == 'p'" [id]="block._id" contenteditable (input)="block_change(element, block, $event)"  (keydown)="enter($event, i, element, block)">{{block.html}}</p>
+      <ul *ngIf="block.tag == 'list'" [id]="block._id" contenteditable (input)="block_change(element, block, $event)"  (keydown)="enter($event, i, element, block)" [innerHTML]="block.html"></ul>
     </div>
-    <!-- <div [innerHTML] = 'innerHTML'></div> -->
+  </div>
+    
+    <!-- <span  #editableDiv  (input)="change_editable(element,$event)" [innerHTML]="element.prop.html"></span> -->
   </ng-template>
 
-  <!-- <ng-template #editable_list>
-    
-    <div (click)="add_new_editable_filed()">add</div>
-  </ng-template> -->
+
+  <div style="right:0; position:fixed; bottom:0" *ngIf="show_context">
+    <ul>
+      <li (click)="update_block('h1')">h1</li>
+      <li (click)="update_block('h2')">h2</li>
+      <li (click)="update_block('p')">p</li>
+      <li (click)="update_block('list')">list</li>
+    </ul>
+  </div>
+ 
+
   

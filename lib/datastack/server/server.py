@@ -36,22 +36,50 @@ def rerun():
     return jsonify(runtime.get_main_class().rerun(a1, {}))
 
 def save_editable():
-    logger.info('saving editable %s', request.json['payload'])
-    with open(request.json['prop']['name']+'.txt',"w")  as file:
-        file.write(request.json['payload'])
+    import json
+    logger.info('saving editable %s', request.json)
+
+    dump = {
+        'id':request.json['wid'],
+        'block':request.json
+    }
+    if request.json['type'] == "editable_html":
+        print(request.json)
+        # pass
+        b = [request.json['payload'] if block['_id'] == request.json['payload']['_id'] else block for block in dump['block']['prop']['html'] ]
+        dump['block']['prop']['html'] = b
+        c = [block  for block in dump['block']['prop']['html'] if block['_id'] == request.json['payload']['_id'] ]
+        print('c',c)
+        if not c:
+            dump['block']['prop']['html'].append(request.json['payload'])
+    with open('app.json', 'r') as f:
+        try:
+            app_json = json.loads(f.read())
+        except:
+            app_json = {}
+        app_json[request.json['wid']] = dump
+    with open('app.json', 'w') as f:
+        f.write(json.dumps(app_json))
     return {'True':"true"}
 
 def run_block():
 
     from io import StringIO
     from contextlib import redirect_stdout
-
+    import json
     f = StringIO()
     with redirect_stdout(f):
         # exec(request.json['prop']['code'])
         exec(request.json['prop']['code'], my_module.__dict__)
     s = f.getvalue()
-    print(s)
+    with open('app.json', 'r') as f:
+        try:
+            app_json = json.loads(f.read())
+        except:
+            app_json = {}
+        app_json[request.json['wid']]['block']['prop']['last_run_result'] = s
+    with open('app.json', 'w') as f:
+        f.write(json.dumps(app_json))
     return {'res':s}
 
 def run_query_block():
