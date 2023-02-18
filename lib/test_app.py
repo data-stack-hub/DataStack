@@ -6,8 +6,8 @@ import pandas as pd
 def dummy_fn():
     pass
 
-ds.sidebar().write('in sidebar')
-# ds = datastack()
+ds.header('DataStack Components')
+
 
 def load_page1(a):
     ds.set_page('/page1')
@@ -16,23 +16,18 @@ def load_main_page(a):
     ds.set_page('main_page')
 #  user defined functions and script
 
+
+# sildebar
+ds.sidebar().subheader('pages')
+
 # pages
 ds.sidebar().button('Page1', on_click=load_page1)
 page1 = ds.page('/page1')
 page1.write('This is new page')
 page1.button('go to main page', on_click=load_main_page)
-
-# sildebar
-ds.write('Inside sidebar', location='sidebar')
-ds.write('pages', location='sidebar')
-ds.write('-------------------------------------', location='sidebar')
-
-# sidebar class
-ds.write("sidebar as class method")
-ds.sidebar().write('inside sidebar class')
-
+ds.sidebar().divider()
 # list
-ds.write('List')
+ds.subheader('List')
 def list_click(a):
     global selection_from_list
     selection_from_list = a['payload']
@@ -41,61 +36,62 @@ def list_click(a):
 selection_from_list = ''
 ds.list(['a','b','c'], on_click=list_click)
 ds.write('Selected Option: ' + selection_from_list)
-ds.write('-------------------------------------')
+ds.divider()
 
 #  dropdown
-ds.write('Dropdown Selection')
+ds.subheader('Dropdown Selection')
 selected_value = ds.select(['a','b','c'], on_change=dummy_fn )
 ds.write('selected value: ' + selected_value)
-ds.write('-------------------------------------')
+ds.divider()
+
 
 
 #  dropdown in sidebar
-ds.sidebar().write('-------------------------------------')
-ds.sidebar().write('Dropdown Selection - sidebar')
+ds.divider()
+ds.sidebar().subheader('Dropdown Selection')
 selected_value_sidebar = ds.sidebar().select(['a','b','c'], on_change=dummy_fn )
 ds.sidebar().write('selected value: ' + selected_value_sidebar)
-ds.sidebar().write('-------------------------------------')
+ds.sidebar().divider()
 
 #  dropdown in container
 container = ds.container()
-container.write('Dropdown Selection - container')
+container.subheader('Dropdown Selection - container')
 selected_value_container = container.select(['a','b','c'], on_change=dummy_fn )
 container.write('selected value: ' + selected_value_container)
-container.write('-------------------------------------')
+ds.divider()
 
 # Button
 def inc_count(a):
     global count
     count +=1
-ds.write('Button click')
+ds.subheader('Button click')
 count = 0
 ds.button('Click', on_click=inc_count)
 ds.write('Count value: '+ str(count))
-ds.write('-------------------------------------')
+ds.divider()
 
 # input
-ds.write('Input value')
+ds.subheader('Input value')
 input_value = 'default value'
 ds.input(input_value)
 ds.write('Input: '+ input_value)
-ds.write('-------------------------------------')
+ds.divider()
 
 # code
-ds.write('code')
+ds.subheader('code')
 ds.code("print(count)", key = 'mycode')
-ds.write('-------------------------------------')
+ds.divider()
 
 # query
-ds.write('SQL Query')
+ds.subheader('SQL Query')
 ds.query("""select 1 as a, 2 as b, 3 as c
 union all
 select 4 as a, 5 as b, 6 as c""")
-ds.write('-------------------------------------')
+ds.divider()
 
 
 #  HTML
-ds.write("HTML")
+ds.subheader("HTML")
 df = pd.DataFrame(
     [["a", "b"], ["c", "d"]],
     index=["row 1", "row 2"],
@@ -103,22 +99,24 @@ df = pd.DataFrame(
 
 ds.html(df.to_html())
 ds.html("<div style='color:green'>HTML Text</div>")
-ds.write('-------------------------------------')
+ds.divider()
 
 # outOfOrder Container
-ds.write('Out of order container')
+ds.subheader('Out of order container')
 container = ds.container()
 container.write('inside the container')
 ds.write('out side the container')
 container.write('inside the container again ')
-ds.write('-------------------------------------')
+ds.divider()
 
 # Expander
+ds.sidebar().subheader('Expander')
 expander = ds.sidebar().expander('expander')
 expander.write('this is inside the expander from py')
-ds.sidebar().write('-------------------------------------')
+ds.sidebar().divider()
+
 # Iframe
-ds.write('Iframe')
+ds.subheader('Iframe')
 def change_iframe(a):
     global url
     if a['payload'] == 'Wikipedia':
@@ -131,7 +129,7 @@ def change_iframe(a):
 ds.list(['Wikipedia','ML'], on_click=change_iframe)
 url = 'https://www.wikipedia.org/'
 ds.iframe(url)
-ds.write('-------------------------------------')
+ds.divider()
 
 
 

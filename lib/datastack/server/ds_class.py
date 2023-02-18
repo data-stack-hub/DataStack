@@ -68,6 +68,45 @@ class datastack():
         }
         self.append_block(block)
 
+    def divider(self):
+        block = {
+            "id":0,
+            "type":"divider",
+            "prop":{}
+        }
+        self.append_block(block)
+
+    def header(self, data):
+        frame = inspect.currentframe()
+        frame = inspect.getouterframes(frame)[1]
+        string = inspect.getframeinfo(frame[0]).code_context[0].strip()
+        # print(string)
+        args = string[string.find('.header(') + 7:-1].split(',')
+        block = {
+            "id":100,
+            "type":'header',
+            "prop":{
+                "data":data,
+                "args":args[0]
+            }
+        }
+        self.append_block(block)
+
+    def subheader(self, data):
+        frame = inspect.currentframe()
+        frame = inspect.getouterframes(frame)[1]
+        string = inspect.getframeinfo(frame[0]).code_context[0].strip()
+        # print(string)
+        args = string[string.find('.header(') + 7:-1].split(',')
+        block = {
+            "id":100,
+            "type":'subheader',
+            "prop":{
+                "data":data,
+                "args":args[0]
+            }
+        }
+        self.append_block(block)
     def select(self, options, value='', on_change=''):
         # list options args to be corrected
         frame = inspect.currentframe()

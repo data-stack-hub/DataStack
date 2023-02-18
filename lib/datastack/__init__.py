@@ -17,4 +17,6 @@ iframe = main.iframe
 container = main.container
 code = main.code
 query = main.query
-
+divider = main.divider
+header = main.header
+subheader = main.subheader
