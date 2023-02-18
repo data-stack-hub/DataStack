@@ -83,7 +83,7 @@ ds.write('-------------------------------------')
 
 # code
 ds.write('code')
-ds.code("print(count)")
+ds.code("print(count)", key = 'mycode')
 ds.write('-------------------------------------')
 
 # query

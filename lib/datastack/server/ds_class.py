@@ -1,7 +1,8 @@
 import inspect
 from contextlib import contextmanager
 from datastack.runtime import runtime
-
+from datastack.logger import logger
+import uuid
 class datastack():
     def __init__(self, type='main_page', path='', title='', main=False):
         self.type = type
@@ -194,24 +195,30 @@ class datastack():
         }
         self.append_block(block)
 
-    def editable_html(self, name):
-        default_html = """<h1 contenteditable >Title</h1>
-      <div contenteditable></div>
-      <ul #ul_list>
-        <li contenteditable></li>
-      </ul>"""
+    def editable_html(self, key):
+        default_html = [
+      {
+        "_id": "5f54d75b114c6d176d7e9765",
+        "html": "Heading",
+        "tag": "h1",
+        "imageUrl": "",
+      }
+    ]
         try:
-            with open(name+'.txt', 'r') as file:
-                html = file.read()
-        except:
+            import json
+            with open('app.json', 'r') as f:
+                html = json.loads(f.read())[key]['block']['prop']['html']
+        except Exception as e:
+            logger.error(e)
             html = default_html
-        if not html:
-            html = default_html
+        # if not html:
+        #     html = default_html
+        logger.info(html)
         block={
             "id":1000,
+            'wid':key,
             "type":'editable_html',
             "prop":{
-                "name":name,
                 "html":html
             },
         }
@@ -243,14 +250,25 @@ class datastack():
         return cls
 
     
-    def code(self, data):
+    def code(self, data, key):
         block = {
             "id":1200,
+            'wid':key,
             "type":"code",
             "prop":{
                 "code":data
             }
         }
+
+        with open('app.json', 'r') as f:
+            import json
+            try:
+                b =  json.loads(f.read())
+            except:
+                b = {}
+        if key in b:
+            block['prop']['code'] = b[key]['block']['prop']['code']
+            block['prop']['last_run_result'] = b[key]['block']['prop']['last_run_result']
         self.append_block(block)
         return ''
 
@@ -325,18 +343,22 @@ class datastack():
                     _update_state(c['data'])
                     pass
                 if c['type'] == 'editable_html':
-                    default_html = """<h1 contenteditable >Title</h1>
-                        <div contenteditable></div>
-                        <ul #ul_list>
-                            <li contenteditable></li>
-                        </ul>"""
+                    default_html = [
+      {
+        "_id": "5f54d75b114c6d176d7e9765",
+        "html": "Heading",
+        "tag": "h1",
+        "imageUrl": "",
+      }
+    ]
                     try:
-                        with open( c['prop']['name']+'.txt', 'r') as file:
-                            html = file.read()
-                    except:
+                        import json
+                        with open('app.json', 'r') as f:
+                            html = json.loads(f.read())[c['wid']]['block']['prop']['html']
+                    except Exception as e:
+                        logger.error(e)
                         html = default_html
-                    if not html:
-                        html = default_html
+        # if not html:
                     c['prop']['html'] = html
         for location in ['main_page', 'sidebar'] + self.app['pages']:
             _update_state(self.app[location])
