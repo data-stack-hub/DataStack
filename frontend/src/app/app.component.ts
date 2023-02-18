@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
@@ -21,7 +21,33 @@ export class AppComponent {
   url = 'http://localhost:5000/'
   code_output =''
   query_output: any;
-  constructor(private api:ApiService, public sanitizer: DomSanitizer){
+  a = 'h1'
+  show_context = false
+  current_index:any  = {}
+  current_element:any
+  editable_page = [
+      {
+        _id: "5f54d75b114c6d176d7e9765",
+        html: "Heading",
+        tag: "h1",
+        imageUrl: "",
+      },
+      {
+        _id: "5f54d75b114c6d176d7e9766",
+        html: "I am a <strong>paragraph</strong>",
+        tag: "p",
+        imageUrl: "",
+      },
+      {
+        _id: "5f54d75b114c6d176d7e9767",
+        html: "/im",
+        tag: "p",
+        imageUrl: "images/test.png",
+      }
+    ]
+  current_block: any;
+
+  constructor(private api:ApiService, public sanitizer: DomSanitizer, public renderer: Renderer2){
     this.api.get('http://localhost:5000/')
     .subscribe((res:any)=>{
       this.update_app(res)
@@ -104,5 +130,95 @@ export class AppComponent {
       console.log(res)
       this.query_output = res['res']
     })
+  }
+
+  change_cell(e:any){
+    this.api.post(this.url +'editable', {...e,...{'payload':''}}).subscribe(res=>{console.log(res)})
+  }
+
+  enter(e:any, index:any, element:any, block:any){
+
+    console.log(index, element['prop']['html'].length,e)
+    if(e.key == "Enter" && block['tag'] != 'list'){
+      e.preventDefault();
+      e.stopPropagation();
+    let n ={
+      _id: "5f54d75b114c6d176d7e9766a",
+      html: "new",
+      tag: "p",
+      imageUrl: "",
+    }
+    if (index +1 == element['prop']['html'].length || true){
+      this.add_new_block(element, index+1)  
+    }
+    else{
+    let element = e.target.parentElement.nextElementSibling.firstElementChild;
+    console.log(element)
+    element.focus()
+    }
+  }
+  if(e.key == '/'){
+    this.show_context = true
+    this.current_block = block
+    this.current_element = element
+  }
+  console.log(block['html'], block['html'].length)
+  if ((e.key == 'Backspace' || e.key == 'Delete') && e.target.innerHTML.length == 0){
+    this.current_block = block
+    this.current_element = element
+    this.delete_block(element,index)
+  }
+  }
+
+  delete_block(element:any, index:any){
+    console.log('delete block', this.current_element)
+    element['prop']['html'].splice(index, 1);
+  }
+  update_block(tag:any){
+    this.show_context = false
+    this.current_block['tag'] = tag
+    if (tag == 'list'){
+      this.current_block['html'] ="<li></li>"
+    }
+    console.log(this.current_block)
+    this.update_on_server(this.current_element, this.current_block)
+  }
+  // current_element(current_element: any, current_block: any) {
+  //   throw new Error('Method not implemented.');
+  // }
+
+add_new_block(element:any, index:any){
+  let new_block = {
+    _id:'new_id' + Math.random(),
+    html:"new_block",
+    tag:"p"
+  }
+  element['prop']['html'].splice(index , 0, new_block);
+  // let new_element = this.renderer.createElement(new_block['tag'])
+  // new_element.innerHTML = new_block['html']
+  // new_element.id = new_block['_id']
+  // new_element.contentEditable = true
+  // this.renderer.listen(new_element, 'keydown.enter', (event)=>{this.enter(event, element['prop']['html'].length,element,new_block)})
+  // this.renderer.listen(new_element, 'click', (event)=>{console.log(event)})
+  // this.renderer.appendChild(this.editableDiv.nativeElement ,new_element)
+  setTimeout(() => {
+    document.getElementById(new_block['_id'])?.focus()
+  });
+  
+}
+  block_change(e:any, block:any, event:any){
+    console.log(event.target.innerHTML)
+  if(event.target.innerhtml == "/"){
+    console.log('show')
+    this.show_context = true
+  }
+    let b = Object.assign({}, block)
+    b['html'] = event.target.innerHTML
+    console.log(block, event.target.innerHTML, e)
+    this.update_on_server(e,b)
+  }
+
+  update_on_server(e:any, payload:any){
+    this.api.post(this.url +'editable', {...e,...{'payload':payload}}).subscribe(res=>{console.log(res)})
   }
 }
