@@ -15,15 +15,17 @@ import { NZ_I18N } from 'ng-zorro-antd/i18n';
 import { en_US } from 'ng-zorro-antd/i18n';
 import en from '@angular/common/locales/en';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NzSelectModule } from 'ng-zorro-antd/select';
-import { NzCollapseModule } from 'ng-zorro-antd/collapse';
-import { NzDividerModule } from 'ng-zorro-antd/divider';
-import { NzListModule } from 'ng-zorro-antd/list';
+
+import { NgZorroAntdModule} from './ng-zorro-antd.module';
+import { CodeComponent } from './components/elements/code/code.component';
+import { ExpanderComponent } from './components/elements/expander/expander.component'
 registerLocaleData(en);
 
 @NgModule({
   declarations: [
     AppComponent,
+    CodeComponent,
+    ExpanderComponent,
     // MyComponentWrapperComponent
   ],
   imports: [
@@ -33,10 +35,8 @@ registerLocaleData(en);
     FormsModule,
     NzButtonModule,
     BrowserAnimationsModule,
-    NzSelectModule,
-    NzCollapseModule,
-    NzDividerModule,
-    NzListModule
+
+    NgZorroAntdModule
   ],
   providers: [{ provide: APP_BASE_HREF, useValue: '/' },
   { provide: LocationStrategy, useClass: HashLocationStrategy },

@@ -18,10 +18,11 @@ def load_main_page(a):
 
 
 # sildebar
-ds.sidebar().subheader('pages')
+ds.sidebar().subheader('Pages')
 
 # pages
-ds.sidebar().button('Page1', on_click=load_page1)
+# ds.sidebar().button('Page1', on_click=load_page1)
+some_var = ds.sidebar().list(['page1', 'page2'], on_click=load_page1)
 page1 = ds.page('/page1')
 page1.write('This is new page')
 page1.button('go to main page', on_click=load_main_page)

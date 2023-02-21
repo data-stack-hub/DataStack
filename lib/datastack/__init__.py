@@ -20,3 +20,4 @@ query = main.query
 divider = main.divider
 header = main.header
 subheader = main.subheader
+editable_html = main.editable_html

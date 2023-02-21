@@ -1,0 +1,14 @@
+<nz-collapse nzGhost> 
+    <nz-collapse-panel  [nzHeader]="title"> 
+        <ng-container
+            *ngTemplateOutlet="elements; context:{value:element.data}">
+        </ng-container>
+    </nz-collapse-panel>
+</nz-collapse>
+
+<ng-template #title><h3 contenteditable>title</h3></ng-template>
+
+<ng-template #elements let-value="value">
+
+    <ng-content></ng-content>
+</ng-template>

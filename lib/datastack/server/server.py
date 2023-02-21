@@ -35,6 +35,32 @@ def rerun():
     a1 = {k: v for k, v in my_module.__dict__.items() if not k.startswith("__")}
     return jsonify(runtime.get_main_class().rerun(a1, {}))
 
+def update_block(app_json, block, parent):
+    block_status = False
+    def it(e):
+        nonlocal block_status
+        for it_block in e:
+            print('it_block', it_block)
+            if it_block['_id']== block['_id']:
+                print('block found')
+                it_block.update(block)
+                block_status = True
+                break
+            if 'type' in it_block and it_block['type'] == 'expander':
+                it(it_block['prop']['html'])
+    it(app_json)
+    print(block_status, app_json)
+    if not block_status:
+        # par = [p_block for p_block in app_json if p_block['_id'] == parent['_id']]
+        try:
+            for p_block in app_json:
+                if p_block['_id'] == parent['_id']:
+                    print('parent found', p_block)
+                    p_block['prop']['html'].append(block)
+        except:
+            app_json.append(block)
+    return app_json
+
 def save_editable():
     import json
     logger.info('saving editable %s', request.json)
@@ -45,19 +71,21 @@ def save_editable():
     }
     if request.json['type'] == "editable_html":
         print(request.json)
-        # pass
-        b = [request.json['payload'] if block['_id'] == request.json['payload']['_id'] else block for block in dump['block']['prop']['html'] ]
-        dump['block']['prop']['html'] = b
-        c = [block  for block in dump['block']['prop']['html'] if block['_id'] == request.json['payload']['_id'] ]
-        print('c',c)
-        if not c:
-            dump['block']['prop']['html'].append(request.json['payload'])
+        # update all bloacked from payload
+        # b = [request.json['payload'] if block['_id'] == request.json['payload']['_id'] else block for block in dump['block']['prop']['html'] ]
+        # dump['block']['prop']['html'] = b
+        # # check for new block
+        # c = [block  for block in dump['block']['prop']['html'] if block['_id'] == request.json['payload']['_id'] ]
+        # print('c',c)
+        # if not c:
+        #     dump['block']['prop']['html'].append(request.json['payload'])
     with open('app.json', 'r') as f:
         try:
             app_json = json.loads(f.read())
         except:
-            app_json = {}
-        app_json[request.json['wid']] = dump
+            app_json = {request.json['wid'] : dump}
+        app_json[request.json['wid']]['block']['prop']['html'] = update_block(app_json[request.json['wid']]['block']['prop']['html'],request.json['payload']['block'], request.json['payload']['parent'])
+        # app_json[request.json['wid']] = dump
     with open('app.json', 'w') as f:
         f.write(json.dumps(app_json))
     return {'True':"true"}
@@ -72,14 +100,27 @@ def run_block():
         # exec(request.json['prop']['code'])
         exec(request.json['prop']['code'], my_module.__dict__)
     s = f.getvalue()
-    with open('app.json', 'r') as f:
-        try:
-            app_json = json.loads(f.read())
-        except:
-            app_json = {}
-        app_json[request.json['wid']]['block']['prop']['last_run_result'] = s
-    with open('app.json', 'w') as f:
-        f.write(json.dumps(app_json))
+
+    import ast, pandas
+    tree = ast.parse(request.json['prop']['code'], 'script_path', "exec")
+    body = getattr(tree, "body")
+    last_node = body[-1]
+    if type(last_node) is ast.Expr:
+        if 'id' in last_node.__dict__['value'].__dict__:
+            id = last_node.__dict__['value'].__dict__['id']
+            last_node_value = getattr(my_module, id)
+            print(type(last_node_value))
+            if isinstance(last_node_value, pandas.DataFrame):
+                s= last_node_value.head(20).to_html()
+                return {'res':s,"type":'table'}
+    # with open('app.json', 'r') as f:
+    #     try:
+    #         app_json = json.loads(f.read())
+    #     except:
+    #         app_json = {}
+    #     app_json[request.json['wid']]['block']['prop']['last_run_result'] = s
+    # with open('app.json', 'w') as f:
+    #     f.write(json.dumps(app_json))
     return {'res':s}
 
 def run_query_block():
