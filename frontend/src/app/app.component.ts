@@ -88,6 +88,11 @@ export class AppComponent {
 
   update_app(res:any){
     console.log(res)
+    res['main_page'].forEach(element => {
+      if (element['type']== 'dataframe'){
+        element.prop.data = JSON.parse(element.prop.data)
+      }
+    });
     this.page = res['current_page']
     this.container = JSON.parse(JSON.stringify(res[this.page].filter((element:any)=>element.location != 'sidebar')))
     this.sidebar = res[this.page].filter((element:any)=>element.location == 'sidebar')
