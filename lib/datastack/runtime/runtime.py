@@ -27,12 +27,17 @@ def get_file_path():
 def run_script(path):
     if os.path.splitext(path)[1] == '.ipynb':
         filebody = utils.read_notebook(path)
-    else:
-        with open(path) as f:
-            filebody = f.read()
+        with open('t.py', 'w') as pyf:
+            pyf.write(filebody)
+            path = 't.py'
+        # print(filebody)
+    # else:
+    with open(path) as f:
+        filebody = f.read()
 
     try:
         code = compile(filebody,filename=path, mode="exec",flags=0,dont_inherit=1,optimize=-1)
+        
     except Exception as e:
         logger.error('script failed with error: %s',e)
     spec = importlib.util.spec_from_loader('my_module', loader=None)

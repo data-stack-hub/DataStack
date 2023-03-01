@@ -3,9 +3,15 @@
     <nz-code-editor style="border:1px solid" [style.height.px]="height" [(ngModel)]="block.prop.code" [nzEditorOption]="{ language: 'python',scrollbar: {vertical: 'hidden'} , minimap:{enabled:false}, automaticLayout: true,  wordWrap: 'on', scrollBeyondLastLine: false}" (nzEditorInitialized)="onEditorInit($event)"></nz-code-editor>
     <button (click)="run_block(block)">run</button>
     <div style="border: 1px solid;">Result:
-        <div *ngIf="code_output_type != 'table'">{{code_output}}</div>
+        <div *ngIf="code_output_type != 'table' && code_output_type != 'image'" >{{code_output}}</div>
         <div *ngIf="code_output_type == 'table'">
             <div [innerHTML]="code_output" style="overflow: scroll;"></div>
+        </div>
+        <div *ngIf="code_output_type == 'image'">
+            <div style="text-align:center">
+            <img style="margin-left: auto;margin-right: auto;" 
+            [src]="code_output"/>
+            </div>
         </div>
     </div>
 </div>

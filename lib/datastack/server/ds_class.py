@@ -80,7 +80,6 @@ class datastack():
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        # print(string)
         args = string[string.find('.header(') + 7:-1].split(',')
         block = {
             "id":100,
@@ -109,14 +108,24 @@ class datastack():
         self.append_block(block)
     def select(self, options, value='', on_change=''):
         # list options args to be corrected
+        # print('stack', inspect.stack())
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        args = string[string.find('on_change=') + 6:-1].split(',')
+        print(string)
+        # stack = inspect.stack()[2][0].f_locals
+        # for name in stack:
+        #     print(name, id(name))
+        # for s in inspect.stack():
+        #     print(s)
+        # args = string[string.find('on_change=') + 6:-1].split(',')
+        # print('select string', string)
+        # f = inspect.
+        # print('code', frame)
         # print('selected arge',type(args), args)
         # print('assigned var', self.get_value_assign_var(inspect.currentframe().f_back))
         if on_change :
-            change_fn = inspect.getsource(on_change)
+            change_fn = 'inspect.getsource(on_change)'
             change_fn_name = string[string.find('on_change=') + 10:-1].split(',')[0].replace("on_change=",'').replace(' ','')
         else:
             change_fn =''
@@ -201,8 +210,21 @@ class datastack():
         else:
             return None
 
+    def dataframe(self, data):
+        block = {
+            "id":600,
+            "type":"dataframe",
+            "prop":{
+                "data":data.to_json(orient="records"),
+                "columns":list(data.columns)
+            }
+        }
+        self.append_block(block)
+
     def write(self, data,  location=''):
+        
         frame = inspect.currentframe()
+        # print(inspect.getsource(frame.f_back))
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         # print(string)
@@ -321,7 +343,17 @@ class datastack():
         }
         self.append_block(block)
         return ''
-        
+    
+    def image(self, data):
+        block = {
+            "id":1600,
+            "type":"image",
+            "prop":{
+                "data": 'data:image/png;base64, '  + data
+            }
+        }
+        self.append_block(block)
+
     def iframe(self, url):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
@@ -441,3 +473,32 @@ class datastack():
         # diff = [{**x, 'is_change':True} if x  not in old_app else {**x, 'is_change':False}  for x in self.app ]
         # print(self.blocks)
         return self.app
+
+
+"""
+- get variable passed in function argument
+
+    import inspect
+    codeInString = '''
+    a = 8
+    b=7
+    sum=a+b
+    print("sum =",sum)
+    this_var = 'a'
+    test('this_var')
+    '''
+    codeObject = compile(codeInString, 'sumstring', 'exec')
+
+
+    def test(var):
+        print('test')
+        s = inspect.stack()
+        for s_ in s:
+            print(s_)
+        for name in s[2][0].f_locals:
+            print(name, id(var), id(name))
+            if id(var) == id(s[2][0].f_locals[name]):
+                print('id match: ', name)
+        print(s[2][0].f_locals)
+    exec(codeObject)
+"""

@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ApiService } from 'src/app/services/api.service';
 
 @Component({
@@ -14,7 +15,7 @@ export class CodeComponent {
   height =30;
   url = 'http://localhost:5000/'
   editor: any;
-  constructor(private api:ApiService){}
+  constructor(private api:ApiService, private domSanitizer: DomSanitizer){}
   code_output:any
   code_output_type:any
   show = false
@@ -26,8 +27,17 @@ export class CodeComponent {
     console.log(e)
     this.api.post(this.url + '/run_block', {...e}).subscribe(res=>{
       console.log(res)
-      this.code_output = res['res']
+      // this.code_output = res['res']
       this.code_output_type = res['type']
+      if (this.code_output_type == 'image'){
+        this.code_output = 'data:image/png;base64, ' + res['res']
+      }
+      else {
+        // this.code_output = this.domSanitizer.bypassSecurityTrustHtml(res['res']['text/html'])
+        this.code_output = res['res']
+
+      }
+      console.log(this.code_output)
     })
   }
 

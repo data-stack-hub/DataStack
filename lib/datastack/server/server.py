@@ -98,6 +98,7 @@ def run_block():
     f = StringIO()
     with redirect_stdout(f):
         # exec(request.json['prop']['code'])
+        # run each lins as seprate node
         exec(request.json['prop']['code'], my_module.__dict__)
     s = f.getvalue()
 
@@ -105,6 +106,10 @@ def run_block():
     tree = ast.parse(request.json['prop']['code'], 'script_path', "exec")
     body = getattr(tree, "body")
     last_node = body[-1]
+    print(s.split())
+    for es in s.split():
+        print(ast.literal_eval(es))
+    # print(type(ast.literal_eval(s)))
     if type(last_node) is ast.Expr:
         if 'id' in last_node.__dict__['value'].__dict__:
             id = last_node.__dict__['value'].__dict__['id']
@@ -113,6 +118,16 @@ def run_block():
             if isinstance(last_node_value, pandas.DataFrame):
                 s= last_node_value.head(20).to_html()
                 return {'res':s,"type":'table'}
+            try:
+                if last_node_value.__module__ == "plotly.graph_objs._figure":
+                    import base64
+                    img_bytes = last_node_value.to_image(format="jpeg")
+                    img_string = base64.b64encode(img_bytes).decode('utf-8')
+                    return {'res':img_string, "type":'image'}
+                    # return {'res':last_node_value.to_html(full_html =False, include_plotlyjs ='cdn'), "type":'table'}
+
+            except:
+                logger.error('error while checking plotly class')
     # with open('app.json', 'r') as f:
     #     try:
     #         app_json = json.loads(f.read())
@@ -121,6 +136,7 @@ def run_block():
     #     app_json[request.json['wid']]['block']['prop']['last_run_result'] = s
     # with open('app.json', 'w') as f:
     #     f.write(json.dumps(app_json))
+
     return {'res':s}
 
 def run_query_block():
