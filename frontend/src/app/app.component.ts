@@ -4,7 +4,7 @@ import { Subject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { map } from 'rxjs/operators';
 import { ApiService } from './services/api.service';
-
+declare const monaco: any;
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -46,7 +46,8 @@ export class AppComponent {
       }
     ]
   current_block: any;
-
+  editor: any;
+  height =30;
   constructor(private api:ApiService, public sanitizer: DomSanitizer, public renderer: Renderer2){
     this.api.get('http://localhost:5000/')
     .subscribe((res:any)=>{
@@ -87,6 +88,11 @@ export class AppComponent {
 
   update_app(res:any){
     console.log(res)
+    res['main_page'].forEach(element => {
+      if (element['type']== 'dataframe'){
+        element.prop.data = JSON.parse(element.prop.data)
+      }
+    });
     this.page = res['current_page']
     this.container = JSON.parse(JSON.stringify(res[this.page].filter((element:any)=>element.location != 'sidebar')))
     this.sidebar = res[this.page].filter((element:any)=>element.location == 'sidebar')
@@ -133,6 +139,7 @@ export class AppComponent {
   }
 
   change_cell(e:any){
+    console.log(e)
     this.api.post(this.url +'editable', {...e,...{'payload':''}}).subscribe(res=>{console.log(res)})
   }
 
@@ -180,18 +187,55 @@ export class AppComponent {
     if (tag == 'list'){
       this.current_block['html'] ="<li></li>"
     }
+
+    if (tag == 'code'){
+      let new_block = {
+        "_id":this.current_block['_id'],
+        "type":'code',
+        "prop":{
+          "code":"",
+        }
+      }
+      this.current_block = new_block
+    }
+
+    if (tag == 'expander'){
+      let new_block = {
+        "_id":this.current_block['_id'],
+        "type":"expander",
+        "title":"expander",
+        "wid":'databook',
+        "prop":{
+          "html":[
+            {
+              "_id":'new_id' + Math.random(),
+              "type":'code',
+              "wid":"some_id",
+              "prop":{
+                "code":"",
+              }
+            }
+          ]
+        }
+      }
+      this.current_block = new_block
+    }
+ 
     console.log(this.current_block)
-    this.update_on_server(this.current_element, this.current_block)
+    this.update_on_server(this.current_element, this.current_block,'')
   }
   // current_element(current_element: any, current_block: any) {
   //   throw new Error('Method not implemented.');
   // }
 
-add_new_block(element:any, index:any){
+add_new_block(element:any, index:any=-1){
   let new_block = {
     _id:'new_id' + Math.random(),
     html:"new_block",
     tag:"p"
+  }
+  if (index = -1){
+    index = element['prop']['html'].length
   }
   element['prop']['html'].splice(index , 0, new_block);
   // let new_element = this.renderer.createElement(new_block['tag'])
@@ -215,10 +259,38 @@ add_new_block(element:any, index:any){
     let b = Object.assign({}, block)
     b['html'] = event.target.innerHTML
     console.log(block, event.target.innerHTML, e)
-    this.update_on_server(e,b)
+    this.update_on_server(e,b, block)
   }
 
-  update_on_server(e:any, payload:any){
-    this.api.post(this.url +'editable', {...e,...{'payload':payload}}).subscribe(res=>{console.log(res)})
+  update_on_server(e:any, payload:any, parent:any){
+
+    let payload_ = {
+      block:payload,
+      parent:e
+    }
+    console.log(e, payload_)
+    this.api.post(this.url +'editable', {...e,...{'payload':payload_}}).subscribe(res=>{console.log(res)})
   }
+
+  onEditorInit(e: any): void {
+    this.editor = e
+    e.onDidContentSizeChange(()=>{
+      console.log(e.getContentHeight())
+      this.height = e.getContentHeight() +20
+
+    });  
+
+    e.onDidChangeContent((event)=>{
+      console.log(event)
+    })
+    // this.editor.setModel(monaco.editor.createModel("console.log('Hello ng-zorro-antd')", 'typescript'));
+    console.log( e.getModel().getLineCount())
+  }
+  rel(e){
+    console.log('relouting code editor', e.getContentHeight())
+    // this.height = this.editor.getContentHeight()
+    // this.editor.layout({height:this.height})
+    
+  }
+
 }

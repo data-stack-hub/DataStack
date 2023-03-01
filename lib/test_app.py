@@ -18,14 +18,24 @@ def load_main_page(a):
 
 
 # sildebar
-ds.sidebar().subheader('pages')
+ds.sidebar().subheader('Pages')
 
 # pages
-ds.sidebar().button('Page1', on_click=load_page1)
+# ds.sidebar().button('Page1', on_click=load_page1)
+some_var = ds.sidebar().list(['page1', 'page2'], on_click=load_page1)
 page1 = ds.page('/page1')
 page1.write('This is new page')
 page1.button('go to main page', on_click=load_main_page)
 ds.sidebar().divider()
+
+# dataframe
+df = pd.DataFrame(
+    [["a", "b"], ["c", "d"]],
+    index=["row 1", "row 2"],
+    columns=["col 1", "col 2"])
+ds.write('dataframe')
+ds.dataframe(df)
+
 # list
 ds.subheader('List')
 def list_click(a):

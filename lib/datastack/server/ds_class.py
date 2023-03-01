@@ -201,6 +201,17 @@ class datastack():
         else:
             return None
 
+    def dataframe(self, data):
+        block = {
+            "id":600,
+            "type":"dataframe",
+            "prop":{
+                "data":data.to_json(orient="records"),
+                "columns":list(data.columns)
+            }
+        }
+        self.append_block(block)
+        
     def write(self, data,  location=''):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
