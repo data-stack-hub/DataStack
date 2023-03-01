@@ -332,7 +332,17 @@ class datastack():
         }
         self.append_block(block)
         return ''
-        
+    
+    def image(self, data):
+        block = {
+            "id":1600,
+            "type":"image",
+            "prop":{
+                "data": 'data:image/png;base64, '  + data
+            }
+        }
+        self.append_block(block)
+
     def iframe(self, url):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
