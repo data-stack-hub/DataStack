@@ -298,10 +298,25 @@ class datastack():
         block = {
             "id":55,
             "type":"column",
-            "data":cols
+            "data":cols,
+            "prop":{}
         }
         self.append_block(block)
         return cols
+
+    def tabs(self, tab_list):
+        tab = [datastack(type ="tab", title=tab_list[x]) for x in range(0,len(tab_list))]
+        block = {
+            "id":55,
+            "type":"tabs",
+            "data":tab,
+            "prop":{
+                "tabs":tab_list
+            }
+        }
+        self.append_block(block)
+        return tab    
+    
     # # @classmethod
     # @contextmanager
     def container(self):
@@ -401,8 +416,14 @@ class datastack():
         # return [ dict(each_one, **{'parent':x.type}) for each_one in x.blocks['main_page']] 
 
         _app =  [ {"id":"", "type":x.type, "title":x.title, "data":x.blocks['main_page']}  if isinstance(x, object) and x.__class__.__name__ =='datastack' and x.type != 'sidebar' else x for x in blocks]
-        _app = [{"id":"", "type":x['type'], "data":[self.build_element_from_blocks(c.blocks['main_page']) for c in x['data']]} if x['type'] == 'column' else x for x in _app ]
+        # for columns and tabs
+        _app = [{"id":"", "type":x['type'],"prop":x['prop'], "data":[self.build_element_from_blocks(c.blocks['main_page']) for c in x['data']]} if x['type'] == 'column' else x for x in _app ]
+        _app = [{"id":"", "type":x['type'],"prop":x['prop'], "data":[
+            {"id":"", "type":"tab", "title":c.title, "data":self.build_element_from_blocks(c.blocks['main_page']) }
+            for c in x['data']]} if x['type'] == 'tabs' else x for x in _app ]
+
         return _app
+    
 
     def update_state(self):
         def _update_state(location):
