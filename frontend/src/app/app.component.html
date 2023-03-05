@@ -66,7 +66,7 @@
           <nz-list-item *ngFor="let l of element.prop.list" (click)="list_click(element,l)">{{l}}</nz-list-item>
         </nz-list > -->
         <ul nz-menu style="background: transparent;">
-          <li nz-menu-item *ngFor="let l of element.prop.list" (click)="list_click(element,l)">{{l}}</li>
+          <li nz-menu-item *ngFor="let l of element.prop.data" (click)="list_click(element,l)">{{l}}</li>
         </ul>
     
       </div>
