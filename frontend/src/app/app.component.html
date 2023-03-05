@@ -76,6 +76,14 @@
       <div *ngIf ="element.type == 'container'"> 
         <ng-container *ngTemplateOutlet="elements; context:{value:element.data}"></ng-container>
       </div>
+      <div *ngIf ="element.type == 'column'" nz-row >
+        <div *ngFor="let data of element.data" nz-col nzFlex="auto" style="background: #f7f7f7;
+        padding: 5px;
+        border-radius: 5px;
+        margin: 2px;">
+          <ng-container *ngTemplateOutlet="elements; context:{value:data}"></ng-container>
+        </div>
+      </div>
       <div *ngIf ="element.type == 'expander'"> 
         <!-- <details><summary>{{element.title}}</summary> <ng-container *ngTemplateOutlet="elements; context:{value:element.data}"></ng-container></details> -->
         <nz-collapse nzGhost> <nz-collapse-panel [nzHeader]="element.title"> <ng-container *ngTemplateOutlet="elements; context:{value:element.data}"></ng-container></nz-collapse-panel></nz-collapse>

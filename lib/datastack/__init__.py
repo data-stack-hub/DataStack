@@ -23,3 +23,4 @@ subheader = main.subheader
 editable_html = main.editable_html
 dataframe = main.dataframe
 image = main.image
+columns= main.columns
