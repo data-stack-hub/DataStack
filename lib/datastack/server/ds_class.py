@@ -4,6 +4,11 @@ from datastack.runtime import runtime
 from datastack.logger import logger
 import uuid
 class datastack():
+    """
+    on_change= function name
+    on_change_source = function source code
+    *_var = variable name for * property
+    """
     def __init__(self, type='main_page', path='', title='', main=False):
         self.type = type
         self.path = path
@@ -26,6 +31,12 @@ class datastack():
 #  change to on_click = function name and on_click_source = function code
 #  move frame logic to somewhere else
     def button(self, name, on_click=''):
+
+        """
+        on_click = function name
+        on_click_source = function source code
+        title_var = variable name for title
+        """
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
@@ -44,9 +55,9 @@ class datastack():
             "type":'button',
             "prop":{
                 "title":name,
-                "on_click":click_fn,
-                "on_click_name":click_fn_name,
-                "title_args":args[0]
+                "on_change":click_fn_name,
+                "on_change_source":click_fn,
+                "title_var":args[0]
             }
         }
         self.append_block(block)
@@ -61,9 +72,8 @@ class datastack():
             "type":"input",
             'prop':{
                 "value":value,
-                "input_var":args[0],
-                "on_click":"update_var",
-                "on_click_name":"update_var",
+                "value_var":args[0],
+                "on_change":'update_var'
             }
         }
         self.append_block(block)
@@ -87,7 +97,7 @@ class datastack():
             "type":'header',
             "prop":{
                 "data":data,
-                "args":args[0]
+                "data_var":args[0]
             }
         }
         self.append_block(block)
@@ -103,10 +113,11 @@ class datastack():
             "type":'subheader',
             "prop":{
                 "data":data,
-                "args":args[0]
+                "data_var":args[0]
             }
         }
         self.append_block(block)
+
     def select(self, options, value='', on_change=''):
         # list options args to be corrected
         frame = inspect.currentframe()
@@ -127,19 +138,17 @@ class datastack():
             "type":"select",
             "prop":{
                 "options":options,
-                # "options_frm":args[0],
                 "value":value,
-                # "value_frm":args[0].replace(' ',''),
-                'value_frm':self.get_value_assign_var(inspect.currentframe().f_back),
+                'value_var':self.get_value_assign_var(inspect.currentframe().f_back),
                 "on_click":"update_var_select",
-                "on_click_name":"update_var_select",
-                "on_change_name":change_fn_name
+                "on_change":change_fn_name
             }
         }
         # print('selec comp', component)
         self.append_block(block)
         return 'default'
-    def list(self, data, on_click='', location=''):
+    
+    def list(self, data, on_click=''):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
@@ -155,12 +164,11 @@ class datastack():
         block = {
             "id":500,
             "type":"list",
-            "location":location,
             "prop":{
-                "list":data,
-                "on_click":click_fn,
-                "on_click_name":click_fn_name,
-                "args_options":args_options
+                "data":data,
+                "data_var":args_options,
+                "on_change":click_fn_name,
+                "on_change_source":click_fn
             }
         }
 
@@ -224,7 +232,7 @@ class datastack():
             "location":location,
             "prop":{
                 "data":data,
-                "args":args[0]
+                "data_var":args[0]
             }
         }
         self.append_block(block)
@@ -240,7 +248,7 @@ class datastack():
             "type":'html',
             "prop":{
                 "data":html,
-                'args':args[0]
+                'data_var':args[0]
             }
         }
         self.append_block(block)
@@ -378,6 +386,7 @@ class datastack():
             'main_page':[],
             'pages':[]
         }
+        
     def build_element_from_blocks(self,blocks):
         # with parent
         # return [ dict(each_one, **{'parent':x.type}) for each_one in x.blocks['main_page']] 
@@ -390,15 +399,15 @@ class datastack():
         def _update_state(location):
           for c in location:
                 if c['type'] == 'text' or c['type'] == 'html':
-                    c['prop']['data'] = eval(c['prop']['args'])
+                    c['prop']['data'] = eval(c['prop']['data_var'])
                 if c['type'] == 'button':
-                    c['prop']['title'] = eval(c['prop']['title_args'])
+                    c['prop']['title'] = eval(c['prop']['title_var'])
                 if c['type'] =='select':
-                    c['prop']['value'] = eval(c['prop']['value_frm'])
+                    c['prop']['value'] = eval(c['prop']['value_var'])
                 if c['type'] == 'iframe':
                     c['prop']['url'] = eval(c['prop']['url_var'])
                 if c['type'] == 'list':
-                    c['prop']['list'] = eval(c['prop']['args_options'])
+                    c['prop']['data'] = eval(c['prop']['data_var'])
                 if c['type'] == 'expander' or c['type'] == 'container':
                     _update_state(c['data'])
                     pass

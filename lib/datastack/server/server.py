@@ -131,23 +131,26 @@ def run_query_block():
     print(runtime.get_main_class().__dict__)
     return {'res':pd.read_sql(query,cnx).to_html()}
 
-def update_var(aaa):
-    setattr(my_module,aaa['prop']['input_var'], aaa['payload'])
+def update_var(event):
+    setattr(my_module,event['prop']['value_var'], event['payload'])
 
-def update_var_select(aaa):
-    setattr(my_module, aaa['prop']['value_frm'], aaa['payload'])
-    getattr(my_module,aaa['prop']['on_change_name'])()
+def update_var_select(event):
+    setattr(my_module, event['prop']['value_var'], event['payload'])
+    getattr(my_module,event['prop']['on_change'])()
 
 def run_fn():
     global my_module 
     my_module = runtime.get_module()
-    if request.json['prop']['on_click_name'] == 'update_var':
+    if request.json['prop']['on_change'] == 'update_var':
         update_var(request.json)
-    elif request.json['prop']['on_click_name'] == 'update_var_select':
+    elif'on_click' in request.json['prop'] and request.json['prop']['on_click'] == 'update_var_select':
         update_var_select(request.json)
     else:
-        fn = getattr(my_module, request.json['prop']['on_click_name'])
-        fn(request.json)
+        try:
+            fn = getattr(my_module, request.json['prop']['on_change'])
+            fn(request.json)
+        except:
+            logger.debug("function {} not in module".format( request.json['prop']['on_click']))
     return rerun()
 
 def fn(method_name):
