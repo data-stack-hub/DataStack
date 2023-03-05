@@ -100,7 +100,7 @@ ds.iframe(url)
 
 
 ```
-# page devider
+# page divider
 ds.divider()
 ```
 
