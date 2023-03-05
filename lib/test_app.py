@@ -40,6 +40,14 @@ col2.write('col2 text')
 col3.write('col3')
 col1.button('click')
 
+
+# tabs
+ds.subheader('Tabs')
+tab1, tab2, tab3 = ds.tabs(["tab1", "tab2", "tab3"])
+tab1.write('tab1 text')
+tab2.write('tab2 text')
+tab3.write('tab3 text')
+tab1.button('click')
 # dataframe
 ds.subheader('dataframe')
 df = pd.DataFrame(
@@ -48,6 +56,7 @@ df = pd.DataFrame(
     columns=["col 1", "col 2"])
 ds.dataframe(df)
 col3.html(df.to_html())
+tab3.html(df.to_html())
 
 # list
 ds.subheader('List')

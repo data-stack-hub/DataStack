@@ -24,3 +24,4 @@ editable_html = main.editable_html
 dataframe = main.dataframe
 image = main.image
 columns= main.columns
+tabs = main.tabs
