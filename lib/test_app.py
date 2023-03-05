@@ -28,13 +28,26 @@ page1.write('This is new page')
 page1.button('go to main page', on_click=load_main_page)
 ds.sidebar().divider()
 
+# columns
+ds.subheader('Columns')
+col1, col2, col3  = ds.columns(3)
+col1.write('col1')
+col2.write('col2')
+
+col1.write('col1 text')
+col2.write('col2 text')
+
+col3.write('col3')
+col1.button('click')
+
 # dataframe
+ds.subheader('dataframe')
 df = pd.DataFrame(
     [["a", "b"], ["c", "d"]],
     index=["row 1", "row 2"],
     columns=["col 1", "col 2"])
-ds.write('dataframe')
 ds.dataframe(df)
+col3.html(df.to_html())
 
 # list
 ds.subheader('List')

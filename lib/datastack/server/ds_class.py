@@ -293,6 +293,15 @@ class datastack():
         self.append_block(cls)
         return cls
 
+    def columns(self, col_number):
+        cols = [datastack(type ="column") for x in range(0,col_number)]
+        block = {
+            "id":55,
+            "type":"column",
+            "data":cols
+        }
+        self.append_block(block)
+        return cols
     # # @classmethod
     # @contextmanager
     def container(self):
@@ -392,7 +401,7 @@ class datastack():
         # return [ dict(each_one, **{'parent':x.type}) for each_one in x.blocks['main_page']] 
 
         _app =  [ {"id":"", "type":x.type, "title":x.title, "data":x.blocks['main_page']}  if isinstance(x, object) and x.__class__.__name__ =='datastack' and x.type != 'sidebar' else x for x in blocks]
-        # return [item for sublist in _app for item in sublist]
+        _app = [{"id":"", "type":x['type'], "data":[self.build_element_from_blocks(c.blocks['main_page']) for c in x['data']]} if x['type'] == 'column' else x for x in _app ]
         return _app
 
     def update_state(self):
@@ -431,6 +440,7 @@ class datastack():
                     c['prop']['html'] = html
         for location in ['main_page', 'sidebar'] + self.app['pages']:
             _update_state(self.app[location])
+
     def build_app(self):
         # Transfer blocks to app
         # main page
