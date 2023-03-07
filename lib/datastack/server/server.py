@@ -1,23 +1,29 @@
 from flask import Flask
-from flask import request, jsonify
+from flask import request, jsonify, send_from_directory
 from flask_cors import CORS
 
 from datastack.runtime import runtime
 from datastack.logger import logger
+import os
+print(os.getcwd())
 
-app = Flask(__name__)
+static_file_path = os.path.join(os.getcwd(),'static') 
+app = Flask(__name__, static_folder=static_file_path, template_folder=static_file_path, static_url_path='/')
 cors = CORS(app)
 
 # params get - request.args.to_dict()
 # params post - request.json
 routes = [
-        {'path':'/', 'fn':'load_app'},
+        {'path':'/', 'fn':'get_app'},
+        {'path':'/app', 'fn':'load_app'},
         {'path':'/run_fn','fn':'run_fn'},
         {'path':'/editable', 'fn':'save_editable'},
         {'path':'/run_block', 'fn':'run_block'},
         {'path':'/run_query_block', 'fn':'run_query_block'}
     ]
 
+def get_app():
+    return send_from_directory(static_file_path, "index.html")
 
 def load_app():
     """
@@ -169,6 +175,8 @@ def start_server(file_path):
     my_module = runtime.get_module()
 
     logger.debug("Starting server...")
+    # import webbrowser
+    # webbrowser.open('http://127.0.0.1:4200/')
     app.run(debug=True)
     logger.debug("Server started on port 5000")
 if __name__ == '__main__':

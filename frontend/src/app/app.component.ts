@@ -57,7 +57,7 @@ export class AppComponent {
     layout: {width: 320, height: 240, title: 'A Fancy Plot'}
 };
   constructor(private api:ApiService, public sanitizer: DomSanitizer, public renderer: Renderer2){
-    this.api.get('http://localhost:5000/')
+    this.api.get('http://localhost:5000/app')
     .subscribe((res:any)=>{
       this.update_app(res)
     })
