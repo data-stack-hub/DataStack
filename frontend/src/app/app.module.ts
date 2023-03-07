@@ -16,6 +16,11 @@ import { en_US } from 'ng-zorro-antd/i18n';
 import en from '@angular/common/locales/en';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import * as PlotlyJS from 'plotly.js-dist-min';
+import { PlotlyModule } from 'angular-plotly.js';
+
+PlotlyModule.plotlyjs = PlotlyJS;
+
 import { NgZorroAntdModule} from './ng-zorro-antd.module';
 import { CodeComponent } from './components/elements/code/code.component';
 import { ExpanderComponent } from './components/elements/expander/expander.component'
@@ -35,7 +40,7 @@ registerLocaleData(en);
     FormsModule,
     NzButtonModule,
     BrowserAnimationsModule,
-
+    PlotlyModule,
     NgZorroAntdModule
   ],
   providers: [{ provide: APP_BASE_HREF, useValue: '/' },

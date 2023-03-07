@@ -48,6 +48,14 @@ export class AppComponent {
   current_block: any;
   editor: any;
   height =30;
+
+  public graph = {
+    data: [
+        { x: [1, 2, 3], y: [2, 6, 3], type: 'scatter', mode: 'lines+points', marker: {color: 'red'} },
+        { x: [1, 2, 3], y: [2, 5, 3], type: 'bar' },
+    ],
+    layout: {width: 320, height: 240, title: 'A Fancy Plot'}
+};
   constructor(private api:ApiService, public sanitizer: DomSanitizer, public renderer: Renderer2){
     this.api.get('http://localhost:5000/')
     .subscribe((res:any)=>{
@@ -89,7 +97,7 @@ export class AppComponent {
   update_app(res:any){
     console.log(res)
     res['main_page'].forEach(element => {
-      if (element['type']== 'dataframe'){
+      if (element['type']== 'dataframe' || element['type']== 'chart'){
         element.prop.data = JSON.parse(element.prop.data)
       }
     });

@@ -391,6 +391,23 @@ class datastack():
         }
         self.append_block(block)
 
+    def chart(self, data):
+        import json
+        import plotly.tools
+        fig =  plotly.tools.return_figure_from_figure_or_data(
+            data, validate_figure=True
+        )
+        fig = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+        block = {
+            'id':956,
+            "type":"chart",
+            "prop":{
+            "data":fig
+            }
+        }
+        self.append_block(block)
+
     def set_page(self, page_name):
         self.app['current_page'] = page_name
 
