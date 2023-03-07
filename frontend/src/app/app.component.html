@@ -101,6 +101,9 @@
           [src]="element.prop.data"/>
           </div>
       </div>
+      <div *ngIf="element.type == 'chart'">
+        <plotly-plot [data]="element.prop.data" [layout]="graph.layout"></plotly-plot>
+      </div>
       <div *ngIf="element.type == 'dataframe'">
         <nz-table #basicTable nzSize="small" [nzData]="element.prop.data">
           <thead>

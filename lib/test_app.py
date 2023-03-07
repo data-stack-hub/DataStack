@@ -20,6 +20,14 @@ def load_main_page(a):
 # sildebar
 ds.sidebar().subheader('Pages')
 
+# charts
+ds.subheader('Charts')
+import plotly.express as px
+data_canada = px.data.gapminder().query("country == 'Canada'")
+fig = px.bar(data_canada, x='year', y='pop')
+ds.chart(fig)
+ds.write('supports plotly charts only, for now')
+
 # pages
 # ds.sidebar().button('Page1', on_click=load_page1)
 some_var = ds.sidebar().list(['page1', 'page2'], on_click=load_page1)
@@ -48,6 +56,7 @@ tab1.write('tab1 text')
 tab2.write('tab2 text')
 tab3.write('tab3 text')
 tab1.button('click')
+
 # dataframe
 ds.subheader('dataframe')
 df = pd.DataFrame(

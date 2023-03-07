@@ -25,3 +25,4 @@ dataframe = main.dataframe
 image = main.image
 columns= main.columns
 tabs = main.tabs
+chart = main.chart
