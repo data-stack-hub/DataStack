@@ -1,17 +1,14 @@
 
-run front end:
-```
-  cd frontend
-  npm install --force
-  ng serve
- ```
 
 run python server
 ```
+git clone https://github.com/data-stack-hub/data-stack-rdf.git
+cd data-stack-rdf\lib
 pip install --editable .
 datastack run test_app.py
 datastack run test_app.ipynb
 ```
+open http://localhost:5000
 
 
 examples 
