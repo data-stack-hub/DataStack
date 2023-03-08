@@ -27,7 +27,16 @@ data_canada = px.data.gapminder().query("country == 'Canada'")
 fig = px.bar(data_canada, x='year', y='pop')
 ds.chart(fig)
 ds.write('supports plotly charts only, for now')
+import plotly.express as px
 
+df = px.data.tips()
+
+fig = px.box(df, x="day", y="total_bill", facet_row="smoker")
+fig.update_traces(quartilemethod="exclusive", alignmentgroup='df', offsetgroup='fgf') # or "inclusive", or "linear" by default
+fig.update_layout(
+    boxmode='group'
+)
+ds.chart(fig)
 # pages
 # ds.sidebar().button('Page1', on_click=load_page1)
 some_var = ds.sidebar().list(['page1', 'page2'], on_click=load_page1)
