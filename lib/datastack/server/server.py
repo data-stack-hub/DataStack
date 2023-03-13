@@ -154,9 +154,12 @@ def run_fn():
     else:
         try:
             fn = getattr(my_module, request.json['prop']['on_change'])
-            fn(request.json)
+            if 'args' in request.json['prop']:
+                fn(*tuple(request.json['prop']['args']))
+            else:
+                fn(request.json)
         except:
-            logger.debug("function {} not in module".format( request.json['prop']['on_click']))
+            logger.debug("function {} not in module".format( request.json['prop']['on_change']))
     return rerun()
 
 def fn(method_name):
