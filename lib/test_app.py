@@ -26,7 +26,7 @@ import plotly.express as px
 data_canada = px.data.gapminder().query("country == 'Canada'")
 fig = px.bar(data_canada, x='year', y='pop')
 ds.chart(fig)
-ds.write('supports plotly charts only, for now')
+ds.write('supports plotly charts only- for now')
 import plotly.express as px
 
 df = px.data.tips()
@@ -111,12 +111,15 @@ container.write('selected value: ' + selected_value_container)
 ds.divider()
 
 # Button
-def inc_count(a):
+def inc_count(args_var,args_var1):
     global count
     count +=1
+    print(args_var, args_var1)
 ds.subheader('Button click')
 count = 0
-ds.button('Click', on_click=inc_count)
+args_var = 't'
+args_var1 = 't1'
+ds.button('Click', on_click=inc_count, args=(args_var,args_var1,))
 ds.write('Count value: '+ str(count))
 ds.divider()
 

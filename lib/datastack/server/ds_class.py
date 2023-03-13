@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from datastack.runtime import runtime
 from datastack.logger import logger
 import uuid
+
 class datastack():
     """
     on_change= function name
@@ -30,7 +31,7 @@ class datastack():
 
 #  change to on_click = function name and on_click_source = function code
 #  move frame logic to somewhere else
-    def button(self, name, on_click=''):
+    def button(self, name, on_click='', args={}):
 
         """
         on_click = function name
@@ -40,12 +41,11 @@ class datastack():
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        # print(string.replace('.sidebar()',''), string.find('(')+1)
-        args = string.replace(".sidebar(",'')[string.find('(')+1 :-1].split(',')
+        args1= string.replace(".sidebar(",'')[string.find('(')+1 :-1].split(',')
         # print('button_args', args)
         if on_click :
             click_fn = inspect.getsource(on_click)
-            click_fn_name = args[1].split("=")[1]
+            click_fn_name = args1[1].split("=")[1]
         else:
             click_fn =''
             click_fn_name =''
@@ -57,9 +57,14 @@ class datastack():
                 "title":name,
                 "on_change":click_fn_name,
                 "on_change_source":click_fn,
-                "title_var":args[0]
+                "title_var":args1[0],
+                "args":args
+ 
             }
         }
+        try:
+            block['prop'].update(args_var =  string.split("args=")[1])
+        except:pass
         self.append_block(block)
 
     def input(self,value):
