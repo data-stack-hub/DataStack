@@ -74,7 +74,7 @@ import { NzPipesModule } from 'ng-zorro-antd/pipes';
 import { NzCodeEditorModule } from 'ng-zorro-antd/code-editor';
 // import { NzGraphModule } from 'ng-zorro-antd/graph';
 // import { NzCronExpressionModule } from 'ng-zorro-antd/cron-expression';
-
+import * as AllIcons from '@ant-design/icons-angular/icons';
 @NgModule({
   exports: [
     // NzAffixModule,

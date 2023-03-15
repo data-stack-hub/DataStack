@@ -9,10 +9,7 @@ def dummy_fn():
 ds.header('DataStack Components')
 
 
-def load_page1(a):
-    ds.set_page('/page1')
-
-def load_main_page(a):
+def load_main_page():
     ds.set_page('main_page')
 #  user defined functions and script
 
@@ -37,12 +34,19 @@ fig.update_layout(
     boxmode='group'
 )
 ds.chart(fig)
+
 # pages
-# ds.sidebar().button('Page1', on_click=load_page1)
-some_var = ds.sidebar().list(['page1', 'page2'], on_click=load_page1)
-page1 = ds.page('/page1')
+ds.sidebar().page_link('main_page')
+ds.sidebar().page_link('page1')
+ds.sidebar().page_link('page2')
+
+page1 = ds.page('page1')
 page1.write('This is new page')
 page1.button('go to main page', on_click=load_main_page)
+
+page2 = ds.page('page2')
+page2.write('This is new page')
+page2.button('go to main page', on_click=load_main_page)
 ds.sidebar().divider()
 
 # columns
