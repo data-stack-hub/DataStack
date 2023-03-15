@@ -58,13 +58,17 @@ def update_block(app_json, block, parent):
     print(block_status, app_json)
     if not block_status:
         # par = [p_block for p_block in app_json if p_block['_id'] == parent['_id']]
-        try:
-            for p_block in app_json:
-                if p_block['_id'] == parent['_id']:
-                    print('parent found', p_block)
-                    p_block['prop']['html'].append(block)
-        except:
+        if parent['is_root']:
+            print(parent)
             app_json.append(block)
+        else:
+            try:
+                for p_block in app_json:
+                    if p_block['_id'] == parent['_id']:
+                        print('parent found', p_block)
+                        p_block['prop']['html'].append(block)
+            except:
+                app_json.append(block)
     return app_json
 
 def save_editable():
@@ -85,14 +89,16 @@ def save_editable():
         # print('c',c)
         # if not c:
         #     dump['block']['prop']['html'].append(request.json['payload'])
-    with open('app.json', 'r') as f:
-        try:
+    file_path = os.path.join(os.getcwd(), 'app.json')
+
+    try:
+        with open(file_path, 'r') as f:
             app_json = json.loads(f.read())
-        except:
-            app_json = {request.json['wid'] : dump}
-        app_json[request.json['wid']]['block']['prop']['html'] = update_block(app_json[request.json['wid']]['block']['prop']['html'],request.json['payload']['block'], request.json['payload']['parent'])
+    except:
+        app_json = {request.json['wid'] : dump}
+    app_json[request.json['wid']]['block']['prop']['html'] = update_block(app_json[request.json['wid']]['block']['prop']['html'],request.json['payload']['block'], request.json['payload']['parent'])
         # app_json[request.json['wid']] = dump
-    with open('app.json', 'w') as f:
+    with open(file_path, 'w') as f:
         f.write(json.dumps(app_json))
     return {'True':"true"}
 

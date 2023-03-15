@@ -7,7 +7,7 @@
   
   <!-- sidebar -->
   <div style="display: block;">
-    <div *ngIf="false"
+    <div *ngIf="true"
       style="display: block; background-color: rgb(240, 242, 246); background-attachment: fixed; height: 100vh;overflow: auto; padding: 6rem 1rem; position: relative;width: 18rem; z-index: 100; margin-left: 0px;">
       <ng-container *ngTemplateOutlet="elements; context:{value:sidebar}"></ng-container>
     </div>
@@ -50,6 +50,7 @@
       </div>
       <div *ngIf="element.type == 'editable_html'">
         <ng-container *ngTemplateOutlet="editable;context:{element:element}"></ng-container>
+        <!-- <app-editable></app-editable> -->
       </div>
       <div *ngIf="element.type == 'input'">
         <input style="width: 100%;" [value]="element.prop.value" (change)="input_change(element, $event)">
@@ -146,9 +147,9 @@
     <!-- {{root | json}} -->
     <div #editableDiv >
     <div *ngFor="let block of element.prop?.html, index as i" >
-      <h1 *ngIf="block.tag == 'h1'" contenteditable [id]="block._id" (input)="block_change(element, block, $event)" (keydown)="enter($event, i, element, block)" >{{block.html}}</h1>
-      <p *ngIf="block.tag == 'p'" [id]="block._id" contenteditable (input)="block_change(element, block, $event)"  (keydown)="enter($event, i, element, block)">{{block.html}}</p>
-      <ul *ngIf="block.tag == 'list'" [id]="block._id" contenteditable (input)="block_change(element, block, $event)"  (keydown)="enter($event, i, element, block)" [innerHTML]="block.html"></ul>
+      <h1 *ngIf="block.tag == 'h1'" contenteditable [id]="block._id" (blur)="block_change(element, block, $event)" (keydown)="enter($event, i, element, block)" >{{block.html}}</h1>
+      <p *ngIf="block.tag == 'p'" [id]="block._id" contenteditable (blur)="block_change(element, block, $event)"  (keydown)="enter($event, i, element, block)">{{block.html}}</p>
+      <ul *ngIf="block.tag == 'list'" [id]="block._id" contenteditable (blur)="block_change(element, block, $event)"  (keydown)="enter($event, i, element, block)" [innerHTML]="block.html"></ul>
       <div *ngIf="block.type == 'code'"><app-code [element]="element" [root]="root" [block]="block"></app-code></div>
       <div *ngIf="block.type == 'expander'">
         <app-expander [element]="block">

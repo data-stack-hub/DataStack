@@ -267,9 +267,11 @@ class datastack():
         "imageUrl": "",
       }
     ]
+        import os
+        file_path = os.path.join(os.getcwd(), 'app.json')
         try:
             import json
-            with open('app.json', 'r') as f:
+            with open(file_path, 'r') as f:
                 html = json.loads(f.read())[key]['block']['prop']['html']
         except Exception as e:
             logger.error(e)
@@ -281,6 +283,7 @@ class datastack():
             "id":1000,
             'wid':key,
             "type":'editable_html',
+            "is_root":True,
             "prop":{
                 "html":html
             },

@@ -5,7 +5,7 @@ def main():
     pass
 
 @main.command("run")
-@click.argument("target", required=True, envvar="STREAMLIT_RUN_TARGET")
+@click.argument("target", required=True)
 @click.argument("args", nargs=-1)
 def run(target: str, args=None, **kwargs):
     """

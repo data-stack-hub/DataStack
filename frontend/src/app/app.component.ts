@@ -266,7 +266,7 @@ add_new_block(element:any, index:any=-1){
   }
     let b = Object.assign({}, block)
     b['html'] = event.target.innerHTML
-    console.log(block, event.target.innerHTML, e)
+    console.log(block, event.target.innerHTML,b, e)
     this.update_on_server(e,b, block)
   }
 

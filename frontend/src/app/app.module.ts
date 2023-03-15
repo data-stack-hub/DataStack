@@ -23,7 +23,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
 
 import { NgZorroAntdModule} from './ng-zorro-antd.module';
 import { CodeComponent } from './components/elements/code/code.component';
-import { ExpanderComponent } from './components/elements/expander/expander.component'
+import { ExpanderComponent } from './components/elements/expander/expander.component';
+import { EditableComponent } from './components/elements/editable/editable.component'
 registerLocaleData(en);
 
 @NgModule({
@@ -31,6 +32,7 @@ registerLocaleData(en);
     AppComponent,
     CodeComponent,
     ExpanderComponent,
+    EditableComponent,
     // MyComponentWrapperComponent
   ],
   imports: [
