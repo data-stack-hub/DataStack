@@ -157,6 +157,8 @@ def run_fn():
         update_var(request.json)
     elif'on_click' in request.json['prop'] and request.json['prop']['on_click'] == 'update_var_select':
         update_var_select(request.json)
+    elif request.json["type"] == 'page_link':
+        runtime.get_main_class().set_page(request.json['prop']['data'])
     else:
         try:
             fn = getattr(my_module, request.json['prop']['on_change'])

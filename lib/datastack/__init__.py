@@ -26,3 +26,4 @@ image = main.image
 columns= main.columns
 tabs = main.tabs
 chart = main.chart
+page_link = main.page_link

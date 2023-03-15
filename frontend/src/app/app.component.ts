@@ -301,4 +301,8 @@ add_new_block(element:any, index:any=-1){
     
   }
 
+  page_link(element:any){
+    this.req(element, '')
+  }
+
 }

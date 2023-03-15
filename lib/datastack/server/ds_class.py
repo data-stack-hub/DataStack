@@ -416,6 +416,17 @@ class datastack():
         }
         self.append_block(block)
 
+    def page_link(self, page_name):
+        block = {
+            "id":789,
+            "type":"page_link",
+            "prop":{
+                "data":page_name,
+                "on_change":'load_page'
+            }
+        }
+        self.append_block(block)
+
     def set_page(self, page_name):
         self.app['current_page'] = page_name
 
