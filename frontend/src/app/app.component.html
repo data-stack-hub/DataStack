@@ -152,6 +152,7 @@
     <div #editableDiv >
     <div *ngFor="let block of element.prop?.html, index as i" >
       <h1 *ngIf="block.tag == 'h1'" contenteditable [id]="block._id" (blur)="block_change(element, block, $event)" (keydown)="enter($event, i, element, block)" >{{block.html}}</h1>
+      <h2 *ngIf="block.tag == 'h2'" contenteditable [id]="block._id" (blur)="block_change(element, block, $event)" (keydown)="enter($event, i, element, block)" >{{block.html}}</h2>
       <p *ngIf="block.tag == 'p'" [id]="block._id" contenteditable (blur)="block_change(element, block, $event)"  (keydown)="enter($event, i, element, block)">{{block.html}}</p>
       <ul *ngIf="block.tag == 'list'" [id]="block._id" contenteditable (blur)="block_change(element, block, $event)"  (keydown)="enter($event, i, element, block)" [innerHTML]="block.html"></ul>
       <div *ngIf="block.type == 'code'"><app-code [element]="element" [root]="root" [block]="block"></app-code></div>
