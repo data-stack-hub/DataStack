@@ -96,16 +96,22 @@ export class AppComponent {
 
   update_app(res:any){
     console.log(res)
-    res['main_page'].forEach(element => {
-      if (element['type']== 'dataframe' || element['type']== 'chart'){
-        element.prop.data = JSON.parse(element.prop.data)
-      }
-    });
+    let all_elements = []
+    let all_pages = ['main_page'].concat(res['pages'])
+    console.log(all_pages)
+    all_pages.forEach(page=>{
+      res[page].concat(all_elements).forEach(element => {
+        if (element['type']== 'dataframe' || element['type']== 'chart'){
+          element.prop.data = JSON.parse(element.prop.data)
+        }
+      });
+    })
+
     this.page = res['current_page']
     this.container = JSON.parse(JSON.stringify(res[this.page].filter((element:any)=>element.location != 'sidebar')))
     this.sidebar = res[this.page].filter((element:any)=>element.location == 'sidebar')
     this.sidebar = [...this.sidebar, ...res['sidebar']]
-    console.log(this.container, this.sidebar)
+    console.log(res)
   }
 
   trackElement(i:any, d:any){

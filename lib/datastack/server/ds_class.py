@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from datastack.runtime import runtime
 from datastack.logger import logger
 import uuid
+import numpy as np
 
 class datastack():
     """
@@ -77,7 +78,7 @@ class datastack():
             "type":"input",
             'prop':{
                 "value":value,
-                "value_var":args[0],
+                "value_var":self.get_value_assign_var(inspect.currentframe().f_back),
                 "on_change":'update_var'
             }
         }
@@ -521,7 +522,7 @@ class datastack():
         # self.app['sidebar'] = [ item for sublist in _app for item in sublist]
         t = self.build_element_from_blocks([a[0] for a in _app])
         self.app['sidebar'] = t
-
+        self.app['pages'] = np.unique(np.array(self.app['pages'])).tolist()
         return self.app
 
     def rerun(self, my_vars, old_app):
