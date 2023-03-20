@@ -55,6 +55,9 @@
       <div *ngIf="element.type == 'input'">
         <input style="width: 100%;" [value]="element.prop.value" (change)="input_change(element, $event)">
       </div>
+      <div *ngIf="element.type == 'slider'">
+        <nz-slider [nzMin]="element.prop.min" [nzMax]="element.prop.max"  (nzOnAfterChange)="slider_value_changed(element, $event)"></nz-slider>
+      </div>
     
       <div *ngIf="element.type == 'select' || element.type == 'select_t' ">
         <!-- {{element.prop.value}} -->
