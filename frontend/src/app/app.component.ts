@@ -311,4 +311,8 @@ add_new_block(element:any, index:any=-1){
     this.req(element, '')
   }
 
+  slider_value_changed(element:any, event:any){
+    this.req(element, event)
+  }
+
 }
