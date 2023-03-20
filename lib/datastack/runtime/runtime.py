@@ -37,7 +37,12 @@ def run_script(path):
         logger.error('script failed with error: %s',e)
     spec = importlib.util.spec_from_loader('my_module', loader=None)
     my_module = importlib.util.module_from_spec(spec)
+    # from io import StringIO
+    # from contextlib import redirect_stdout
+    # f = StringIO()
+    # with redirect_stdout(f):
     exec(code, my_module.__dict__)
+    # get_main_class().write(f.getvalue())
     update_module(my_module)
     
 def create_session():
