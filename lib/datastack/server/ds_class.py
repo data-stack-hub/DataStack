@@ -326,6 +326,20 @@ class datastack():
         self.append_block(block)
         return tab    
     
+    def slider(self, min, max, value):
+        block = {
+            "id":8988,
+            "type":"slider",
+            "prop":{
+                "min":min,
+                "max":max,
+                "value":value,
+                "value_var":self.get_value_assign_var(inspect.currentframe().f_back),
+                "on_change":"update_var",
+            }
+        }
+        self.append_block(block)
+
     # # @classmethod
     # @contextmanager
     def container(self):

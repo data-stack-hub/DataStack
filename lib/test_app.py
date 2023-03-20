@@ -17,6 +17,14 @@ def load_main_page():
 # sildebar
 ds.sidebar().subheader('Pages')
 
+
+# slider
+values1 = ds.slider(0,150,20)
+ds.write('slider value is '  + str(values1))
+
+values2 = ds.slider(0,150,20)
+ds.write('slider value is '  + str(values2))
+
 # charts
 ds.subheader('Charts')
 import plotly.express as px
@@ -147,7 +155,7 @@ select 4 as a, 5 as b, 6 as c""")
 ds.divider()
 
 
-#  HTML
+# HTML
 ds.subheader("HTML")
 df = pd.DataFrame(
     [["a", "b"], ["c", "d"]],
