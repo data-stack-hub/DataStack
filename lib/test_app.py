@@ -6,9 +6,15 @@ import pandas as pd
 def dummy_fn():
     pass
 
+
+print('test')
 ds.header('DataStack Components')
 
+with ds.code_block('test_callback'):
+    ds.write('test from with')
+    print('test1')
 
+ds.callback('test_callbac_direct','print()')
 def load_main_page():
     ds.set_page('main_page')
 #  user defined functions and script

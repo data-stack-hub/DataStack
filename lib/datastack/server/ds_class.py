@@ -84,7 +84,7 @@ class datastack():
         }
         self.append_block(block)
 
-    def divider(self):
+    def divider(self, url=''):
         block = {
             "id":0,
             "type":"divider",
@@ -289,7 +289,17 @@ class datastack():
                 "html":html
             },
         }
+   
         self.append_block(block)
+
+    def callback_fn(self, name, code):
+        print('callback name', name)
+        print(name,code)
+
+    @contextmanager
+    def code_block(self):
+        yield ""
+
 
 
     def sidebar(self):

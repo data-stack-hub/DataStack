@@ -28,3 +28,5 @@ tabs = main.tabs
 chart = main.chart
 page_link = main.page_link
 slider = main.slider
+code_block = main.code_block
+callback = main.callback_fn

@@ -37,14 +37,56 @@ def run_script(path):
         logger.error('script failed with error: %s',e)
     spec = importlib.util.spec_from_loader('my_module', loader=None)
     my_module = importlib.util.module_from_spec(spec)
-    # from io import StringIO
-    # from contextlib import redirect_stdout
-    # f = StringIO()
+    from io import StringIO
+    from contextlib import redirect_stdout
+    f = StringIO()
     # with redirect_stdout(f):
-    exec(code, my_module.__dict__)
+    # exec(code, my_module.__dict__)
     # get_main_class().write(f.getvalue())
+
+    """
+        execute script with ast node
+    """
+    import ast
+    tree = ast.parse(filebody, path, "exec")
+    body = getattr(tree, "body")
+    for i, node in enumerate(body):
+        if (type(node) is ast.With):
+            if node.items[0].context_expr.func.attr == 'code_block':
+                import astunparse
+                code_body = astunparse.unparse(node.body)
+                
+                new_node = ast.Expr(
+                    value =ast.Call(
+                    func = ast.Attribute(
+                    attr="callback",
+                    value=ast.Name(id='ds',ctx=ast.Load()),
+                    ctx=ast.Load()
+                    ),
+                args=[node.items[0].context_expr.args[0], ast.Str(s=code_body)],
+                keywords=[]
+                )
+                )
+                print(node.items[0].context_expr.args)
+                print(ast.dump(node))
+                del body[i]
+                body.insert(i,new_node)
+                # print(ast.dump(node))
+                # print(code_body)
+                # exec(code_body, {})
+        if (type(node) is ast.Expr):
+            if (type(node.value) == ast.Call and 'attr' in node.value.func.__dict__ and node.value.func.attr=='callback'):
+                # if node.value.func.attr == 'callback':
+                    print(ast.dump(node))
+                    pass
+    # print(len(getattr(tree, "body")), body)
+    tree = ast.fix_missing_locations(tree)
+    code = compile(tree, path, "exec")
+    with redirect_stdout(f):
+        exec(code, my_module.__dict__)
+
     update_module(my_module)
-    
+    print(f.getvalue())
 def create_session():
     """
     check if session is available with session id
