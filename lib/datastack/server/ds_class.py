@@ -340,6 +340,34 @@ class datastack():
         }
         self.append_block(block)
 
+    def date_input(self,label:str=None,value:str=None,min:str='1970-01-01',max:str='2500-01-01',date_format:str='yyyy-mm-dd',use_container_width:bool=False,disabled:bool=False):
+        """
+        label (str) : A short label explaining to the user what this date input is for. 
+
+        value (str): The value of this widget when it first renders (ex.: 2023-01-01).
+        min (str) : The minimum selectable date (ex.: 2023-01-01).
+        max (str) : The maximum selectable date (ex.: 2023-01-01).
+        date_format (str) : To set the date format (ex.: dd-MMM-yyyy).
+        use_container_width (bool) : An optional boolean, which makes the date picker stretch its width to match the parent container.
+        disabled (bool) : An optional boolean, which disables the date input if set to True. The default is False.
+        """
+        block = {
+            "id":8982,
+            "type":"date_input",
+            "prop":{
+                "label":label,
+                "data":value,  
+                "date_format" : date_format,
+                "min":min,
+                "max":max,
+                "use_container_width":use_container_width,
+                "disabled":disabled,
+                "value_var":self.get_value_assign_var(inspect.currentframe().f_back),
+                "on_change":"update_var",
+            }
+        }
+        self.append_block(block)        
+
     # # @classmethod
     # @contextmanager
     def container(self):
@@ -479,8 +507,10 @@ class datastack():
     def update_state(self):
         def _update_state(location):
           for c in location:
-                if c['type'] == 'text' or c['type'] == 'html':
+                if c['type'] == 'text' or c['type'] == 'html' :
                     c['prop']['data'] = eval(c['prop']['data_var'])
+                if c['type'] == 'date_input':
+                    c['prop']['data'] = eval(c['prop']['value_var'])
                 if c['type'] == 'button':
                     c['prop']['title'] = eval(c['prop']['title_var'])
                 if c['type'] =='select':

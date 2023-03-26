@@ -29,6 +29,13 @@
     <!-- {{value | json}} -->
     <div *ngFor="let element of value; trackBy:trackElement" >
 
+      <div *ngFor="let key of element.prop | keyvalue">        
+        <div *ngIf="key.key=='label'">
+          <h3>{{element.prop.label}}</h3> 
+        </div>
+      </div>
+      
+
       <div  *ngIf="element.type == 'button'">
         <button nz-button nzType="primary" (click)="click(element)">{{element.prop.title}}</button>
       </div>
@@ -57,6 +64,9 @@
       </div>
       <div *ngIf="element.type == 'slider'">
         <nz-slider [nzMin]="element.prop.min" [nzMax]="element.prop.max"  (nzOnAfterChange)="slider_value_changed(element, $event)"></nz-slider>
+      </div>
+      <div *ngIf="element.type == 'date_input'">
+        <nz-date-picker [nzDisabledDate]="date_min_max(element.prop.min,element.prop.max)"  [style.display]="element.prop.use_container_width ? 'block' : null" [nzShowTime]="false" [nzFormat]= element.prop.date_format [(ngModel)]="element.prop.data" (ngModelChange)="date_changed(element,$event)" [nzDisabled]="element.prop.disabled"></nz-date-picker>      
       </div>
     
       <div *ngIf="element.type == 'select' || element.type == 'select_t' ">

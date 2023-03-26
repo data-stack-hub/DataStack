@@ -110,3 +110,8 @@ df = pd.DataFrame(
 ds.write('dataframe')
 ds.dataframe(df)
 ```
+
+```
+# data input
+df = ds.date_input()
+```
