@@ -186,4 +186,19 @@
   </div>
 
 
+  <!-- floating button -->
+  <button nz-button nz-dropdown nzShape="circle" [nzDropdownMenu]="menu" nzPlacement="topRight" style="z-index: 1000; position: fixed; bottom:30px; right:30px"><span nz-icon nzType="menu"></span></button>
+  <nz-dropdown-menu #menu="nzDropdownMenu">
+    <ul nz-menu>
+      <li nz-menu-item nzDisabled>Rerun</li>
+      <li nz-menu-item nzDisabled >Setting</li>
+      <li nz-menu-divider></li>
+      <li nz-menu-item nzDisabled>About</li>
+    </ul>
+  </nz-dropdown-menu>
+
+  <!-- spinner -->
+  <nz-spin nzSimple [nzSize]="'small'" style="z-index: 1000; position: fixed; right:10px; top:10px" *ngIf="spinning"></nz-spin>
+
+
   

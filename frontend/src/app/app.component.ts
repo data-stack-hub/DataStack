@@ -48,6 +48,7 @@ export class AppComponent {
   current_block: any;
   editor: any;
   height =30;
+  spinning = false
 
   public graph = {
     data: [
@@ -84,8 +85,10 @@ export class AppComponent {
   }
 
   req(e:any, payload:any){
+    this.spinning = true
     this.api.post('http://localhost:5000/run_fn',{...e, ...{"payload":payload}})
     .subscribe((res:any)=>{
+      this.spinning = false
       this.update_app(res)
       // console.log('resp')
       // this.container = JSON.parse(JSON.stringify(res[this.page].filter((element:any)=>element.location != 'sidebar')))
