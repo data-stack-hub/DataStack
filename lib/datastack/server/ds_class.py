@@ -356,7 +356,7 @@ class datastack():
             "type":"date_input",
             "prop":{
                 "label":label,
-                "data":value,  
+                "value":value,  
                 "date_format" : date_format,
                 "min":min,
                 "max":max,
@@ -510,7 +510,7 @@ class datastack():
                 if c['type'] == 'text' or c['type'] == 'html' :
                     c['prop']['data'] = eval(c['prop']['data_var'])
                 if c['type'] == 'date_input':
-                    c['prop']['data'] = eval(c['prop']['value_var'])
+                    c['prop']['value'] = eval(c['prop']['value_var'])
                 if c['type'] == 'button':
                     c['prop']['title'] = eval(c['prop']['title_var'])
                 if c['type'] =='select':
