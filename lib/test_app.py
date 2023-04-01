@@ -1,7 +1,7 @@
 from flask import jsonify
 import datastack as ds
 import pandas as pd
-
+import datetime
 # -------------------------------- user py file ------------------------------
 def dummy_fn():
     pass
@@ -17,7 +17,9 @@ def load_main_page():
 # sildebar
 ds.sidebar().subheader('Pages')
 
-
+# Date picker
+dd_date = ds.date_input(value=datetime.date(2019, 7, 6))
+ds.write('Selected_Date '  + str(dd_date))
 # slider
 values1 = ds.slider(0,150,20)
 ds.write('slider value is '  + str(values1))
