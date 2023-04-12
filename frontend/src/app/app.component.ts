@@ -3,6 +3,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { map } from 'rxjs/operators';
+import { formatISO,isAfter,isBefore } from "date-fns";
 import { ApiService } from './services/api.service';
 declare const monaco: any;
 @Component({
@@ -11,6 +12,7 @@ declare const monaco: any;
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+  date_value: Date;
   title = 'frontend';
   container:any
   sidebar:any
@@ -48,6 +50,7 @@ export class AppComponent {
   current_block: any;
   editor: any;
   height =30;
+  spinning = false
 
   public graph = {
     data: [
@@ -84,8 +87,10 @@ export class AppComponent {
   }
 
   req(e:any, payload:any){
+    this.spinning = true
     this.api.post('http://localhost:5000/run_fn',{...e, ...{"payload":payload}})
     .subscribe((res:any)=>{
+      this.spinning = false
       this.update_app(res)
       // console.log('resp')
       // this.container = JSON.parse(JSON.stringify(res[this.page].filter((element:any)=>element.location != 'sidebar')))
@@ -315,4 +320,36 @@ add_new_block(element:any, index:any=-1){
     this.req(element, event)
   }
 
-}
+  date_changed(element:any, event:any){  
+    this.req(element, formatISO(event, { representation: 'date' }))
+  }
+
+  date_min_max(min,max){
+    if (min && max){
+      return (current: Date) => {
+        return !current || isAfter(current,new Date(max)) || isBefore(current,new Date(min));
+    }
+  }else if(min){
+    return (current: Date) => {
+      return !current || isBefore(current,new Date(min));
+  }
+  }else if(max){
+    return (current: Date) => {
+      return !current || isAfter(current,new Date(max));
+  }
+  }else{
+    return (current: Date) => {
+      return !current || isAfter(current,new Date('2500-01-01')) || isBefore(current,new Date('1970-01-01'));
+  }
+  }
+
+}}
+
+
+
+
+
+
+
+
+
