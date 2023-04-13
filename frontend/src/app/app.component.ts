@@ -74,16 +74,16 @@ export class AppComponent {
   input_change(e:any, event:any){
     console.log(event.target.value)
     // this.container = this.api.post('http://localhost:5000/run_fn',{...e, ...{"payload":event.target.value}})
-    this.req(e,event.target.value)
+    this.req(e,{value : event.target.value, action:'change'})
   }
 
   onSelected(e:any, value:any){
     console.log(value, e)
-    this.req(e, value)
+    this.req(e, {value: value, action:'change'})
   }
 
   list_click(e:any,value:any){
-    this.req(e, value)
+    this.req(e, {value:value, action:"click"})
   }
 
   req(e:any, payload:any){

@@ -79,7 +79,6 @@ class datastack():
             'prop':{
                 "value":value,
                 "value_var":self.get_value_assign_var(inspect.currentframe().f_back),
-                "on_change":'update_var'
             }
         }
         self.append_block(block)
@@ -146,7 +145,6 @@ class datastack():
                 "options":options,
                 "value":value,
                 'value_var':self.get_value_assign_var(inspect.currentframe().f_back),
-                "on_click":"update_var_select",
                 "on_change":change_fn_name
             }
         }
@@ -172,9 +170,10 @@ class datastack():
             "type":"list",
             "prop":{
                 "data":data,
-                "data_var":args_options,
+                "value":'',
+                "value_var":self.get_value_assign_var(inspect.currentframe().f_back),
                 "on_change":click_fn_name,
-                "on_change_source":click_fn
+                "on_change_source":click_fn,
             }
         }
 
@@ -509,7 +508,7 @@ class datastack():
           for c in location:
                 if c['type'] == 'text' or c['type'] == 'html' :
                     c['prop']['data'] = eval(c['prop']['data_var'])
-                if c['type'] == 'date_input':
+                if c['type'] == 'date_input' or c['type'] == 'input':
                     c['prop']['value'] = eval(c['prop']['value_var'])
                 if c['type'] == 'button':
                     c['prop']['title'] = eval(c['prop']['title_var'])
@@ -518,7 +517,7 @@ class datastack():
                 if c['type'] == 'iframe':
                     c['prop']['url'] = eval(c['prop']['url_var'])
                 if c['type'] == 'list':
-                    c['prop']['data'] = eval(c['prop']['data_var'])
+                    c['prop']['value'] = eval(c['prop']['value_var'])
                 if c['type'] == 'expander' or c['type'] == 'container':
                     _update_state(c['data'])
                     pass

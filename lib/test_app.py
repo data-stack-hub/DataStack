@@ -98,8 +98,8 @@ def list_click(a):
     print(a)
 
 selection_from_list = ''
-ds.list(['a','b','c'], on_click=list_click)
-ds.write('Selected Option: ' + selection_from_list)
+selection_from_list = ds.list(['a','b','c', 'd'], on_click=list_click)
+ds.write('Selected Option: ' + str(selection_from_list))
 ds.divider()
 
 #  dropdown
@@ -140,8 +140,8 @@ ds.divider()
 # input
 ds.subheader('Input value')
 input_value = 'default value'
-ds.input(input_value)
-ds.write('Input: '+ input_value)
+input_value = ds.input(input_value)
+ds.write('Input: '+ str(input_value))
 ds.divider()
 
 # code
@@ -193,7 +193,7 @@ def change_iframe(a):
     else:
         url = 'https://www.wikipedia.org/'
 
-ds.list(['Wikipedia','ML'], on_click=change_iframe)
+site = ds.list(['Wikipedia','ML'], on_click=change_iframe)
 url = 'https://www.wikipedia.org/'
 ds.iframe(url)
 ds.divider()
