@@ -4,7 +4,7 @@ from datastack.runtime import runtime
 from datastack.logger import logger
 import uuid
 import numpy as np
-
+import time
 class datastack():
     """
     on_change= function name
@@ -52,7 +52,7 @@ class datastack():
             click_fn_name =''
 
         block = {
-            "id":1,
+            "id":time.time_ns(),
             "type":'button',
             "prop":{
                 "title":name,
@@ -74,7 +74,7 @@ class datastack():
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         args = string[string.find('(') + 1:-1].split(',')
         block = {
-            "id":50,
+            "id":time.time_ns(),
             "type":"input",
             'prop':{
                 "value":value,
@@ -85,7 +85,7 @@ class datastack():
 
     def divider(self):
         block = {
-            "id":0,
+            "id":time.time_ns(),
             "type":"divider",
             "prop":{}
         }
@@ -98,7 +98,7 @@ class datastack():
         # print(string)
         args = string[string.find('.header(') + 7:-1].split(',')
         block = {
-            "id":100,
+            "id":time.time_ns(),
             "type":'header',
             "prop":{
                 "data":data,
@@ -114,7 +114,7 @@ class datastack():
         # print(string)
         args = string[string.find('.header(') + 7:-1].split(',')
         block = {
-            "id":100,
+            "id":time.time_ns(),
             "type":'subheader',
             "prop":{
                 "data":data,
@@ -139,7 +139,7 @@ class datastack():
             change_fn_name =''
 
         block = {
-            "id":60,
+            "id":time.time_ns(),
             "type":"select",
             "prop":{
                 "options":options,
@@ -166,7 +166,7 @@ class datastack():
             click_fn =''
             click_fn_name =''
         block = {
-            "id":500,
+            "id":time.time_ns(),
             "type":"list",
             "prop":{
                 "data":data,
@@ -216,7 +216,7 @@ class datastack():
 
     def dataframe(self, data):
         block = {
-            "id":600,
+            "id":time.time_ns(),
             "type":"dataframe",
             "prop":{
                 "data":data.to_json(orient="records"),
@@ -232,7 +232,7 @@ class datastack():
         # print(string)
         args = string[string.find('.write(') + 7:-1].split(',')
         block = {
-            "id":100,
+            "id":time.time_ns(),
             "type":'text',
             "location":location,
             "prop":{
@@ -249,7 +249,7 @@ class datastack():
         args = string[string.find('(') + 1:-1].split(',')
 
         block = {
-            "id":200,
+            "id":time.time_ns(),
             "type":'html',
             "prop":{
                 "data":html,
@@ -280,7 +280,7 @@ class datastack():
         #     html = default_html
         logger.info(html)
         block={
-            "id":1000,
+            "id":time.time_ns(),
             'wid':key,
             "type":'editable_html',
             "is_root":True,
@@ -304,7 +304,7 @@ class datastack():
     def columns(self, col_number):
         cols = [datastack(type ="column") for x in range(0,col_number)]
         block = {
-            "id":55,
+            "id":time.time_ns(),
             "type":"column",
             "data":cols,
             "prop":{}
@@ -315,7 +315,7 @@ class datastack():
     def tabs(self, tab_list):
         tab = [datastack(type ="tab", title=tab_list[x]) for x in range(0,len(tab_list))]
         block = {
-            "id":55,
+            "id":time.time_ns(),
             "type":"tabs",
             "data":tab,
             "prop":{
@@ -327,7 +327,7 @@ class datastack():
     
     def slider(self, min, max, value):
         block = {
-            "id":8988,
+            "id":time.time_ns(),
             "type":"slider",
             "prop":{
                 "min":min,
@@ -351,7 +351,7 @@ class datastack():
         disabled (bool) : An optional boolean, which disables the date input if set to True. The default is False.
         """
         block = {
-            "id":8982,
+            "id":time.time_ns(),
             "type":"date_input",
             "prop":{
                 "label":label,
@@ -384,7 +384,7 @@ class datastack():
     
     def code(self, data, key):
         block = {
-            "id":1200,
+            "id":time.time_ns(),
             'wid':key,
             "type":"code",
             "prop":{
@@ -406,7 +406,7 @@ class datastack():
 
     def query(self, data):
         block = {
-            "id":1500,
+            "id":time.time_ns(),
             "type":"query",
             "prop":{
                 'query':data
@@ -417,7 +417,7 @@ class datastack():
     
     def image(self, data):
         block = {
-            "id":1600,
+            "id":time.time_ns(),
             "type":"image",
             "prop":{
                 "data": 'data:image/png;base64, '  + data
@@ -432,7 +432,7 @@ class datastack():
         args = string[string.find('(') + 1:-1].split(',')
 
         block = {
-            "id":600,
+            "id":time.time_ns(),
             "type":"iframe",
             "prop":{
                 "url":url,
@@ -460,7 +460,7 @@ class datastack():
 
     def page_link(self, page_name):
         block = {
-            "id":789,
+            "id":time.time_ns(),
             "type":"page_link",
             "prop":{
                 "data":page_name,
@@ -493,11 +493,11 @@ class datastack():
         # with parent
         # return [ dict(each_one, **{'parent':x.type}) for each_one in x.blocks['main_page']] 
 
-        _app =  [ {"id":"", "type":x.type, "title":x.title, "data":x.blocks['main_page']}  if isinstance(x, object) and x.__class__.__name__ =='datastack' and x.type != 'sidebar' else x for x in blocks]
+        _app =  [ {"id":time.time_ns(), "type":x.type, "title":x.title, "data":x.blocks['main_page']}  if isinstance(x, object) and x.__class__.__name__ =='datastack' and x.type != 'sidebar' else x for x in blocks]
         # for columns and tabs
-        _app = [{"id":"", "type":x['type'],"prop":x['prop'], "data":[self.build_element_from_blocks(c.blocks['main_page']) for c in x['data']]} if x['type'] == 'column' else x for x in _app ]
-        _app = [{"id":"", "type":x['type'],"prop":x['prop'], "data":[
-            {"id":"", "type":"tab", "title":c.title, "data":self.build_element_from_blocks(c.blocks['main_page']) }
+        _app = [{"id":time.time_ns(), "type":x['type'],"prop":x['prop'], "data":[self.build_element_from_blocks(c.blocks['main_page']) for c in x['data']]} if x['type'] == 'column' else x for x in _app ]
+        _app = [{"id":time.time_ns(), "type":x['type'],"prop":x['prop'], "data":[
+            {"id":time.time_ns(), "type":"tab", "title":c.title, "data":self.build_element_from_blocks(c.blocks['main_page']) }
             for c in x['data']]} if x['type'] == 'tabs' else x for x in _app ]
 
         return _app

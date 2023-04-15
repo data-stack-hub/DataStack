@@ -146,11 +146,12 @@ def run_query_block():
 
 @overload
 def update_var(event):
+    print(event)
     setattr(my_module,event['prop']['value_var'], event['payload'])
 
-def update_var(var, value):
-    print(var, value)
-    setattr(my_module, var, value)
+# def update_var(var, value):
+#     print(var, value)
+#     setattr(my_module, var, value)
 
 def update_var_select(event):
     setattr(my_module, event['prop']['value_var'], event['payload'])
@@ -165,8 +166,8 @@ def run_fn():
     elif (request.json['type'] == 'input' or request.json['type'] == 'select') and request.json['payload']['action'] == 'change' and request.json['payload']['value'] is not  None and request.json['prop']['value_var'] is not None:
         update_var(request.json['prop']['value_var'], request.json['payload']['value'])
 
-    # elif request.json['prop']['on_change'] == 'update_var':
-    #     update_var(request.json)
+    elif request.json['prop']['on_change'] == 'update_var':
+        update_var(request.json)
     # elif'on_click' in request.json['prop'] and request.json['prop']['on_click'] == 'update_var_select':
     #     update_var_select(request.json)
     elif request.json["type"] == 'page_link':
