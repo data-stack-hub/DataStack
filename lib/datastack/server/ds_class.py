@@ -339,7 +339,7 @@ class datastack():
         }
         self.append_block(block)
 
-    def date_input(self,label:str=None,value:str=None,min:str='1970-01-01',max:str='2500-01-01',date_format:str='yyyy-mm-dd',use_container_width:bool=False,disabled:bool=False):
+    def date_input(self,label:str=None,value:str=None,min:str='1970-01-01',max:str='2500-01-01',date_format:str='yyyy-MM-dd',use_container_width:bool=False,disabled:bool=False):
         """
         label (str) : A short label explaining to the user what this date input is for. 
 
@@ -366,6 +366,46 @@ class datastack():
             }
         }
         self.append_block(block)        
+
+    def success(self,text:str=None):
+        block = {
+            "id":217,
+            "type":"success",
+            "prop":{
+                "value":text,
+            }
+        }
+        self.append_block(block)
+
+    def info(self,text:str=None):
+        block = {
+            "id":472,
+            "type":"info",
+            "prop":{
+                "value":text,
+            }
+        }
+        self.append_block(block)
+
+    def warning(self,text:str=None):
+        block = {
+            "id":846,
+            "type":"warning",
+            "prop":{
+                "value":text,
+            }
+        }
+        self.append_block(block)
+
+    def error(self,text:str=None):
+        block = {
+            "id":783,
+            "type":"error",
+            "prop":{
+                "value":text,
+            }
+        }
+        self.append_block(block)
 
     # # @classmethod
     # @contextmanager
