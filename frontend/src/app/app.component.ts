@@ -343,7 +343,12 @@ add_new_block(element:any, index:any=-1){
   }
   }
 
-}}
+}
+
+str_to_json(str){
+  return JSON.parse(str)
+}
+}
 
 
 

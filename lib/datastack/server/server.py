@@ -8,7 +8,9 @@ from datastack.logger import logger
 import os
 print(os.getcwd())
 
-static_file_path = os.path.join(os.getcwd(),'static') 
+from pathlib import Path
+# static_file_path = os.path.join(os.getcwd(),'static') 
+static_file_path = os.path.join(Path(os.path.dirname(__file__)).parent.parent.absolute(),'static') 
 app = Flask(__name__, static_folder=static_file_path, template_folder=static_file_path, static_url_path='/')
 cors = CORS(app)
 
@@ -157,7 +159,6 @@ def update_var_select(event):
     getattr(my_module,event['prop']['on_change'])()
 
 def run_fn():
-    print(request.json)
     global my_module 
     my_module = runtime.get_module()
     on_change_type = ['input','select', 'date_input','slider']
