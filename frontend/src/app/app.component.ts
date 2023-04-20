@@ -317,11 +317,11 @@ add_new_block(element:any, index:any=-1){
   }
 
   slider_value_changed(element:any, event:any){
-    this.req(element, event)
+    this.req(element,  {value: event, action:'change'})
   }
 
   date_changed(element:any, event:any){  
-    this.req(element, formatISO(event, { representation: 'date' }))
+    this.req(element,{value: formatISO(event, { representation: 'date' }), action:'change'}  )
   }
 
   date_min_max(min,max){

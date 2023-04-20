@@ -159,10 +159,10 @@ def update_var_select(event):
 def run_fn():
     global my_module 
     my_module = runtime.get_module()
-
+    on_change_type = ['input','select', 'date_input','slider']
     if request.json['type'] == 'list' and request.json['payload']['action'] == 'click':
         update_var(request.json['prop']['value_var'], request.json['payload']['value'])
-    elif (request.json['type'] == 'input' or request.json['type'] == 'select') and request.json['payload']['action'] == 'change' and request.json['payload']['value'] is not  None and request.json['prop']['value_var'] is not None:
+    elif request.json['type'] in on_change_type and request.json['payload']['action'] == 'change' and request.json['payload']['value'] is not  None and request.json['prop']['value_var'] is not None:
         update_var(request.json['prop']['value_var'], request.json['payload']['value'])
 
     # elif request.json['prop']['on_change'] == 'update_var':
