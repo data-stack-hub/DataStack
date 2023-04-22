@@ -2,9 +2,10 @@ import inspect
 from contextlib import contextmanager
 from datastack.runtime import runtime
 from datastack.logger import logger
-import uuid
+import uuid,os
 import numpy as np
 import time
+from pathlib import Path
 
 class datastack():
     """
@@ -268,8 +269,8 @@ class datastack():
         "imageUrl": "",
       }
     ]
-        import os
-        file_path = os.path.join(os.getcwd(), 'app.json')
+        file_path = os.path.join(Path(os.path.dirname(__file__)).parent.absolute(),'static/app.json')
+        
         try:
             import json
             with open(file_path, 'r') as f:
@@ -393,7 +394,7 @@ class datastack():
             }
         }
 
-        with open('app.json', 'r') as f:
+        with open(os.path.join(Path(os.path.dirname(__file__)).parent.absolute(),'static/app.json'), 'r') as f:
             import json
             try:
                 b =  json.loads(f.read())
@@ -533,7 +534,7 @@ class datastack():
     ]
                     try:
                         import json
-                        with open('app.json', 'r') as f:
+                        with open(os.path.join(Path(os.path.dirname(__file__)).parent.absolute(),'static/app.json'), 'r') as f:
                             html = json.loads(f.read())[c['wid']]['block']['prop']['html']
                     except Exception as e:
                         logger.error(e)
