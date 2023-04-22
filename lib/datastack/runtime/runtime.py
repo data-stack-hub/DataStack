@@ -3,6 +3,7 @@ from datastack.server import utils
 from datastack.logger import logger
 ctx = {}
 
+ctx['storage'] = []
 def set_main_class(cls):
     ctx['main_class'] = cls
 
@@ -23,6 +24,9 @@ def set_file_path(path):
 
 def get_file_path():
     return ctx['file_path']
+
+def add_file_to_storage(file):
+    ctx['storage'].append(file)
 
 def run_script(path):
     if os.path.splitext(path)[1] == '.ipynb':

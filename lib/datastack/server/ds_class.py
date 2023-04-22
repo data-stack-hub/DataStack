@@ -416,14 +416,29 @@ class datastack():
         return ''
     
     def image(self, data):
+        import io
+        import base64
+        if not isinstance(data, io.BytesIO):
+            buffered = io.BytesIO()
+            data.save(buffered, format="JPEG")
+        else:
+            buffered = data
+        img_str = base64.b64encode(buffered.getvalue())
         block = {
             "id":1600,
             "type":"image",
             "prop":{
-                "data": 'data:image/png;base64, '  + data
+                "data": 'data:image/png;base64, '  + img_str.decode("utf-8") 
             }
         }
         self.append_block(block)
+
+    def pyplot(self, fig):
+        import io
+        image = io.BytesIO()
+        fig.savefig(image)
+        self.image(image)
+      
 
     def iframe(self, url):
         frame = inspect.currentframe()

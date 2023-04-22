@@ -2,6 +2,8 @@ from flask import jsonify
 import datastack as ds
 import pandas as pd
 import datetime
+from PIL import Image
+import numpy as np
 # -------------------------------- user py file ------------------------------
 def dummy_fn():
     pass
@@ -17,6 +19,18 @@ def load_main_page():
 # sildebar
 ds.sidebar().subheader('Pages')
 
+# pyplot
+ds.subheader('PyPlot')
+arr = np.random.normal(1, 1, size=100)
+import matplotlib.pyplot as plt
+fig, ax = plt.subplots()
+ax.hist(arr, bins=20)
+ds.pyplot(fig)
+
+# image
+ds.subheader('Image')
+image = Image.open('test_image.jpg')
+ds.image(image)
 # Date picker
 dd_date = ds.date_input(value=datetime.date(2019, 7, 6))
 ds.write('Selected_Date '  + str(dd_date))

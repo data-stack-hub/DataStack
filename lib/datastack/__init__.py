@@ -29,3 +29,4 @@ chart = main.chart
 page_link = main.page_link
 slider = main.slider
 date_input = main.date_input
+pyplot = main.pyplot
