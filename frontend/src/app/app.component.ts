@@ -346,7 +346,13 @@ add_new_block(element:any, index:any=-1){
 }
 
 str_to_json(str){
+
+  if(typeof(str) != 'object'){
   return JSON.parse(str)
+  }
+  else {
+    return str
+  }
 }
 }
 

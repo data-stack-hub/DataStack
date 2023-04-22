@@ -68,7 +68,7 @@ class datastack():
         except:pass
         self.append_block(block)
 
-    def input(self,value):
+    def input(self,value=''):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
