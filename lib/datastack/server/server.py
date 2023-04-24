@@ -8,7 +8,9 @@ from datastack.logger import logger
 import os
 print(os.getcwd())
 
-static_file_path = os.path.join(os.getcwd(),'static') 
+from pathlib import Path
+# static_file_path = os.path.join(os.getcwd(),'static') 
+static_file_path = os.path.join(Path(os.path.dirname(__file__)).parent.parent.absolute(),'static') 
 app = Flask(__name__, static_folder=static_file_path, template_folder=static_file_path, static_url_path='/')
 cors = CORS(app)
 
@@ -159,10 +161,10 @@ def update_var_select(event):
 def run_fn():
     global my_module 
     my_module = runtime.get_module()
-
+    on_change_type = ['input','select', 'date_input','slider']
     if request.json['type'] == 'list' and request.json['payload']['action'] == 'click':
         update_var(request.json['prop']['value_var'], request.json['payload']['value'])
-    elif (request.json['type'] == 'input' or request.json['type'] == 'select') and request.json['payload']['action'] == 'change' and request.json['payload']['value'] is not  None and request.json['prop']['value_var'] is not None:
+    elif request.json['type'] in on_change_type and request.json['payload']['action'] == 'change' and request.json['payload']['value'] is not  None and request.json['prop']['value_var'] is not None:
         update_var(request.json['prop']['value_var'], request.json['payload']['value'])
     # elif request.json['prop']['on_change'] == 'update_var':
     #     update_var(request.json)
@@ -170,9 +172,11 @@ def run_fn():
     #     update_var_select(request.json)
     elif request.json["type"] == 'page_link':
         runtime.get_main_class().set_page(request.json['prop']['data'])
-    elif 'on_change' in request.json:
+
+    elif 'on_change' in request.json['prop']:
         try:
             fn = getattr(my_module, request.json['prop']['on_change'])
+            print(fn)
             if 'args' in request.json['prop']:
                 fn(*tuple(request.json['prop']['args']))
             else:

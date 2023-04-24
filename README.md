@@ -16,13 +16,13 @@ examples
 - lib\test_app.ipynb
 
 
-```
+```python
 # write text
 import datastack as ds
 ds.write('some text')
 ```
 
-```
+```python
 #  dropdown selection
 ds.subheader('Dropdown Selection')
 selected_value = ds.select(['a','b','c'], on_change=dummy_fn )
@@ -30,7 +30,7 @@ ds.write('selected value: ' + selected_value)
 ds.divider()
 ```
 
-```
+```python
 # list
 ds.subheader('List')
 def list_click(a):
@@ -44,7 +44,7 @@ ds.write('Selected Option: ' + selection_from_list)
 ds.divider()
 ```
 
-```
+```python
 # Button
 def inc_count(a):
     global count
@@ -56,7 +56,7 @@ ds.write('Count value: '+ str(count))
 ds.divider()
 ```
 
-```
+```python
 # input
 ds.subheader('Input value')
 input_value = 'default value'
@@ -65,7 +65,7 @@ ds.write('Input: '+ input_value)
 ds.divider()
 ```
 
-```
+```python
 #  HTML
 ds.subheader("HTML")
 df = pd.DataFrame(
@@ -78,7 +78,7 @@ ds.html("<div style='color:green'>HTML Text</div>")
 ds.divider()
 ```
 
-```
+```python
 # Iframe
 ds.subheader('Iframe')
 def change_iframe(a):
@@ -96,12 +96,12 @@ ds.iframe(url)
 ```
 
 
-```
+```python
 # page divider
 ds.divider()
 ```
 
-```
+```python
 # dataframe
 df = pd.DataFrame(
     [["a", "b"], ["c", "d"]],
@@ -111,7 +111,7 @@ ds.write('dataframe')
 ds.dataframe(df)
 ```
 
-```
+```python
 # data input
 df = ds.date_input()
 ```

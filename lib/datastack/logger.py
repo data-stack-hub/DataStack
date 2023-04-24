@@ -10,4 +10,4 @@ logging.basicConfig(format='%(asctime)s %(levelname) -7s " "%(name)s: %(message)
 logger = logging.getLogger()
 
 # Setting the threshold of logger to DEBUG
-logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
