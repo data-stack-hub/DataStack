@@ -27,6 +27,11 @@ ds.write('slider value is '  + str(values1))
 values2 = ds.slider(0,150,20)
 ds.write('slider value is '  + str(values2))
 
+ds.success("Success message")
+ds.info("Info message")
+ds.warning("Warning message")
+ds.error("Error message")
+
 # charts
 ds.subheader('Charts')
 import plotly.express as px

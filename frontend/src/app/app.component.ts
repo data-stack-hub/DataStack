@@ -321,7 +321,10 @@ add_new_block(element:any, index:any=-1){
   }
 
   date_changed(element:any, event:any){  
+
+
     this.req(element,{value: formatISO(event, { representation: 'date' }), action:'change'}  )
+
   }
 
   date_min_max(min,max){

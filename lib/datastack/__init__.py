@@ -29,3 +29,7 @@ chart = main.chart
 page_link = main.page_link
 slider = main.slider
 date_input = main.date_input
+success = main.success
+info = main.info
+warning = main.warning
+error = main.error
