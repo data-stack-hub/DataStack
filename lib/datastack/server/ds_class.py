@@ -369,6 +369,46 @@ class datastack():
         }
         self.append_block(block)        
 
+    def success(self,text:str=None):
+        block = {
+            "id":217,
+            "type":"success",
+            "prop":{
+                "value":text,
+            }
+        }
+        self.append_block(block)
+
+    def info(self,text:str=None):
+        block = {
+            "id":472,
+            "type":"info",
+            "prop":{
+                "value":text,
+            }
+        }
+        self.append_block(block)
+
+    def warning(self,text:str=None):
+        block = {
+            "id":846,
+            "type":"warning",
+            "prop":{
+                "value":text,
+            }
+        }
+        self.append_block(block)
+
+    def error(self,text:str=None):
+        block = {
+            "id":783,
+            "type":"error",
+            "prop":{
+                "value":text,
+            }
+        }
+        self.append_block(block)
+
     # # @classmethod
     # @contextmanager
     def container(self):
