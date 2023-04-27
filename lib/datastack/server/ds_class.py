@@ -32,6 +32,8 @@ class datastack():
         if main:
             runtime.set_main_class(self)
 
+    def dynamic_widget_id(self):
+        return time.time_ns()
 #  change to on_click = function name and on_click_source = function code
 #  move frame logic to somewhere else
     def button(self, name, on_click='', args={}):
@@ -54,7 +56,7 @@ class datastack():
             click_fn_name =''
 
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":'button',
             "prop":{
                 "title":name,
@@ -76,7 +78,7 @@ class datastack():
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         args = string[string.find('(') + 1:-1].split(',')
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":"input",
             'prop':{
                 "value":value,
@@ -87,7 +89,7 @@ class datastack():
 
     def divider(self):
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":"divider",
             "prop":{}
         }
@@ -100,7 +102,7 @@ class datastack():
         # print(string)
         args = string[string.find('.header(') + 7:-1].split(',')
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":'header',
             "prop":{
                 "data":data,
@@ -116,7 +118,7 @@ class datastack():
         # print(string)
         args = string[string.find('.header(') + 7:-1].split(',')
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":'subheader',
             "prop":{
                 "data":data,
@@ -141,7 +143,7 @@ class datastack():
             change_fn_name =''
 
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":"select",
             "prop":{
                 "options":options,
@@ -168,7 +170,7 @@ class datastack():
             click_fn =''
             click_fn_name =''
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":"list",
             "prop":{
                 "data":data,
@@ -218,7 +220,7 @@ class datastack():
 
     def dataframe(self, data):
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":"dataframe",
             "prop":{
                 "data":data.to_json(orient="records"),
@@ -234,7 +236,7 @@ class datastack():
         # print(string)
         args = string[string.find('.write(') + 7:-1].split(',')
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":'text',
             "location":location,
             "prop":{
@@ -251,7 +253,7 @@ class datastack():
         args = string[string.find('(') + 1:-1].split(',')
 
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":'html',
             "prop":{
                 "data":html,
@@ -282,7 +284,7 @@ class datastack():
         #     html = default_html
         logger.info(html)
         block={
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             'wid':key,
             "type":'editable_html',
             "is_root":True,
@@ -306,7 +308,7 @@ class datastack():
     def columns(self, col_number):
         cols = [datastack(type ="column") for x in range(0,col_number)]
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":"column",
             "data":cols,
             "prop":{}
@@ -317,7 +319,7 @@ class datastack():
     def tabs(self, tab_list):
         tab = [datastack(type ="tab", title=tab_list[x]) for x in range(0,len(tab_list))]
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":"tabs",
             "data":tab,
             "prop":{
@@ -329,7 +331,7 @@ class datastack():
     
     def slider(self, min, max, value):
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":"slider",
             "prop":{
                 "min":min,
@@ -353,7 +355,7 @@ class datastack():
         disabled (bool) : An optional boolean, which disables the date input if set to True. The default is False.
         """
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":"date_input",
             "prop":{
                 "label":label,
@@ -371,7 +373,7 @@ class datastack():
 
     def success(self,text:str=None):
         block = {
-            "id":217,
+            "id":self.dynamic_widget_id(),
             "type":"success",
             "prop":{
                 "value":text,
@@ -381,7 +383,7 @@ class datastack():
 
     def info(self,text:str=None):
         block = {
-            "id":472,
+            "id":self.dynamic_widget_id(),
             "type":"info",
             "prop":{
                 "value":text,
@@ -391,7 +393,7 @@ class datastack():
 
     def warning(self,text:str=None):
         block = {
-            "id":846,
+            "id":self.dynamic_widget_id(),
             "type":"warning",
             "prop":{
                 "value":text,
@@ -401,7 +403,7 @@ class datastack():
 
     def error(self,text:str=None):
         block = {
-            "id":783,
+            "id":self.dynamic_widget_id(),
             "type":"error",
             "prop":{
                 "value":text,
@@ -426,7 +428,7 @@ class datastack():
     
     def code(self, data, key):
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             'wid':key,
             "type":"code",
             "prop":{
@@ -448,7 +450,7 @@ class datastack():
 
     def query(self, data):
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":"query",
             "prop":{
                 'query':data
@@ -459,7 +461,7 @@ class datastack():
     
     def image(self, data):
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":"image",
             "prop":{
                 "data": 'data:image/png;base64, '  + data
@@ -474,7 +476,7 @@ class datastack():
         args = string[string.find('(') + 1:-1].split(',')
 
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":"iframe",
             "prop":{
                 "url":url,
@@ -492,7 +494,7 @@ class datastack():
         fig = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
         block = {
-            'id':time.time_ns(),
+            'id':self.dynamic_widget_id(),
             "type":"chart",
             "prop":{
             "data":fig
@@ -502,7 +504,7 @@ class datastack():
 
     def page_link(self, page_name):
         block = {
-            "id":time.time_ns(),
+            "id":self.dynamic_widget_id(),
             "type":"page_link",
             "prop":{
                 "data":page_name,
