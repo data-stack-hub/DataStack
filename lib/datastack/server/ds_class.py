@@ -4,6 +4,8 @@ from datastack.runtime import runtime
 from datastack.logger import logger
 import uuid
 import numpy as np
+import io
+
 
 class datastack():
     """
@@ -416,11 +418,10 @@ class datastack():
         return ''
     
     def image(self, data):
-        import io
         import base64
         if not isinstance(data, io.BytesIO):
             buffered = io.BytesIO()
-            data.save(buffered, format="JPEG")
+            data.save(buffered, format=data.format)
         else:
             buffered = data
         img_str = base64.b64encode(buffered.getvalue())
@@ -434,7 +435,6 @@ class datastack():
         self.append_block(block)
 
     def pyplot(self, fig):
-        import io
         image = io.BytesIO()
         fig.savefig(image)
         self.image(image)

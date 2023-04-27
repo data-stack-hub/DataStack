@@ -1,3 +1,4 @@
+import inspect
 from typing import overload
 from flask import Flask
 from flask import request, jsonify, send_from_directory
@@ -159,6 +160,7 @@ def update_var_select(event):
     getattr(my_module,event['prop']['on_change'])()
 
 def run_fn():
+    print(request.json['prop']['on_change'])
     global my_module 
     my_module = runtime.get_module()
     on_change_type = ['input','select', 'date_input','slider']
@@ -173,15 +175,15 @@ def run_fn():
     #     update_var_select(request.json)
     elif request.json["type"] == 'page_link':
         runtime.get_main_class().set_page(request.json['prop']['data'])
-
-    elif 'on_change' in request.json['prop']:
+    
+    if 'on_change' in request.json['prop']:
         try:
             fn = getattr(my_module, request.json['prop']['on_change'])
             print(fn)
             if 'args' in request.json['prop']:
                 fn(*tuple(request.json['prop']['args']))
             else:
-                fn(request.json)
+                fn()
         except:
             logger.debug("function {} not in module".format( request.json['prop']['on_change']))
     return rerun()

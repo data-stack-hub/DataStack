@@ -34,6 +34,7 @@ ds.image(image)
 # Date picker
 dd_date = ds.date_input(value=datetime.date(2019, 7, 6))
 ds.write('Selected_Date '  + str(dd_date))
+
 # slider
 values1 = ds.slider(0,150,20)
 ds.write('slider value is '  + str(values1))
