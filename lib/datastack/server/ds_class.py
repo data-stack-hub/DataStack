@@ -152,7 +152,7 @@ class datastack():
         }
         # print('selec comp', component)
         self.append_block(block)
-        return 'default'
+        return value
     
     def list(self, data, on_click=''):
         frame = inspect.currentframe()
