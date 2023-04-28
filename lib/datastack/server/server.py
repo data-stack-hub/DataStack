@@ -6,16 +6,13 @@ from flask_cors import CORS
 from datastack.runtime import runtime
 from datastack.logger import logger
 import os
-print(os.getcwd())
-
 from pathlib import Path
-# static_file_path = os.path.join(os.getcwd(),'static') 
-static_file_path = os.path.join(Path(os.path.dirname(__file__)).parent.parent.absolute(),'static') 
+
+static_file_path = os.path.join(Path(os.path.dirname(__file__)).parent.absolute(),'static') 
 app = Flask(__name__, static_folder=static_file_path, template_folder=static_file_path, static_url_path='/')
 cors = CORS(app)
 
-# params get - request.args.to_dict()
-# params post - request.json
+
 routes = [
         {'path':'/', 'fn':'get_app'},
         {'path':'/app', 'fn':'load_app'},
@@ -33,7 +30,7 @@ def load_app():
     get datastack class from the module
     """
     params = request.args.to_dict()
-    if not params['session_id']:
+    if not params.get('session_id'):
         runtime.create_session()
     else:
         logger.info('seeesion_id: %s', params['session_id'])
@@ -92,8 +89,8 @@ def save_editable():
         # print('c',c)
         # if not c:
         #     dump['block']['prop']['html'].append(request.json['payload'])
-    file_path = os.path.join(os.getcwd(), 'app.json')
-
+    
+    file_path = os.path.join(Path(os.path.dirname(__file__)).parent.absolute(),'static/app.json')
     try:
         with open(file_path, 'r') as f:
             app_json = json.loads(f.read())
@@ -166,7 +163,6 @@ def run_fn():
         update_var(request.json['prop']['value_var'], request.json['payload']['value'])
     elif request.json['type'] in on_change_type and request.json['payload']['action'] == 'change' and request.json['payload']['value'] is not  None and request.json['prop']['value_var'] is not None:
         update_var(request.json['prop']['value_var'], request.json['payload']['value'])
-
     # elif request.json['prop']['on_change'] == 'update_var':
     #     update_var(request.json)
     # elif'on_click' in request.json['prop'] and request.json['prop']['on_click'] == 'update_var_select':
