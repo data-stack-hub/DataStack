@@ -72,13 +72,13 @@ class datastack():
         except:pass
         self.append_block(block)
 
-    def input(self,value=''):
+    def input(self,value='', id = ''):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         args = string[string.find('(') + 1:-1].split(',')
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":"input",
             'prop':{
                 "value":value,
@@ -95,14 +95,14 @@ class datastack():
         }
         self.append_block(block)
 
-    def header(self, data):
+    def header(self, data, id=''):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         # print(string)
         args = string[string.find('.header(') + 7:-1].split(',')
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":'header',
             "prop":{
                 "data":data,
@@ -111,14 +111,14 @@ class datastack():
         }
         self.append_block(block)
 
-    def subheader(self, data):
+    def subheader(self, data, id=''):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         # print(string)
         args = string[string.find('.header(') + 7:-1].split(',')
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":'subheader',
             "prop":{
                 "data":data,
@@ -127,7 +127,7 @@ class datastack():
         }
         self.append_block(block)
 
-    def select(self, options, value='', on_change=''):
+    def select(self, options, value='', on_change='', id=''):
         # list options args to be corrected
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
@@ -143,7 +143,7 @@ class datastack():
             change_fn_name =''
 
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else  self.dynamic_widget_id(),
             "type":"select",
             "prop":{
                 "options":options,
@@ -156,7 +156,7 @@ class datastack():
         self.append_block(block)
         return 'default'
     
-    def list(self, data, on_click=''):
+    def list(self, data, on_click='', id=''):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
@@ -170,7 +170,7 @@ class datastack():
             click_fn =''
             click_fn_name =''
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":"list",
             "prop":{
                 "data":data,
@@ -218,9 +218,9 @@ class datastack():
         else:
             return None
 
-    def dataframe(self, data):
+    def dataframe(self, data, id=''):
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":"dataframe",
             "prop":{
                 "data":data.to_json(orient="records"),
@@ -229,7 +229,7 @@ class datastack():
         }
         self.append_block(block)
         
-    def write(self, data,  location=''):
+    def write(self, data,  location='', id=''):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
@@ -246,7 +246,7 @@ class datastack():
         }
         self.append_block(block)
 
-    def html(self, html):
+    def html(self, html, id=''):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
@@ -305,10 +305,10 @@ class datastack():
         self.append_block(cls)
         return cls
 
-    def columns(self, col_number):
+    def columns(self, col_number, id=''):
         cols = [datastack(type ="column") for x in range(0,col_number)]
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":"column",
             "data":cols,
             "prop":{}
@@ -316,10 +316,10 @@ class datastack():
         self.append_block(block)
         return cols
 
-    def tabs(self, tab_list):
+    def tabs(self, tab_list, id=''):
         tab = [datastack(type ="tab", title=tab_list[x]) for x in range(0,len(tab_list))]
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":"tabs",
             "data":tab,
             "prop":{
@@ -329,9 +329,9 @@ class datastack():
         self.append_block(block)
         return tab    
     
-    def slider(self, min, max, value):
+    def slider(self, min, max, value, id=''):
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":"slider",
             "prop":{
                 "min":min,
@@ -343,7 +343,7 @@ class datastack():
         }
         self.append_block(block)
 
-    def date_input(self,label:str=None,value:str=None,min:str='1970-01-01',max:str='2500-01-01',date_format:str='yyyy-MM-dd',use_container_width:bool=False,disabled:bool=False):
+    def date_input(self,label:str=None,value:str=None,min:str='1970-01-01',max:str='2500-01-01',date_format:str='yyyy-MM-dd',use_container_width:bool=False,disabled:bool=False, id=''):
         """
         label (str) : A short label explaining to the user what this date input is for. 
 
@@ -355,7 +355,7 @@ class datastack():
         disabled (bool) : An optional boolean, which disables the date input if set to True. The default is False.
         """
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":"date_input",
             "prop":{
                 "label":label,
@@ -371,9 +371,9 @@ class datastack():
         }
         self.append_block(block)        
 
-    def success(self,text:str=None):
+    def success(self,text:str=None, id=''):
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":"success",
             "prop":{
                 "value":text,
@@ -381,9 +381,9 @@ class datastack():
         }
         self.append_block(block)
 
-    def info(self,text:str=None):
+    def info(self,text:str=None, id=''):
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":"info",
             "prop":{
                 "value":text,
@@ -391,9 +391,9 @@ class datastack():
         }
         self.append_block(block)
 
-    def warning(self,text:str=None):
+    def warning(self,text:str=None, id=''):
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":"warning",
             "prop":{
                 "value":text,
@@ -401,9 +401,9 @@ class datastack():
         }
         self.append_block(block)
 
-    def error(self,text:str=None):
+    def error(self,text:str=None, id=''):
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":"error",
             "prop":{
                 "value":text,
@@ -448,9 +448,9 @@ class datastack():
         self.append_block(block)
         return ''
 
-    def query(self, data):
+    def query(self, data, id=''):
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":"query",
             "prop":{
                 'query':data
@@ -459,7 +459,7 @@ class datastack():
         self.append_block(block)
         return ''
     
-    def image(self, data):
+    def image(self, data, id=''):
         import io
         import base64
         if not isinstance(data, io.BytesIO):
@@ -469,7 +469,7 @@ class datastack():
             buffered = data
         img_str = base64.b64encode(buffered.getvalue())
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":"image",
             "prop":{
                 "data": 'data:image/png;base64, '  + img_str.decode("utf-8") 
@@ -484,14 +484,14 @@ class datastack():
         self.image(image)
       
 
-    def iframe(self, url):
+    def iframe(self, url, id=''):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         args = string[string.find('(') + 1:-1].split(',')
 
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":"iframe",
             "prop":{
                 "url":url,
@@ -500,7 +500,7 @@ class datastack():
         }
         self.append_block(block)
 
-    def chart(self, data):
+    def chart(self, data, id=''):
         import json
         import plotly.tools
         fig =  plotly.tools.return_figure_from_figure_or_data(
@@ -509,7 +509,7 @@ class datastack():
         fig = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
         block = {
-            'id':self.dynamic_widget_id(),
+            'id':id if id else self.dynamic_widget_id(),
             "type":"chart",
             "prop":{
             "data":fig
@@ -517,9 +517,9 @@ class datastack():
         }
         self.append_block(block)
 
-    def page_link(self, page_name):
+    def page_link(self, page_name, id=''):
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":"page_link",
             "prop":{
                 "data":page_name,
