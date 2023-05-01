@@ -56,7 +56,7 @@ class datastack():
             click_fn_name =''
 
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":'dsf',
             "type":'button',
             "prop":{
                 "title":name,
@@ -533,6 +533,9 @@ class datastack():
 
     def append_block(self,block, location='main_page'):
         self.blocks[location].append(block)
+
+    def get_block_by_id(self, id):
+        return list(filter(lambda p: p['id'] == id, runtime.get_main_class().app['main_page']))
 
     def dump_app(self):
         self.app ={

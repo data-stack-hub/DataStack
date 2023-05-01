@@ -29,6 +29,7 @@ def add_file_to_storage(file):
     ctx['storage'].append(file)
 
 def run_script(path):
+    logger.info('Script run init')
     if os.path.splitext(path)[1] == '.ipynb':
         filebody = utils.read_notebook(path)
     else:
