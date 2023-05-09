@@ -36,7 +36,7 @@ class datastack():
         return time.time_ns()
 #  change to on_click = function name and on_click_source = function code
 #  move frame logic to somewhere else
-    def button(self, name, on_click='', args={}):
+    def button(self, name, on_click='', args={}, id=''):
 
         """
         on_click = function name
@@ -56,7 +56,7 @@ class datastack():
             click_fn_name =''
 
         block = {
-            "id":'dsf',
+            "id":id if id else self.dynamic_widget_id(),
             "type":'button',
             "prop":{
                 "title":name,
@@ -235,8 +235,9 @@ class datastack():
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         # print(string)
         args = string[string.find('.write(') + 7:-1].split(',')
+        
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             "type":'text',
             "location":location,
             "prop":{
@@ -244,7 +245,8 @@ class datastack():
                 "data_var":args[0]
             }
         }
-        self.append_block(block)
+        if not self.replace_block(id, block):
+            self.append_block(block)
 
     def html(self, html, id=''):
         frame = inspect.currentframe()
@@ -262,7 +264,7 @@ class datastack():
         }
         self.append_block(block)
 
-    def editable_html(self, key):
+    def editable_html(self, key, id=''):
         default_html = [
       {
         "_id": "5f54d75b114c6d176d7e9765",
@@ -284,7 +286,7 @@ class datastack():
         #     html = default_html
         logger.info(html)
         block={
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             'wid':key,
             "type":'editable_html',
             "is_root":True,
@@ -426,9 +428,9 @@ class datastack():
         return cls
 
     
-    def code(self, data, key):
+    def code(self, data, key, id=''):
         block = {
-            "id":self.dynamic_widget_id(),
+            "id":id if id else self.dynamic_widget_id(),
             'wid':key,
             "type":"code",
             "prop":{
@@ -534,9 +536,24 @@ class datastack():
     def append_block(self,block, location='main_page'):
         self.blocks[location].append(block)
 
-    def get_block_by_id(self, id):
+    def get_app_block_by_id(self, id):
+        print('getting block by id:', id)
         return list(filter(lambda p: p['id'] == id, runtime.get_main_class().app['main_page']))
 
+    def get_block_by_id(self, id):
+        try:
+            return list(filter(lambda p: p['id'] == id, runtime.get_main_class().blocks['main_page']))
+        except Exception as e:
+            logger.error(e)
+
+    def replace_block(self, id, new_block):
+        block =  self.get_block_by_id(id)
+        if block:
+            block[0].update(new_block)
+            return True
+        else: return False
+        
+    
     def dump_app(self):
         self.app ={
             'current_page':'main_page',

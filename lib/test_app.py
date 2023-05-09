@@ -19,6 +19,9 @@ def load_main_page():
 # sildebar
 ds.sidebar().subheader('Pages')
 
+# update widget
+ds.write('this is text', id = 'x') 
+ds.write('this is updated text', id = 'x')
 # pyplot
 ds.subheader('PyPlot')
 arr = np.random.normal(1, 1, size=100)
