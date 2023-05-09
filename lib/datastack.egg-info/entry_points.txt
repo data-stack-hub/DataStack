@@ -1,2 +1,3 @@
 [console_scripts]
 datastack = datastack.cli:main
+

@@ -173,9 +173,9 @@ def run_fn():
     elif 'on_change' in request.json['prop']:
         try:
             fn = getattr(my_module, request.json['prop']['on_change'])
-            print(fn)
-            if 'args' in request.json['prop']:
-                fn(*tuple(request.json['prop']['args']))
+            block = runtime.get_main_class().get_block_by_id(request.json['id'])[0]
+            if 'args' in block['prop']:
+                fn(*tuple(block['prop']['args']))
             else:
                 fn(request.json)
         except:
