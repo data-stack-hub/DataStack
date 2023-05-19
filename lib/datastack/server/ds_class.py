@@ -127,12 +127,14 @@ class datastack():
         }
         self.append_block(block)
 
-    def select(self, options, value='', on_change='', id=''):
+    def select(self, options, value='', on_change='', id='', args={}):
+        from varname import varname
         # list options args to be corrected
+        print(varname())
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        args = string[string.find('on_change=') + 6:-1].split(',')
+        # args = string[string.find('on_change=') + 6:-1].split(',')
         # print('selected arge',type(args), args)
         # print('assigned var', self.get_value_assign_var(inspect.currentframe().f_back))
         if on_change :
@@ -141,17 +143,25 @@ class datastack():
         else:
             change_fn =''
             change_fn_name =''
+        from varname import argname
 
         block = {
             "id":id if id else  self.dynamic_widget_id(),
             "type":"select",
             "prop":{
-                "options":options,
+                "options":[opt for opt in options],
                 "value":value,
-                'value_var':self.get_value_assign_var(inspect.currentframe().f_back),
-                "on_change":change_fn_name
+                'value_var': varname(), #self.get_value_assign_var(inspect.currentframe().f_back),
+                "on_change":change_fn_name,
+                'args':args
             }
         }
+        try:
+            print(argname('options', vars_only=False))
+            block['prop']['options_var'] = str(argname('options', vars_only=False))
+            print(block)
+        except Exception as e:
+            print(e)
         # print('selec comp', component)
         self.append_block(block)
         return 'default'
@@ -466,7 +476,7 @@ class datastack():
         import base64
         if not isinstance(data, io.BytesIO):
             buffered = io.BytesIO()
-            data.save(buffered, format="JPEG")
+            data.save(buffered, format=data.format)
         else:
             buffered = data
         img_str = base64.b64encode(buffered.getvalue())
@@ -477,7 +487,9 @@ class datastack():
                 "data": 'data:image/png;base64, '  + img_str.decode("utf-8") 
             }
         }
-        self.append_block(block)
+        if not self.replace_block(id, block):
+            self.append_block(block)
+
 
     def pyplot(self, fig):
         import io
@@ -538,11 +550,15 @@ class datastack():
 
     def get_app_block_by_id(self, id):
         print('getting block by id:', id)
-        return list(filter(lambda p: p['id'] == id, runtime.get_main_class().app['main_page']))
+        all_app_blocks = [block for page in ['main_page'] + self.app['pages'] for block in self.app[page]]
+        return list(filter(lambda p: p['id'] == id, all_app_blocks))
 
+    def gat_all_blocks(self):
+        return [block for page in ['main_page'] + self.blocks['pages'] for block in self.blocks[page]]
+    
     def get_block_by_id(self, id):
         try:
-            return list(filter(lambda p: p['id'] == id, runtime.get_main_class().blocks['main_page']))
+            return list(filter(lambda p: p['id'] == id, self.gat_all_blocks()))
         except Exception as e:
             logger.error(e)
 
@@ -592,7 +608,11 @@ class datastack():
                 if c['type'] == 'button':
                     c['prop']['title'] = eval(c['prop']['title_var'])
                 if c['type'] =='select':
+                    print(c)
                     c['prop']['value'] = eval(c['prop']['value_var'])
+                    if 'options_var' in c['prop']:
+                        print(eval(c['prop']['options_var']))
+                        c['prop']['options'] =[opt for opt in eval(c['prop']['options_var'])] 
                 if c['type'] == 'iframe':
                     c['prop']['url'] = eval(c['prop']['url_var'])
                 if c['type'] == 'list':
@@ -640,7 +660,7 @@ class datastack():
         # # if any class in sidebar
         # # _app = [a[0] for a in _app]
         # _app =  self.build_element_from_blocks(_app)
-        # print(_app)
+        print(_app)
         # self.app['sidebar'] = [ item for sublist in _app for item in sublist]
         t = self.build_element_from_blocks([a[0] for a in _app])
         self.app['sidebar'] = t

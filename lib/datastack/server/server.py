@@ -170,16 +170,23 @@ def run_fn():
     elif request.json["type"] == 'page_link':
         runtime.get_main_class().set_page(request.json['prop']['data'])
 
-    elif 'on_change' in request.json['prop']:
+    if 'on_change' in request.json['prop']:
         try:
             fn = getattr(my_module, request.json['prop']['on_change'])
-            block = runtime.get_main_class().get_block_by_id(request.json['id'])[0]
-            if 'args' in block['prop']:
-                fn(*tuple(block['prop']['args']))
-            else:
+            print(fn)
+            try:
+                block = runtime.get_main_class().get_app_block_by_id(request.json['id'])[0]
+                print('block',block)
+                if 'args' in block['prop']:
+                    fn(*tuple(block['prop']['args']))
+            except:
                 fn(request.json)
-        except:
+                import threading
+                print(threading.current_thread())
+                runtime.initialized.send('signal from server')
+        except Exception as e:
             logger.debug("function {} not in module".format( request.json['prop']['on_change']))
+            logger.error(e)
     return rerun()
 
 def fn(method_name):
