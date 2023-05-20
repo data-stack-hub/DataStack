@@ -13,6 +13,10 @@ print(threading.current_thread())
 ds.header('DataStack Components')
 
 
+ds.subheader('State')
+import json
+ds.write(json.dumps(ds.state))
+
 def load_main_page():
     ds.set_page('main_page')
 #  user defined functions and script
@@ -21,10 +25,10 @@ def load_main_page():
 # sildebar
 ds.sidebar().subheader('Pages')
 
-# run code inside the module
-def fn_test(a):
-    print('function test')
-ds.button('test module', on_click=fn_test)
+# # run code inside the module
+# def fn_test(a):
+#     print('function test')
+# ds.button('test module', on_click=fn_test)
 
 
 # update widget
@@ -243,12 +247,12 @@ matplotlib.use('Agg')
 
 
 def plot(model, plot_type):
-    pc.write('selected plot: ' + selected_plot, id='qwe')
-    pc.image(Image.open(s.plot_model(best, plot=selected_plot, save=True)), id=12)
+    pc.write('selected plot: ' + ds.state['selected_plot'], id='qwe')
+    pc.image(Image.open(s.plot_model(best, plot=ds.state['selected_plot'], save=True)), id=12)
     print('---->',model, plot_type)
 
 def setup(a):
-    global selected_plot, best
+    global  best
     s.setup(data, target = target, session_id = 123)
     best = s.compare_models(include = ['lr'])
     result = s.pull()
@@ -272,7 +276,7 @@ s = ClassificationExperiment()
 
 datasets = get_data()#['Dataset'].to_list()
 az = 'asd1'
-selected_plot = pc.select(list(s._available_plots.keys()), on_change=plot, id='x1', args=('q',az))
+# selected_plot = pc.select(list(s._available_plots.keys()), on_change=plot, id='x1', args=('q',az))
 selected_exp_type = pc.select(datasets['Default Task'].unique())
 selected_dataset = pc.select( datasets[datasets['Default Task'] == selected_exp_type]['Dataset'], on_change=get_data_py)
 pc.write('selected dataset is: ' + selected_dataset)

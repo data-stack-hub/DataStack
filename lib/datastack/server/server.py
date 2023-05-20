@@ -150,7 +150,8 @@ def update_var(event):
 def update_var(var, value):
     print(var, value)
     setattr(my_module, var, value)
-
+    runtime.get_main_class().update_app_state(var, value)
+    
 def update_var_select(event):
     setattr(my_module, event['prop']['value_var'], event['payload'])
     getattr(my_module,event['prop']['on_change'])()

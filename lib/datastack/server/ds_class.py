@@ -29,6 +29,7 @@ class datastack():
             'main_page':[],
             'pages':[]
         }
+        self.state = {}
         if main:
             runtime.set_main_class(self)
 
@@ -531,6 +532,9 @@ class datastack():
         }
         self.append_block(block)
 
+    def update_app_state(self, key, value):
+        self.state[key] = value
+        
     def page_link(self, page_name, id=''):
         block = {
             "id":id if id else self.dynamic_widget_id(),
@@ -601,43 +605,45 @@ class datastack():
     def update_state(self):
         def _update_state(location):
           for c in location:
-                if c['type'] == 'text' or c['type'] == 'html' :
-                    c['prop']['data'] = eval(c['prop']['data_var'])
-                if c['type'] == 'date_input' or c['type'] == 'input':
-                    c['prop']['value'] = eval(c['prop']['value_var'])
-                if c['type'] == 'button':
-                    c['prop']['title'] = eval(c['prop']['title_var'])
-                if c['type'] =='select':
-                    print(c)
-                    c['prop']['value'] = eval(c['prop']['value_var'])
-                    if 'options_var' in c['prop']:
-                        print(eval(c['prop']['options_var']))
-                        c['prop']['options'] =[opt for opt in eval(c['prop']['options_var'])] 
-                if c['type'] == 'iframe':
-                    c['prop']['url'] = eval(c['prop']['url_var'])
-                if c['type'] == 'list':
-                    c['prop']['value'] = eval(c['prop']['value_var'])
-                if c['type'] == 'expander' or c['type'] == 'container':
-                    _update_state(c['data'])
-                    pass
-                if c['type'] == 'editable_html':
-                    default_html = [
-      {
-        "_id": "5f54d75b114c6d176d7e9765",
-        "html": "Heading",
-        "tag": "h1",
-        "imageUrl": "",
-      }
-    ]
-                    try:
-                        import json
-                        with open(os.path.join(Path(os.path.dirname(__file__)).parent.absolute(),'static/app.json'), 'r') as f:
-                            html = json.loads(f.read())[c['wid']]['block']['prop']['html']
-                    except Exception as e:
-                        logger.error(e)
-                        html = default_html
-        # if not html:
-                    c['prop']['html'] = html
+                try:
+                    if c['type'] == 'text' or c['type'] == 'html' :
+                        c['prop']['data'] = eval(c['prop']['data_var'])
+                    if c['type'] == 'date_input' or c['type'] == 'input':
+                        c['prop']['value'] = eval(c['prop']['value_var'])
+                    if c['type'] == 'button':
+                        c['prop']['title'] = eval(c['prop']['title_var'])
+                    if c['type'] =='select':
+                        print(c)
+                        c['prop']['value'] = eval(c['prop']['value_var'])
+                        if 'options_var' in c['prop']:
+                            print(eval(c['prop']['options_var']))
+                            c['prop']['options'] =[opt for opt in eval(c['prop']['options_var'])] 
+                    if c['type'] == 'iframe':
+                        c['prop']['url'] = eval(c['prop']['url_var'])
+                    if c['type'] == 'list':
+                        c['prop']['value'] = eval(c['prop']['value_var'])
+                    if c['type'] == 'expander' or c['type'] == 'container':
+                        _update_state(c['data'])
+                        pass
+                    if c['type'] == 'editable_html':
+                        default_html = [
+                                            {
+                                                "_id": "5f54d75b114c6d176d7e9765",
+                                                "html": "Heading",
+                                                "tag": "h1",
+                                                "imageUrl": "",
+                                            }
+                                        ]
+                        try:
+                            import json
+                            with open(os.path.join(Path(os.path.dirname(__file__)).parent.absolute(),'static/app.json'), 'r') as f:
+                                html = json.loads(f.read())[c['wid']]['block']['prop']['html']
+                        except Exception as e:
+                            logger.error(e)
+                            html = default_html
+                        c['prop']['html'] = html
+                except Exception as e:
+                    logger.error(e)
         for location in ['main_page', 'sidebar'] + self.app['pages']:
             _update_state(self.app[location])
 

@@ -34,4 +34,5 @@ success = main.success
 info = main.info
 warning = main.warning
 error = main.error
+state = main.state
 
