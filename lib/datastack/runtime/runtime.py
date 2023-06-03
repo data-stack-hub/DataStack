@@ -49,7 +49,7 @@ def run_script(path):
     exec(code, my_module.__dict__)
     # get_main_class().write(f.getvalue())
     update_module(my_module)
-    
+
 def create_session():
     """
     check if session is available with session id

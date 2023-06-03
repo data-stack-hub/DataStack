@@ -8,8 +8,14 @@ import numpy as np
 def dummy_fn():
     pass
 
+import threading
+print(threading.current_thread())
 ds.header('DataStack Components')
 
+
+ds.subheader('State')
+import json
+ds.write(json.dumps(ds.state))
 
 def load_main_page():
     ds.set_page('main_page')
@@ -19,9 +25,16 @@ def load_main_page():
 # sildebar
 ds.sidebar().subheader('Pages')
 
+# # run code inside the module
+# def fn_test(a):
+#     print('function test')
+# ds.button('test module', on_click=fn_test)
+
+
 # update widget
 ds.write('this is text', id = 'x') 
 ds.write('this is updated text', id = 'x')
+
 # pyplot
 ds.subheader('PyPlot')
 arr = np.random.normal(1, 1, size=100)
@@ -71,6 +84,7 @@ ds.chart(fig)
 ds.sidebar().page_link('main_page')
 ds.sidebar().page_link('page1')
 ds.sidebar().page_link('page2')
+ds.sidebar().page_link('pycaret')
 
 page1 = ds.page('page1')
 page1.write('This is new page')
@@ -81,6 +95,9 @@ page2.write('This is new page')
 page2.button('go to main page', on_click=load_main_page)
 ds.sidebar().divider()
 
+pc = ds.page('pycaret')
+pc.header('PyCaret')
+page2.button('go to main page', on_click=load_main_page)
 # columns
 ds.subheader('Columns')
 col1, col2, col3  = ds.columns(3)
@@ -133,11 +150,11 @@ ds.divider()
 
 
 #  dropdown in sidebar
-ds.divider()
-ds.sidebar().subheader('Dropdown Selection')
-selected_value_sidebar = ds.sidebar().select(['a','b','c'], on_change=dummy_fn )
-ds.sidebar().write('selected value: ' + selected_value_sidebar)
-ds.sidebar().divider()
+# ds.divider()
+# ds.sidebar().subheader('Dropdown Selection')
+# selected_value_sidebar = ds.sidebar().select(['a','b','c'], on_change=dummy_fn )
+# ds.sidebar().write('selected value: ' + selected_value_sidebar)
+# ds.sidebar().divider()
 
 #  dropdown in container
 container = ds.container()
@@ -220,9 +237,58 @@ url = 'https://www.wikipedia.org/'
 ds.iframe(url)
 ds.divider()
 
+# pycaret
+from pycaret.datasets import get_data
+from pycaret.classification import ClassificationExperiment
+
+
+import matplotlib
+matplotlib.use('Agg')
+
+
+def plot(model, plot_type):
+    pc.write('selected plot: ' + ds.state['selected_plot'], id='qwe')
+    pc.image(Image.open(s.plot_model(best, plot=ds.state['selected_plot'], save=True)), id=12)
+    print('---->',model, plot_type)
+
+def setup(a):
+    global  best
+    s.setup(data, target = target, session_id = 123)
+    best = s.compare_models(include = ['lr'])
+    result = s.pull()
+    print('result', result)
+    pc.dataframe(result)
+    # pc.image(Image.open(s.plot_model(best, plot='auc', save=True)))
+    available_plots = list(s._available_plots.keys())
+    selected_plot = pc.select(list(s._available_plots.keys()), on_change=plot, id='x1', args=('q',az))
+
+def get_data_py(a):
+    print('getting data')
+    global data, target
+    data =  get_data(selected_dataset)
+    target = pc.select(data.columns.to_list(), on_change=setup)
+
+
+
+# def dum(a):
+#     pc.image(Image.open(s.plot_model(best, plot='auc', save=True)))
+s = ClassificationExperiment()
+
+datasets = get_data()#['Dataset'].to_list()
+az = 'asd1'
+# selected_plot = pc.select(list(s._available_plots.keys()), on_change=plot, id='x1', args=('q',az))
+selected_exp_type = pc.select(datasets['Default Task'].unique())
+selected_dataset = pc.select( datasets[datasets['Default Task'] == selected_exp_type]['Dataset'], on_change=get_data_py)
+pc.write('selected dataset is: ' + selected_dataset)
 
 
 
 
+# data =  get_data('diabetes')
+# s.setup(data, target = 'Class variable', session_id = 123)
+# best = s.compare_models(include = ['lr'])
+# pc.button('show chart', on_click=dum)
+
+# pc.image(Image.open(s.plot_model(best, plot='auc', save=True)))
 
 
