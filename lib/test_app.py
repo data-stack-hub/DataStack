@@ -240,27 +240,43 @@ ds.divider()
 # pycaret
 from pycaret.datasets import get_data
 from pycaret.classification import ClassificationExperiment
-
+from pycaret.regression import RegressionExperiment
+from pycaret.clustering import ClusteringExperiment
+from pycaret.anomaly import AnomalyExperiment
+from pycaret.time_series import TSForecastingExperiment
+import pycaret
 
 import matplotlib
 matplotlib.use('Agg')
 
 
-def plot(model, plot_type):
+def plot(a):
     pc.write('selected plot: ' + ds.state['selected_plot'], id='qwe')
-    pc.image(Image.open(s.plot_model(best, plot=ds.state['selected_plot'], save=True)), id=12)
-    print('---->',model, plot_type)
+    pc.image(Image.open(s.plot_model(ds.state['model'], plot=ds.state['selected_plot'], save=True)), id=12)
 
 def setup(a):
-    global  best
+    print('setup')
+    global s
+    if ds.state['experiment_type'] == 'Regression':
+        print('refgfdgfddfg')
+        s = RegressionExperiment()
+    elif ds.state['experiment_type'] == 'Clustering':
+        
+        s = ClusteringExperiment()
+    elif ds.state['experiment_type'] == 'Anomaly Detection':
+        
+        s = AnomalyExperiment()
+    elif ds.state['experiment_type'] == 'Time Series':
+        
+        s = TSForecastingExperiment()
+
     s.setup(data, target = target, session_id = 123)
     best = s.compare_models(include = ['lr'])
+    ds.state['model'] = best
     result = s.pull()
-    print('result', result)
     pc.dataframe(result)
-    # pc.image(Image.open(s.plot_model(best, plot='auc', save=True)))
     available_plots = list(s._available_plots.keys())
-    selected_plot = pc.select(list(s._available_plots.keys()), on_change=plot, id='x1', args=('q',az))
+    selected_plot = pc.select(list(s._available_plots.keys()), on_change=plot, id='x1', args=('q'))
 
 def get_data_py(a):
     print('getting data')
@@ -268,27 +284,12 @@ def get_data_py(a):
     data =  get_data(selected_dataset)
     target = pc.select(data.columns.to_list(), on_change=setup)
 
-
-
-# def dum(a):
-#     pc.image(Image.open(s.plot_model(best, plot='auc', save=True)))
 s = ClassificationExperiment()
-
-datasets = get_data()#['Dataset'].to_list()
-az = 'asd1'
-# selected_plot = pc.select(list(s._available_plots.keys()), on_change=plot, id='x1', args=('q',az))
-selected_exp_type = pc.select(datasets['Default Task'].unique())
-selected_dataset = pc.select( datasets[datasets['Default Task'] == selected_exp_type]['Dataset'], on_change=get_data_py)
+experiment_type = pc.select(['Classification', 'Regression', 'Clustering', 'Anomaly Detection', 'Time Series'])
+datasets = get_data()
+selected_dataset = pc.select( datasets[datasets['Default Task'].astype('string').str.contains(experiment_type)]['Dataset'], on_change=get_data_py)
 pc.write('selected dataset is: ' + selected_dataset)
 
 
-
-
-# data =  get_data('diabetes')
-# s.setup(data, target = 'Class variable', session_id = 123)
-# best = s.compare_models(include = ['lr'])
-# pc.button('show chart', on_click=dum)
-
-# pc.image(Image.open(s.plot_model(best, plot='auc', save=True)))
 
 

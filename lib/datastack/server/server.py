@@ -103,37 +103,41 @@ def save_editable():
     return {'True':"true"}
 
 def run_block():
+    if True:
+        s = runtime.run_code(request.json['prop']['code'])
+        return {'res':s}
+    else:
 
-    from io import StringIO
-    from contextlib import redirect_stdout
-    import json
-    f = StringIO()
-    with redirect_stdout(f):
-        # exec(request.json['prop']['code'])
-        exec(request.json['prop']['code'], my_module.__dict__)
-    s = f.getvalue()
+        from io import StringIO
+        from contextlib import redirect_stdout
+        import json
+        f = StringIO()
+        with redirect_stdout(f):
+            # exec(request.json['prop']['code'])
+            exec(request.json['prop']['code'], my_module.__dict__)
+        s = f.getvalue()
 
-    import ast, pandas
-    tree = ast.parse(request.json['prop']['code'], 'script_path', "exec")
-    body = getattr(tree, "body")
-    last_node = body[-1]
-    if type(last_node) is ast.Expr:
-        if 'id' in last_node.__dict__['value'].__dict__:
-            id = last_node.__dict__['value'].__dict__['id']
-            last_node_value = getattr(my_module, id)
-            print(type(last_node_value))
-            if isinstance(last_node_value, pandas.DataFrame):
-                s= last_node_value.head(20).to_html()
-                return {'res':s,"type":'table'}
-    # with open('app.json', 'r') as f:
-    #     try:
-    #         app_json = json.loads(f.read())
-    #     except:
-    #         app_json = {}
-    #     app_json[request.json['wid']]['block']['prop']['last_run_result'] = s
-    # with open('app.json', 'w') as f:
-    #     f.write(json.dumps(app_json))
-    return {'res':s}
+        import ast, pandas
+        tree = ast.parse(request.json['prop']['code'], 'script_path', "exec")
+        body = getattr(tree, "body")
+        last_node = body[-1]
+        if type(last_node) is ast.Expr:
+            if 'id' in last_node.__dict__['value'].__dict__:
+                id = last_node.__dict__['value'].__dict__['id']
+                last_node_value = getattr(my_module, id)
+                print(type(last_node_value))
+                if isinstance(last_node_value, pandas.DataFrame):
+                    s= last_node_value.head(20).to_html()
+                    return {'res':s,"type":'table'}
+        # with open('app.json', 'r') as f:
+        #     try:
+        #         app_json = json.loads(f.read())
+        #     except:
+        #         app_json = {}
+        #     app_json[request.json['wid']]['block']['prop']['last_run_result'] = s
+        # with open('app.json', 'w') as f:
+        #     f.write(json.dumps(app_json))
+        return {'res':s}
 
 def run_query_block():
     query = request.json['prop']['query']
