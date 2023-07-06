@@ -42,6 +42,11 @@ def run_script(path):
         logger.error('script failed with error: %s',e)
     spec = importlib.util.spec_from_loader('my_module', loader=None)
     my_module = importlib.util.module_from_spec(spec)
+    from pathlib import Path
+    script_path = os.path.abspath(path)
+    script_folder = os.path.dirname(script_path)
+    import sys
+    sys.path.insert(0,os.path.dirname(script_path))
     # from io import StringIO
     # from contextlib import redirect_stdout
     # f = StringIO()
