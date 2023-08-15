@@ -10,6 +10,7 @@ datastack.egg-info/dependency_links.txt
 datastack.egg-info/entry_points.txt
 datastack.egg-info/requires.txt
 datastack.egg-info/top_level.txt
+datastack/plugin/chart.py
 datastack/runtime/__init__.py
 datastack/runtime/runtime.py
 datastack/server/__init__.py

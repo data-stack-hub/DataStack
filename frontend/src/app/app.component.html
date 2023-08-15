@@ -78,14 +78,24 @@
         </nz-select>
       </div>
       <div *ngIf="element.type == 'list'">
-        <!-- <nz-list nzSize="small" nzBordered >
-          <nz-list-item *ngFor="let l of element.prop.list" (click)="list_click(element,l)">{{l}}</nz-list-item>
-        </nz-list > -->
-        <ul nz-menu style="background: transparent;">
+        <!-- <ul nz-menu style="background: transparent;">
           <li nz-menu-item *ngFor="let l of element.prop.data" (click)="list_click(element,l)">{{l}}</li>
-        </ul>
-    
+        </ul> -->
+        <nz-list >
+          <nz-list-item *ngFor="let l of element.prop.data" style="align-items: start;">
+            <div>
+              <img width="100" alt="logo" *ngIf="l.image" [src]="l.image" />
+            </div>
+            <div style="width:100%; text-align: left; padding:10px">
+              {{l[element.prop.slot_start]}}<br>
+              <!-- {{l[element.prop.slot_start]}} -->
+            </div>
+            <div>{{l[element.prop.slot_end]}}</div>
+          </nz-list-item>
+        </nz-list>
+
       </div>
+
       <div *ngIf="element.type == 'page_link'">
         <div (click)="page_link(element)"><span nz-icon nzType="file" nzTheme="outline"></span> {{element.prop.data}}</div>
         
