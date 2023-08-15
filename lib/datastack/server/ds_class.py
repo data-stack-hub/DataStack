@@ -168,7 +168,7 @@ class datastack():
         self.append_block(block)
         return 'default'
     
-    def list(self, data, on_click='', id=''):
+    def list(self, data, on_click='', id='', slot_start="", slot_end=""):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
@@ -190,6 +190,8 @@ class datastack():
                 "value_var":self.get_value_assign_var(inspect.currentframe().f_back),
                 "on_change":click_fn_name,
                 "on_change_source":click_fn,
+                "slot_start":slot_start,
+                "slot_end":slot_end,
             }
         }
 
