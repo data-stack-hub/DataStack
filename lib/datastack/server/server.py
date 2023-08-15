@@ -186,6 +186,8 @@ def run_fn():
                 print('block',block)
                 if 'args' in block['prop']:
                     fn(*tuple(block['prop']['args']))
+                else:
+                    fn()
             except:
                 fn(request.json)
                 import threading

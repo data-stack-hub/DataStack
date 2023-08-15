@@ -73,17 +73,25 @@ class datastack():
         except:pass
         self.append_block(block)
 
-    def input(self,value='', id = ''):
+    def input(self,value='', id = '', on_change =""):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         args = string[string.find('(') + 1:-1].split(',')
+        if on_change :
+            change_fn = inspect.getsource(on_change)
+            change_fn_name = string[string.find('on_change=') + 10:-1].split(',')[0].replace("on_change=",'').replace(' ','')
+        else:
+            change_fn =''
+            change_fn_name =''
         block = {
             "id":id if id else self.dynamic_widget_id(),
             "type":"input",
             'prop':{
                 "value":value,
                 "value_var":self.get_value_assign_var(inspect.currentframe().f_back),
+                "on_change":change_fn_name,
+                'args':args
             }
         }
         self.append_block(block)
@@ -168,7 +176,7 @@ class datastack():
         self.append_block(block)
         return 'default'
     
-    def list(self, data, on_click='', id='', slot_start="", slot_end=""):
+    def list(self, data, on_click='', id='', slot_start="", slot_end="", ):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
