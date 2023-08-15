@@ -6,16 +6,33 @@ import { map } from 'rxjs/operators';
 import { formatISO,isAfter,isBefore } from "date-fns";
 import { ApiService } from './services/api.service';
 declare const monaco: any;
+
+interface trace {
+  x:Array<any>,
+  y:Array<any>,
+  type: string,
+  mode:any,
+  marker:{size?:any, color:any, line?:{width:any}}
+
+}
+interface  g {
+  data:Array<trace>,
+  layout:any
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+
+
 export class AppComponent {
   date_value: Date;
   title = 'frontend';
   container:any
   sidebar:any
+  appstate:any
   page = '/page1'
   @ViewChild('editableDiv') editableDiv: any;
   @ViewChild('ul_list') ul_list: any;
@@ -52,23 +69,33 @@ export class AppComponent {
   height =30;
   spinning = false
 
+
+
   public graph = {
     data: [
-        { x: [1, 2, 3], y: [2, 6, 3], type: 'scatter', mode: 'lines+points', marker: {color: 'red'} },
-        { x: [1, 2, 3], y: [2, 5, 3], type: 'bar' },
+        { x: [1, 2, 3,4,5,6,7,8,9], y: [2, 6, 3,5,4,3,6,8], type: 'scatter', mode: 'lines+markers', marker: {color: 'red'} },
+        { x: [6,3,7,3,6], y: [2,5,2,6,3], type: 'scatter' , mode: 'lines+markers', marker: {color: 'blue'} },
     ],
-    layout: {width: 320, height: 240, title: 'A Fancy Plot'}
+    layout: { title: 'A Fancy Plot', 'xaxis':{'type':'category'}},
+    config : {editable:true, responsive: true}
 };
+
   constructor(private api:ApiService, public sanitizer: DomSanitizer, public renderer: Renderer2){
     this.api.get('http://localhost:5000/app')
     .subscribe((res:any)=>{
       this.update_app(res)
+
     })
+
+
   }
+
+  
 
   click(e:any){
     console.log(this.container.value)
     this.req(e, '')
+
   }
 
   input_change(e:any, event:any){
@@ -108,6 +135,9 @@ export class AppComponent {
       res[page].concat(all_elements).forEach(element => {
         if (element['type']== 'dataframe' || element['type']== 'chart'){
           element.prop.data = JSON.parse(element.prop.data)
+          if (element['type'] == 'chart'){
+            element.prop.data.data[0].marker.size = 12
+          }
         }
       });
     })
@@ -116,6 +146,7 @@ export class AppComponent {
     this.container = JSON.parse(JSON.stringify(res[this.page].filter((element:any)=>element.location != 'sidebar')))
     this.sidebar = res[this.page].filter((element:any)=>element.location == 'sidebar')
     this.sidebar = [...this.sidebar, ...res['sidebar']]
+    this.appstate = res['appstate']
     console.log(res)
   }
 
@@ -160,6 +191,43 @@ export class AppComponent {
   change_cell(e:any){
     console.log(e)
     this.api.post(this.url +'editable', {...e,...{'payload':''}}).subscribe(res=>{console.log(res)})
+  }
+
+
+  update_chart(obj ,key, event){
+    console.log(obj, event)
+    var keys = key.split(".");
+    console.log(keys)
+    var propertyName = keys.pop();
+    var propertyParent = obj;
+
+    while (keys.length > 0) {
+      console.log(keys, propertyParent)
+      let k = keys.shift()
+      let c_propertyParent = propertyParent[k];
+      if (c_propertyParent == undefined){
+        propertyParent[k] = {}
+        propertyParent = propertyParent[k]
+      }
+      else {
+        propertyParent = c_propertyParent
+      }
+      
+    }
+    propertyParent[propertyName] = event;
+    console.log(obj)
+  }
+ 
+  get_df_columns(event, trace, axis){
+    console.log(event)
+    this.api.post(this.url + 'run_block', {prop:{
+      // code: "print("+event+".astype(str).values.flatten().tolist())"
+      code:"print(" + event +".to_json(orient='split'))"
+    } }).subscribe(res=>{
+      console.log(JSON.parse(res['res'])['data'])
+      this.graph.data[trace][axis] = JSON.parse(res['res'])['data']
+      console.log(this.graph.data)
+    })
   }
 
   enter(e:any, index:any, element:any, block:any){

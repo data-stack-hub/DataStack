@@ -19,7 +19,8 @@ routes = [
         {'path':'/run_fn','fn':'run_fn'},
         {'path':'/editable', 'fn':'save_editable'},
         {'path':'/run_block', 'fn':'run_block'},
-        {'path':'/run_query_block', 'fn':'run_query_block'}
+        {'path':'/run_query_block', 'fn':'run_query_block'},
+        {'path':'/get_df_column', 'fn':'get_df_column'}
     ]
 
 def get_app():
@@ -134,6 +135,11 @@ def run_block():
     # with open('app.json', 'w') as f:
     #     f.write(json.dumps(app_json))
     return {'res':s}
+
+def get_df_column():
+    code = request.args.to_dict()
+    print(code)
+    return {'res':exec('df.col1', runtime.get_module().__dict__)}
 
 def run_query_block():
     query = request.json['prop']['query']

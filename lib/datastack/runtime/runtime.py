@@ -47,13 +47,21 @@ def run_script(path):
     script_folder = os.path.dirname(script_path)
     import sys
     sys.path.insert(0,os.path.dirname(script_path))
-    # from io import StringIO
-    # from contextlib import redirect_stdout
-    # f = StringIO()
-    # with redirect_stdout(f):
+    from io import StringIO
+    from contextlib import redirect_stdout
+    f = StringIO()
     exec(code, my_module.__dict__)
+    # with redirect_stdout(f):
+    
+    #     exec("""print(df.col1)""", my_module.__dict__)
+    print(f.getvalue())
     # get_main_class().write(f.getvalue())
+    import pandas as pd
+    import inspect
+    # print(inspect.getmembers(my_module))
     update_module(my_module)
+    ctx['main_class'].get_all_dfs()
+
 
 def create_session():
     """
