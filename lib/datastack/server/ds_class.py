@@ -87,6 +87,7 @@ class datastack():
             }
         }
         self.append_block(block)
+        return value
 
     def divider(self):
         block = {
@@ -522,15 +523,33 @@ class datastack():
             data, validate_figure=True
         )
         fig = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-
+        from varname import argname
         block = {
             'id':id if id else self.dynamic_widget_id(),
             "type":"chart",
             "prop":{
-            "data":fig
+            "data":fig,
+            "data_var":argname('data', vars_only=False)
             }
         }
         self.append_block(block)
+
+    def chart_builder(self, id=''):
+        block = {
+            "id":id if id else self.dynamic_widget_id(),
+            "type":"chart_builder",
+            "prop":{}
+        }
+        self.append_block(block)
+
+    def get_all_dfs(self):
+        import pandas as pd
+        import itertools
+        self.app['appstate']['dfs']  = [attr[0] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)]
+        self.app['appstate']['columns'] = list(itertools.chain(* [ [attr[0]  + "." +  col for col in   attr[1].columns.tolist()] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)]))
+
+        # print(list(itertools.chain(*[attr[1].columns.tolist() for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)])) )
+        print( list(itertools.chain(* [ [attr[0]  + ":" +  col for col in   attr[1].columns.tolist()] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)])))
 
     def update_app_state(self, key, value):
         self.state[key] = value
@@ -622,6 +641,8 @@ class datastack():
                         c['prop']['url'] = eval(c['prop']['url_var'])
                     if c['type'] == 'list':
                         c['prop']['value'] = eval(c['prop']['value_var'])
+                    if c['type'] == 'chart':
+                        c['prop']['data'] = eval(c['prop']['data_var'])
                     if c['type'] == 'expander' or c['type'] == 'container':
                         _update_state(c['data'])
                         pass

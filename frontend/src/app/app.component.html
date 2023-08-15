@@ -124,6 +124,38 @@
       <div *ngIf="element.type == 'chart'">
         <plotly-plot [data]=str_to_json(element.prop.data) [layout]="graph.layout"></plotly-plot>
       </div>
+      <div *ngIf="element.type == 'chart_builder'">
+
+        <div *ngFor="let trace of graph.data, index as i">
+          <!-- secondary axis -->
+          trace{{i}}
+          name: <input   [(ngModel)]="trace['name']">
+          type:<nz-select #options  style="width: 100%;"  [(ngModel)]="trace['type']">
+            <nz-option *ngFor="let x of ['scatter', 'bar']"  [nzValue]="x" [nzLabel]="x"></nz-option>
+          </nz-select>
+
+          x:<nz-select #options  style="width: 100%;" (ngModelChange) = "get_df_columns($event, i, 'x')"  [(ngModel)]="trace['x1']">
+            <nz-option *ngFor="let x of appstate.columns"  [nzValue]="x" [nzLabel]="x"></nz-option>
+          </nz-select>
+          x_axis_type : <nz-select #options  style="width: 100%;"  (ngModelChange)="update_chart(graph.layout, 'xaxis.type', $event)" [(ngModel)]="graph.layout['x1']">
+            <nz-option *ngFor="let x of ['category', 'log', 'linear']"  [nzValue]="x" [nzLabel]="x"></nz-option>
+          </nz-select>
+
+          y:<nz-select #options  style="width: 100%;" (ngModelChange) = "get_df_columns($event, i, 'y')"  [(ngModel)]="trace['y1']">
+            <nz-option *ngFor="let x of appstate.columns"  [nzValue]="x" [nzLabel]="x"></nz-option>
+          </nz-select>
+          y_axis_type : <nz-select #options  style="width: 100%;"  [(ngModel)]="trace['type']">
+            <nz-option *ngFor="let x of ['category', 'log', 'linear']"  [nzValue]="x" [nzLabel]="x"></nz-option>
+          </nz-select>
+          Point size: <nz-input-number (keyup)="update_chart(trace, 'marker.size', $event)" ></nz-input-number>
+          Border size: <input  (change) = "update_chart(trace, 'marker.line.width', $event)" >
+          Border size: <input  (change) = "update_chart(trace, 'line.width', $event)" >
+          <hr>
+        </div>
+       
+        <plotly-plot [data]=graph.data [layout]="graph.layout" [config] ="{editable:true}"></plotly-plot>
+        
+      </div>
       <div *ngIf="element.type == 'dataframe'">
         <nz-table #basicTable nzSize="small" [nzData]="element.prop.data">
           <thead>
