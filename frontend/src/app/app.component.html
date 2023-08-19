@@ -51,6 +51,7 @@
       <div *ngIf="element.type == 'text'">
         {{element.prop.data}}
       </div>
+      <div *ngIf="element.type == 'markdown'" [innerHTML] = 'get_marked(element.prop.data)'></div>
       <div *ngIf="element.type == 'html'">
         <!-- {{element.prop.data}} --> 
         <div [innerHTML]="element.prop.data"></div>

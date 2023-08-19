@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 import { formatISO,isAfter,isBefore } from "date-fns";
 import { ApiService } from './services/api.service';
 declare const monaco: any;
+import { marked } from 'marked';
 
 interface trace {
   x:Array<any>,
@@ -424,6 +425,10 @@ str_to_json(str){
   else {
     return str
   }
+}
+
+get_marked(data){
+  return marked(data)
 }
 }
 
