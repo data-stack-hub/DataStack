@@ -36,5 +36,5 @@ warning = main.warning
 error = main.error
 state = main.state
 chart_builder = main.chart_builder
-
+markdown = main.markdown
 

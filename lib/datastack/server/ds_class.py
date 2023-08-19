@@ -286,6 +286,16 @@ class datastack():
         }
         self.append_block(block)
 
+    def markdown(self, data, id=''):
+        block = {
+            "id":self.dynamic_widget_id(),
+            "type":"markdown",
+            "prop":{
+                "data":data
+            }
+        }
+        self.append_block(block)
+
     def editable_html(self, key, id=''):
         default_html = [
       {
