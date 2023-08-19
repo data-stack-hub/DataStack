@@ -13,6 +13,7 @@ print(threading.current_thread())
 ds.header('DataStack Components')
 
 ds.markdown('# this is markdown')
+ds.tag('test tag')
 ds.subheader('State')
 import json
 ds.write(json.dumps(ds.state))

@@ -296,6 +296,16 @@ class datastack():
         }
         self.append_block(block)
 
+    def tag(self, data):
+        block = {
+            "id":self.dynamic_widget_id(),
+            "type":"tag",
+            "prop":{
+                "data":data
+            }
+        }
+        self.append_block(block)
+        
     def editable_html(self, key, id=''):
         default_html = [
       {
