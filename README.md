@@ -2,7 +2,7 @@
 
 run python server
 ```
-git clone https://github.com/data-stack-hub/data-stack-rdf.git
+git clone https://github.com/data-stack-hub/DataStack.git
 cd data-stack-rdf\lib
 pip install --editable .
 datastack run test_app.py
