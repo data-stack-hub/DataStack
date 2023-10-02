@@ -7,14 +7,14 @@
   
   <!-- sidebar -->
   <div style="display: block;">
-    <div *ngIf="true"
+    <div *ngIf="sidebar?.length > 0"
       style="display: block; background-color: rgb(240, 242, 246); background-attachment: fixed; height: 100vh;overflow: auto; padding: 6rem 1rem; position: relative;width: 18rem; z-index: 100; margin-left: 0px;">
       <ng-container *ngTemplateOutlet="elements; context:{value:sidebar}"></ng-container>
     </div>
   </div>
   <!-- main app -->
   <div style="display: flex; flex-direction: column;width: 100%; overflow: auto;align-items: center;">
-    <div style="display: block; width:100%; padding: 6rem 1rem 10rem; max-width: 60rem;">
+    <div style="display: block; width:100%; padding: 6rem 1rem 10rem; max-width: 45rem;">
       <ng-container
         *ngTemplateOutlet="elements; context:{value:container}">
       </ng-container>
@@ -76,7 +76,7 @@
         <nz-alert [nzType]="element.type" [nzMessage]="element.prop.value"></nz-alert>
       </div>
       <div *ngIf="element.type == 'select' || element.type == 'select_t' ">
-        <!-- {{element.prop.value}} -->
+
         <nz-select #options  (ngModelChange)="onSelected(element, $event)"  [(ngModel)]="element.prop.value" style="width: 100%;">
           <nz-option *ngFor="let x of element.prop.options"  [nzValue]="x" [nzLabel]="x"></nz-option>
         </nz-select>
@@ -87,14 +87,22 @@
         </ul> -->
         <nz-list >
           <nz-list-item *ngFor="let l of element.prop.data" style="align-items: start;">
+            <div *ngIf = "false">
             <div>
               <img width="100" alt="logo" *ngIf="l.image" [src]="l.image" />
             </div>
             <div style="width:100%; text-align: left; padding:10px">
               {{l[element.prop.slot_start]}}<br>
-              <!-- {{l[element.prop.slot_start]}} -->
             </div>
-            <div>{{l[element.prop.slot_end]}}</div>
+            <div style="padding: 10px; padding-right: 40px;">{{l[element.prop.slot_end]}}</div>
+          </div>
+          
+          <div>
+            <img width="100" alt="logo" *ngIf="l.image" [src]="l.image" />
+          </div>   
+          <div  [innerHTML] = 'get_marked(l[element.prop.slot_start])' style="width:100%; text-align: left; padding:10px"></div>
+          <div  [innerHTML] = 'get_marked(l[element.prop.slot_end])' style="padding: 10px; padding-right: 40px;text-wrap:nowrap"></div>
+          
           </nz-list-item>
         </nz-list>
 

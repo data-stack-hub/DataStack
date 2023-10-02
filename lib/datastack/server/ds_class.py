@@ -137,7 +137,7 @@ class datastack():
         }
         self.append_block(block)
 
-    def select(self, options, value='', on_change='', id='', args={}):
+    def select(self, label='', options=[], value='', on_change='', default_value=0, id='', args={}):
         from varname import varname
         # list options args to be corrected
         print(varname())
@@ -160,6 +160,7 @@ class datastack():
             "type":"select",
             "prop":{
                 "options":[opt for opt in options],
+                "label":label,
                 "value":value,
                 'value_var': varname(), #self.get_value_assign_var(inspect.currentframe().f_back),
                 "on_change":change_fn_name,
@@ -647,7 +648,7 @@ class datastack():
         _app = [{"id":"", "type":x['type'],"prop":x['prop'], "data":[
             {"id":"", "type":"tab", "title":c.title, "data":self.build_element_from_blocks(c.blocks['main_page']) }
             for c in x['data']]} if x['type'] == 'tabs' else x for x in _app ]
-
+        _app = [x if x['type'] == 'list' else x for x in _app ]
         return _app
     
 

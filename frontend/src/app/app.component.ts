@@ -428,6 +428,9 @@ str_to_json(str){
 }
 
 get_marked(data){
+  if(typeof(data) =='number'){
+    data = String(data)
+  }
   return marked(data)
 }
 }
