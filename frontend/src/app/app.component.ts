@@ -7,6 +7,7 @@ import { formatISO,isAfter,isBefore } from "date-fns";
 import { ApiService } from './services/api.service';
 declare const monaco: any;
 import { marked } from 'marked';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 interface trace {
   x:Array<any>,
@@ -69,7 +70,8 @@ export class AppComponent {
   editor: any;
   height =30;
   spinning = false
-
+  app_loading = true
+  app_error = false
 
 
   public graph = {
@@ -81,18 +83,38 @@ export class AppComponent {
     config : {editable:true, responsive: true}
 };
 
-  constructor(private api:ApiService, public sanitizer: DomSanitizer, public renderer: Renderer2){
-    this.api.get('http://localhost:5000/app')
+  constructor(private api:ApiService, public sanitizer: DomSanitizer, public renderer: Renderer2, public notification:NzNotificationService){
+
+    let host = window.location.hostname
+    let port
+    if (Number(window.location.port) == 4200){
+      port = 5000
+    } else if (window.location.port){
+      port = Number(window.location.port)
+    } else {
+      port = this.isHttps() ? 443 : 80
+    }
+
+    let basepath = window.location.pathname.replace("/\/+$/","").replace("/^\/+/","")
+    this.url = "http://" + host +":" + port +"/"
+    console.log(window.location.hostname,window.location.port, window.location.pathname )
+    this.api.get(this.url +'app')
     .subscribe((res:any)=>{
       this.update_app(res)
-
+      this.app_loading= false
+    }, (error)=>{
+      console.log('error:', error)
+      this.app_loading = false
+      this.app_error = true
     })
 
 
   }
 
   
-
+ isHttps(): boolean {
+  return window.location.href.startsWith("https://")
+}
   click(e:any){
     console.log(this.container.value)
     this.req(e, '')
@@ -116,14 +138,17 @@ export class AppComponent {
 
   req(e:any, payload:any){
     this.spinning = true
-    this.api.post('http://localhost:5000/run_fn',{...e, ...{"payload":payload}})
+    this.api.post(this.url + 'run_fn',{...e, ...{"payload":payload}})
     .subscribe((res:any)=>{
+      console.log(res)
       this.spinning = false
       this.update_app(res)
       // console.log('resp')
       // this.container = JSON.parse(JSON.stringify(res[this.page].filter((element:any)=>element.location != 'sidebar')))
       // this.sidebar = res[this.page].filter((element:any)=>element.location == 'sidebar')
 
+    }, (error)=>{
+      console.log('error:',error)
     })
   }
 
@@ -133,14 +158,8 @@ export class AppComponent {
     let all_pages = ['main_page'].concat(res['pages'])
     console.log(all_pages)
     all_pages.forEach(page=>{
-      res[page].concat(all_elements).forEach(element => {
-        if (element['type']== 'dataframe' || element['type']== 'chart'){
-          element.prop.data = JSON.parse(element.prop.data)
-          if (element['type'] == 'chart'){
-            element.prop.data.data[0].marker.size = 12
-          }
-        }
-      });
+      this.str_to_json_fix(res[page].concat(all_elements))
+      
     })
 
     this.page = res['current_page']
@@ -148,9 +167,36 @@ export class AppComponent {
     this.sidebar = res[this.page].filter((element:any)=>element.location == 'sidebar')
     this.sidebar = [...this.sidebar, ...res['sidebar']]
     this.appstate = res['appstate']
+    if(this.appstate.notifications && this.appstate.notifications.length > 0){
+      this.appstate.notifications.forEach(element => {
+        this.notify(element)
+      });
+    }
+  
     console.log(res)
   }
 
+  str_to_json_fix(list){
+    console.log(list)
+    list.forEach(element => {
+      if (element['type']== 'dataframe' || element['type']== 'chart'){
+        element.prop.data = JSON.parse(element.prop.data)
+        if (element['type'] == 'chart'){
+          // element.prop.data.data[0].marker.size = 12
+        }
+      }
+      if (element['type'] == 'expander'){
+        this.str_to_json_fix(element['data'])
+      }
+      if (element['type'] == 'column'){
+        element['data'].forEach(element1 => {
+          this.str_to_json_fix(element1)
+        });
+        
+      }
+    });
+
+  }
   trackElement(i:any, d:any){
     return i
   }
@@ -163,7 +209,7 @@ export class AppComponent {
   change_editable(e:any, ev:any){
     console.log(ev.target.innerHTML)
     this.innerHTML = this.editableDiv.nativeElement.innerHTML
-    this.api.post('http://localhost:5000/editable',{...e,...{'payload':this.innerHTML}}).subscribe(res=>{
+    this.api.post(this.url + 'editable',{...e,...{'payload':this.innerHTML}}).subscribe(res=>{
       console.log(res)
     })
   }
@@ -432,6 +478,15 @@ get_marked(data){
     data = String(data)
   }
   return marked(data)
+}
+
+notify(data){
+  this.notification
+  .blank(
+    'Notification' ,
+    data.data
+  )
+
 }
 }
 

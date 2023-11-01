@@ -6,6 +6,8 @@ from flask_cors import CORS
 from datastack.runtime import runtime
 from datastack.logger import logger
 import os
+import json
+import numpy as np
 from pathlib import Path
 
 static_file_path = os.path.join(Path(os.path.dirname(__file__)).parent.absolute(),'static') 
@@ -20,12 +22,22 @@ routes = [
         {'path':'/editable', 'fn':'save_editable'},
         {'path':'/run_block', 'fn':'run_block'},
         {'path':'/run_query_block', 'fn':'run_query_block'},
-        {'path':'/get_df_column', 'fn':'get_df_column'}
+        {'path':'/get_df_column', 'fn':'get_df_column'},
     ]
 
 def get_app():
     return send_from_directory(static_file_path, "index.html")
 
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
+    
 def load_app():
     """
     get datastack class from the module
@@ -35,12 +47,14 @@ def load_app():
         runtime.create_session()
     else:
         logger.info('seeesion_id: %s', params['session_id'])
-    return jsonify(runtime.get_main_class().build_app())
+
+    return json.dumps(runtime.get_main_class().build_app(), cls=NpEncoder)
 
 def rerun():
     global a1
     a1 = {k: v for k, v in my_module.__dict__.items() if not k.startswith("__")}
-    return jsonify(runtime.get_main_class().rerun(a1, {}))
+    # print('last', runtime.get_main_class().rerun(a1, {}))
+    return json.dumps(runtime.get_main_class().rerun(a1, {}), cls=NpEncoder)
 
 def update_block(app_json, block, parent):
     block_status = False
@@ -163,6 +177,7 @@ def update_var_select(event):
     getattr(my_module,event['prop']['on_change'])()
 
 def run_fn():
+    runtime.get_main_class().clear_notifications()
     global my_module 
     my_module = runtime.get_module()
     on_change_type = ['input','select', 'date_input','slider']
@@ -188,11 +203,13 @@ def run_fn():
                     fn(*tuple(block['prop']['args']))
                 else:
                     fn()
-            except:
-                fn(request.json)
+            except Exception as e:
+                print('error', type(e),e)
+                # runtime.get_main_class().notification({'type':'error', 'data':str(e), 'status':'active'})
+                # fn(request.json)
                 import threading
                 print(threading.current_thread())
-                runtime.initialized.send('signal from server')
+                # runtime.initialized.send('signal from server')
         except Exception as e:
             logger.debug("function {} not in module".format( request.json['prop']['on_change']))
             logger.error(e)
@@ -207,7 +224,7 @@ def fn(method_name):
 for route in routes:
     app.add_url_rule(route['path'], view_func=fn(route['fn']), methods = ["get","post"])
 
-def start_server(file_path):
+def start_server(file_path, port=5000):
     global my_module
     runtime.set_file_path(file_path)
     runtime.run_script(file_path)
@@ -216,7 +233,7 @@ def start_server(file_path):
     logger.debug("Starting server...")
     # import webbrowser
     # webbrowser.open('http://127.0.0.1:4200/')
-    app.run(debug=True)
+    app.run(port = port, debug=True, threaded= True)
     logger.debug("Server started on port 5000")
 if __name__ == '__main__':
     start_server()

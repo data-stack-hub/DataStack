@@ -14,6 +14,7 @@ datastack/plugin/chart.py
 datastack/runtime/__init__.py
 datastack/runtime/runtime.py
 datastack/server/__init__.py
+datastack/server/auth.py
 datastack/server/ds_class.py
 datastack/server/enovix_test_app.py
 datastack/server/enovix_test_app1.py

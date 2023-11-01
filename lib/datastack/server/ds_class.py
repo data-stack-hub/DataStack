@@ -22,7 +22,7 @@ class datastack():
             'sidebar':[],
             'main_page':[],
             'pages':[],
-            'appstate':{"session_id":"default"}
+            'appstate':{"session_id":"default", 'notifications':[]}
         }
         self.blocks = {
             'sidebar':[],
@@ -34,7 +34,7 @@ class datastack():
             runtime.set_main_class(self)
 
     def dynamic_widget_id(self):
-        return time.time_ns()
+        return str(time.time_ns())
 #  change to on_click = function name and on_click_source = function code
 #  move frame logic to somewhere else
     def button(self, name, on_click='', args={}, id=''):
@@ -73,11 +73,11 @@ class datastack():
         except:pass
         self.append_block(block)
 
-    def input(self,value='', id = '', on_change =""):
+    def input(self,value='', id = '', on_change ="", args={}):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        args = string[string.find('(') + 1:-1].split(',')
+        # args = string[string.find('(') + 1:-1].split(',')
         if on_change :
             change_fn = inspect.getsource(on_change)
             change_fn_name = string[string.find('on_change=') + 10:-1].split(',')[0].replace("on_change=",'').replace(' ','')
@@ -135,12 +135,14 @@ class datastack():
                 "data_var":args[0]
             }
         }
-        self.append_block(block)
+        if not self.replace_block(id, block):
+            self.append_block(block)
+
 
     def select(self, label='', options=[], value='', on_change='', default_value=0, id='', args={}):
         from varname import varname
         # list options args to be corrected
-        print(varname())
+        # print(varname())
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
@@ -163,10 +165,14 @@ class datastack():
                 "label":label,
                 "value":value,
                 'value_var': varname(), #self.get_value_assign_var(inspect.currentframe().f_back),
-                "on_change":change_fn_name,
+                # "on_change":argname('on_change') or '',
                 'args':args
             }
         }
+        try:
+             block['prop']['on_change'] = argname('on_change')
+        except:
+            print('error on change function')
         try:
             print(argname('options', vars_only=False))
             block['prop']['options_var'] = str(argname('options', vars_only=False))
@@ -206,6 +212,13 @@ class datastack():
 
         self.append_block(block)
 
+    def notification(self, data):
+        data['notification_id'] = self.dynamic_widget_id()
+        self.app['appstate']['notifications'].append(data)
+        print('notification added', self.app['appstate']['notifications'])
+        
+    def clear_notifications(self):
+        self.app['appstate']['notifications'] = []
 
     def get_value_assign_var(self, f):
         import dis
@@ -250,8 +263,9 @@ class datastack():
                 "columns":list(data.columns)
             }
         }
-        self.append_block(block)
-        
+        if not self.replace_block(id, block):
+            self.append_block(block)
+
     def write(self, data,  location='', id=''):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
@@ -563,7 +577,8 @@ class datastack():
             "data_var":argname('data', vars_only=False)
             }
         }
-        self.append_block(block)
+        if not self.replace_block(id, block):
+            self.append_block(block)
 
     def chart_builder(self, id=''):
         block = {
@@ -577,10 +592,10 @@ class datastack():
         import pandas as pd
         import itertools
         self.app['appstate']['dfs']  = [attr[0] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)]
-        self.app['appstate']['columns'] = list(itertools.chain(* [ [attr[0]  + "." +  col for col in   attr[1].columns.tolist()] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)]))
+        self.app['appstate']['columns'] = list(itertools.chain(* [ [attr[0]  + "." +  str(col) for col in   attr[1].columns.tolist()] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)]))
 
         # print(list(itertools.chain(*[attr[1].columns.tolist() for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)])) )
-        print( list(itertools.chain(* [ [attr[0]  + ":" +  col for col in   attr[1].columns.tolist()] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)])))
+        # print( list(itertools.chain(* [ [attr[0]  + ":" +  col for col in   attr[1].columns.tolist()] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)])))
 
     def update_app_state(self, key, value):
         self.state[key] = value
@@ -603,8 +618,11 @@ class datastack():
         self.blocks[location].append(block)
 
     def get_app_block_by_id(self, id):
-        print('getting block by id:', id)
         all_app_blocks = [block for page in ['main_page'] + self.app['pages'] for block in self.app[page]]
+        for b in all_app_blocks:
+            if b['type'] == 'column':
+                for data_block in b['data']:
+                    all_app_blocks = all_app_blocks + data_block
         return list(filter(lambda p: p['id'] == id, all_app_blocks))
 
     def gat_all_blocks(self):
@@ -630,12 +648,13 @@ class datastack():
             'sidebar':[],
             'main_page':[],
             'pages':[],
-            'appstate':{"session_id":"default"}
+            'appstate':{"session_id":"default", 'notifications':[]}
         }
         self.blocks = {
             'sidebar':[],
             'main_page':[],
-            'pages':[]
+            'pages':[],
+            'notifications':[]
         }
         
     def build_element_from_blocks(self,blocks):
@@ -673,10 +692,13 @@ class datastack():
                     if c['type'] == 'list':
                         c['prop']['value'] = eval(c['prop']['value_var'])
                     if c['type'] == 'chart':
-                        c['prop']['data'] = eval(c['prop']['data_var'])
+                        # c['prop']['data'] = eval(c['prop']['data_var'])
+                        pass
                     if c['type'] == 'expander' or c['type'] == 'container':
                         _update_state(c['data'])
-                        pass
+                    if c['type'] == 'column':
+                        for col in c['data']:
+                            _update_state(col)
                     if c['type'] == 'editable_html':
                         default_html = [
                                             {
@@ -737,5 +759,5 @@ class datastack():
         # diff = [x for x in self.app if x not in old_app else x]
         # diff = [x.update(is_change=True) if x not in old_app else x for x in self.app]
         # diff = [{**x, 'is_change':True} if x  not in old_app else {**x, 'is_change':False}  for x in self.app ]
-        # print(self.blocks)
+        # print(self.app)
         return self.app

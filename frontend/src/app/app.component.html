@@ -13,8 +13,24 @@
     </div>
   </div>
   <!-- main app -->
-  <div style="display: flex; flex-direction: column;width: 100%; overflow: auto;align-items: center;">
-    <div style="display: block; width:100%; padding: 6rem 1rem 10rem; max-width: 45rem;">
+  <div style="display: flex; flex-direction: column;width: 100%; overflow: auto;align-items: flex-start;">
+    <div style="display: block; width:100%; padding: 6rem 1rem 10rem; /*max-width: 45rem;*/">
+      <ng-container *ngIf = "app_loading">
+        <nz-spin [nzSpinning]="true" [nzDelay]="500">
+          <nz-alert
+            [nzType]="'info'"
+            [nzMessage]="'loading'"
+          ></nz-alert>
+        </nz-spin>
+      </ng-container>
+      <ng-container *ngIf = "app_error">
+
+          <nz-alert
+            [nzType]="'error'"
+            [nzMessage]="'An error occurred while retrieving the app. Please try refreshing the page.'"
+          ></nz-alert>
+
+      </ng-container>
       <ng-container
         *ngTemplateOutlet="elements; context:{value:container}">
       </ng-container>
@@ -119,7 +135,7 @@
         <ng-container *ngTemplateOutlet="elements; context:{value:element.data}"></ng-container>
       </div>
       <div *ngIf ="element.type == 'column'" nz-row >
-        <div *ngFor="let data of element.data" nz-col nzFlex="auto" style="background: #f7f7f7;
+        <div *ngFor="let data of element.data" nz-col nzFlex="1" style="background: #f7f7f7;
         padding: 5px;
         border-radius: 5px;
         margin: 2px;">
@@ -144,7 +160,7 @@
           </div>
       </div>
       <div *ngIf="element.type == 'chart'">
-        <plotly-plot [data]=str_to_json(element.prop.data) [layout]="graph.layout"></plotly-plot>
+        <plotly-plot [data]="element.prop.data.data" [layout]="element.prop.data.layout" ></plotly-plot>
       </div>
       <div *ngIf="element.type == 'chart_builder'">
 

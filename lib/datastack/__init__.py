@@ -38,4 +38,6 @@ state = main.state
 chart_builder = main.chart_builder
 markdown = main.markdown
 tag = main.tag
+notification = main.notification
+update_app_state = main.update_app_state
 

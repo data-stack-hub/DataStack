@@ -237,7 +237,7 @@ site = ds.list(['Wikipedia','ML'], on_click=change_iframe)
 url = 'https://www.wikipedia.org/'
 ds.iframe(url)
 ds.divider()
-
+'''
 # pycaret
 from pycaret.datasets import get_data
 from pycaret.classification import ClassificationExperiment
@@ -277,10 +277,10 @@ s = ClassificationExperiment()
 
 datasets = get_data()#['Dataset'].to_list()
 az = 'asd1'
-# selected_plot = pc.select(list(s._available_plots.keys()), on_change=plot, id='x1', args=('q',az))
-selected_exp_type = pc.select(datasets['Default Task'].unique())
-selected_dataset = pc.select( datasets[datasets['Default Task'] == selected_exp_type]['Dataset'], on_change=get_data_py)
-pc.write('selected dataset is: ' + selected_dataset)
+
+# selected_exp_type = pc.select(datasets['Default Task'].unique())
+# selected_dataset = pc.select( datasets[datasets['Default Task'] == selected_exp_type]['Dataset'], on_change=get_data_py)
+# pc.write('selected dataset is: ' + selected_dataset)
 
 
 
@@ -291,5 +291,5 @@ pc.write('selected dataset is: ' + selected_dataset)
 # pc.button('show chart', on_click=dum)
 
 # pc.image(Image.open(s.plot_model(best, plot='auc', save=True)))
-
+'''
 

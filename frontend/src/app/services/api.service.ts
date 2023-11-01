@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { tap } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 
 
 @Injectable({
@@ -27,9 +27,12 @@ export class ApiService {
     data['session_id']= this.get_session_id()
     return this.http.post(url, data).pipe(tap((data:any)=>{
       localStorage.setItem('session_id',data.appstate?.session_id)
-    }))
+    }, catchError(this.eh)))
   }
-
+  eh(error){
+    console.log(error)
+    return 'a'
+}
   get_session_id(){
     let id = localStorage.getItem('session_id')
     console.log(id)
