@@ -224,7 +224,7 @@ def fn(method_name):
 for route in routes:
     app.add_url_rule(route['path'], view_func=fn(route['fn']), methods = ["get","post"])
 
-def start_server(file_path, port=5000):
+def start_server(file_path, host='localhost', port=5000):
     global my_module
     runtime.set_file_path(file_path)
     runtime.run_script(file_path)
@@ -233,7 +233,7 @@ def start_server(file_path, port=5000):
     logger.debug("Starting server...")
     # import webbrowser
     # webbrowser.open('http://127.0.0.1:4200/')
-    app.run(port = port, debug=True, threaded= True)
+    app.run(host = host, port = port, debug=True, threaded= True)
     logger.debug("Server started on port 5000")
 if __name__ == '__main__':
     start_server()
