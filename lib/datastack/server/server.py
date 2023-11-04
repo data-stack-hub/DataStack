@@ -13,7 +13,11 @@ from pathlib import Path
 static_file_path = os.path.join(Path(os.path.dirname(__file__)).parent.absolute(),'static') 
 app = Flask(__name__, static_folder=static_file_path, template_folder=static_file_path, static_url_path='/')
 cors = CORS(app)
+ses = []
 
+class rt():
+    def __init__(self, rt_name):
+        self.rt_name = rt_name
 
 routes = [
         {'path':'/', 'fn':'get_app'},
@@ -47,7 +51,9 @@ def load_app():
         runtime.create_session()
     else:
         logger.info('seeesion_id: %s', params['session_id'])
-
+    
+    import random
+    ses.append(vars(rt('vishal-' + str(random.randint(0,9999)))))
     return json.dumps(runtime.get_main_class().build_app(), cls=NpEncoder)
 
 def rerun():
@@ -177,6 +183,9 @@ def update_var_select(event):
     getattr(my_module,event['prop']['on_change'])()
 
 def run_fn():
+    import threading
+    print('thread id :==:== ',threading.current_thread(), ses)
+
     runtime.get_main_class().clear_notifications()
     global my_module 
     my_module = runtime.get_module()
@@ -207,8 +216,6 @@ def run_fn():
                 print('error', type(e),e)
                 # runtime.get_main_class().notification({'type':'error', 'data':str(e), 'status':'active'})
                 # fn(request.json)
-                import threading
-                print(threading.current_thread())
                 # runtime.initialized.send('signal from server')
         except Exception as e:
             logger.debug("function {} not in module".format( request.json['prop']['on_change']))
