@@ -4,8 +4,10 @@ from datastack.runtime import runtime
 from datastack.logger import logger
 import uuid,os
 import numpy as np
-import time
+import time, threading
 from pathlib import Path
+from varname import argname
+# from datastack.server.server import seesion_mgr
 
 class datastack():
     """
@@ -17,12 +19,13 @@ class datastack():
         self.type = type
         self.path = path
         self.title = title
+        self.main = main
         self.app={
             'current_page':'main_page',
             'sidebar':[],
             'main_page':[],
             'pages':[],
-            'appstate':{"session_id":"default", 'notifications':[]}
+            'appstate':{"session_id":getattr(threading.current_thread(), 'session_id'), 'notifications':[]}
         }
         self.blocks = {
             'sidebar':[],
@@ -30,9 +33,13 @@ class datastack():
             'pages':[]
         }
         self.state = {}
+        print('ds_thread: ', threading.current_thread())
+        self.session_id = getattr(threading.current_thread(), 'session_id')
         if main:
             runtime.set_main_class(self)
-
+            runtime.collect_cls(self)
+            # self.session_id = getattr(threading.current_thread(), 'session_id')
+            # seesion_mgr.append(self)
     def dynamic_widget_id(self):
         return str(time.time_ns())
 #  change to on_click = function name and on_click_source = function code
@@ -106,6 +113,8 @@ class datastack():
         self.append_block(block)
 
     def header(self, data, id=''):
+        import threading
+        print('header thread: ',threading.current_thread())
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
@@ -119,6 +128,10 @@ class datastack():
                 "data_var":args[0]
             }
         }
+        try:
+            block['prop']['data_var'] = argname('data')
+        except:
+            pass
         self.append_block(block)
 
     def subheader(self, data, id=''):
@@ -594,9 +607,6 @@ class datastack():
         self.app['appstate']['dfs']  = [attr[0] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)]
         self.app['appstate']['columns'] = list(itertools.chain(* [ [attr[0]  + "." +  str(col) for col in   attr[1].columns.tolist()] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)]))
 
-        # print(list(itertools.chain(*[attr[1].columns.tolist() for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)])) )
-        # print( list(itertools.chain(* [ [attr[0]  + ":" +  col for col in   attr[1].columns.tolist()] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)])))
-
     def update_app_state(self, key, value):
         self.state[key] = value
         
@@ -675,17 +685,15 @@ class datastack():
         def _update_state(location):
           for c in location:
                 try:
-                    if c['type'] == 'text' or c['type'] == 'html' :
+                    if c['type'] == 'text' or c['type'] == 'html' or c['type'] == 'header' or c['type'] == 'subheader' :
                         c['prop']['data'] = eval(c['prop']['data_var'])
                     if c['type'] == 'date_input' or c['type'] == 'input':
                         c['prop']['value'] = eval(c['prop']['value_var'])
                     if c['type'] == 'button':
                         c['prop']['title'] = eval(c['prop']['title_var'])
                     if c['type'] =='select':
-                        print(c)
                         c['prop']['value'] = eval(c['prop']['value_var'])
                         if 'options_var' in c['prop']:
-                            print(eval(c['prop']['options_var']))
                             c['prop']['options'] =[opt for opt in eval(c['prop']['options_var'])] 
                     if c['type'] == 'iframe':
                         c['prop']['url'] = eval(c['prop']['url_var'])
@@ -740,18 +748,18 @@ class datastack():
         # # if any class in sidebar
         # # _app = [a[0] for a in _app]
         # _app =  self.build_element_from_blocks(_app)
-        print(_app)
+        # print(_app)
         # self.app['sidebar'] = [ item for sublist in _app for item in sublist]
         t = self.build_element_from_blocks([a[0] for a in _app])
         self.app['sidebar'] = t
         self.app['pages'] = np.unique(np.array(self.app['pages'])).tolist()
         return self.app
 
-    def rerun(self, my_vars, old_app):
+    def rerun(self, my_vars={}, old_app=''):
 
         for k,v in my_vars.items():
             globals()[k] = v
-
+        # print({k: v for k, v in globals().items() if not k.startswith("__")})
         self.build_app()
         self.update_state()
         # old_app = self.app.copy()

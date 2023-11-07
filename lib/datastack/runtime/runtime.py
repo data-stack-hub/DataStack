@@ -7,6 +7,12 @@ ctx['storage'] = []
 def set_main_class(cls):
     ctx['main_class'] = cls
 
+def collect_cls(cls):
+    ctx['storage'].append(cls)
+
+def return_collect_cls():
+    return ctx['storage']
+
 def get_main_class():
     return ctx['main_class']
 
@@ -69,6 +75,6 @@ def create_session():
     create session if not available - class
     id,script data, state, script runner, user info, session state
     """
-    reset_main_class()
-    run_script(get_file_path())
+    # reset_main_class()
+    # run_script(get_file_path())
     return 'session_id'

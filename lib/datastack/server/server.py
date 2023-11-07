@@ -4,6 +4,7 @@ from flask import request, jsonify, send_from_directory
 from flask_cors import CORS
 
 from datastack.runtime import runtime
+from datastack.runtime import session_manager
 from datastack.logger import logger
 import os
 import json
@@ -13,12 +14,8 @@ from pathlib import Path
 static_file_path = os.path.join(Path(os.path.dirname(__file__)).parent.absolute(),'static') 
 app = Flask(__name__, static_folder=static_file_path, template_folder=static_file_path, static_url_path='/')
 cors = CORS(app)
-ses = []
 
-class rt():
-    def __init__(self, rt_name):
-        self.rt_name = rt_name
-
+seesion_mgr = session_manager.SessionManager()
 routes = [
         {'path':'/', 'fn':'get_app'},
         {'path':'/app', 'fn':'load_app'},
@@ -47,20 +44,24 @@ def load_app():
     get datastack class from the module
     """
     params = request.args.to_dict()
-    if not params.get('session_id'):
-        runtime.create_session()
-    else:
-        logger.info('seeesion_id: %s', params['session_id'])
-    
-    import random
-    ses.append(vars(rt('vishal-' + str(random.randint(0,9999)))))
-    return json.dumps(runtime.get_main_class().build_app(), cls=NpEncoder)
 
-def rerun():
+    session = seesion_mgr.connect_session()
+    print(seesion_mgr.__dict__)
+
+
+
+    return json.dumps(session.main_class.build_app(), cls=NpEncoder)
+
+def rerun(cls, my_module, session):
     global a1
     a1 = {k: v for k, v in my_module.__dict__.items() if not k.startswith("__")}
+    my_module.cls = cls
     # print('last', runtime.get_main_class().rerun(a1, {}))
-    return json.dumps(runtime.get_main_class().rerun(a1, {}), cls=NpEncoder)
+    # return json.dumps(cls.rerun(a1, {}), cls=NpEncoder)
+    class_name = session.class_object_name
+    print('class_name',class_name)
+    return json.dumps(getattr(my_module, class_name).rerun(a1), cls=NpEncoder)
+    
 
 def update_block(app_json, block, parent):
     block_status = False
@@ -173,40 +174,40 @@ def run_query_block():
 def update_var(event):
     setattr(my_module,event['prop']['value_var'], event['payload'])
 
-def update_var(var, value):
-    print(var, value)
+def update_var(var, value, cls, my_module):
     setattr(my_module, var, value)
-    runtime.get_main_class().update_app_state(var, value)
+    cls.update_app_state(var, value)
     
 def update_var_select(event):
     setattr(my_module, event['prop']['value_var'], event['payload'])
     getattr(my_module,event['prop']['on_change'])()
 
 def run_fn():
-    import threading
-    print('thread id :==:== ',threading.current_thread(), ses)
+    session = seesion_mgr.get_session(request.json['session_id'])
 
+    my_module = session.my_module
+    main_class = getattr(my_module, session.class_object_name)
+    print(session, main_class, my_module)
+
+    
     runtime.get_main_class().clear_notifications()
-    global my_module 
-    my_module = runtime.get_module()
+    
+
+
     on_change_type = ['input','select', 'date_input','slider']
     if request.json['type'] == 'list' and request.json['payload']['action'] == 'click':
-        update_var(request.json['prop']['value_var'], request.json['payload']['value'])
+        update_var(request.json['prop']['value_var'], request.json['payload']['value'], main_class, my_module)
     elif request.json['type'] in on_change_type and request.json['payload']['action'] == 'change' and request.json['payload']['value'] is not  None and request.json['prop']['value_var'] is not None:
-        update_var(request.json['prop']['value_var'], request.json['payload']['value'])
-    # elif request.json['prop']['on_change'] == 'update_var':
-    #     update_var(request.json)
-    # elif'on_click' in request.json['prop'] and request.json['prop']['on_click'] == 'update_var_select':
-    #     update_var_select(request.json)
+        update_var(request.json['prop']['value_var'], request.json['payload']['value'], main_class, my_module)
     elif request.json["type"] == 'page_link':
-        runtime.get_main_class().set_page(request.json['prop']['data'])
+        main_class.set_page(request.json['prop']['data'])
 
     if 'on_change' in request.json['prop']:
         try:
             fn = getattr(my_module, request.json['prop']['on_change'])
             print(fn)
             try:
-                block = runtime.get_main_class().get_app_block_by_id(request.json['id'])[0]
+                block = session.main_class.get_app_block_by_id(request.json['id'])[0]
                 print('block',block)
                 if 'args' in block['prop']:
                     fn(*tuple(block['prop']['args']))
@@ -220,7 +221,7 @@ def run_fn():
         except Exception as e:
             logger.debug("function {} not in module".format( request.json['prop']['on_change']))
             logger.error(e)
-    return rerun()
+    return rerun( main_class, my_module, session)
 
 def fn(method_name):
     possibles = globals().copy()
@@ -234,13 +235,13 @@ for route in routes:
 def start_server(file_path, host='localhost', port=5000):
     global my_module
     runtime.set_file_path(file_path)
-    runtime.run_script(file_path)
-    my_module = runtime.get_module()
+    # runtime.run_script(file_path)
+    # my_module = runtime.get_module()
 
     logger.debug("Starting server...")
     # import webbrowser
     # webbrowser.open('http://127.0.0.1:4200/')
-    app.run(host = host, port = port, debug=True, threaded= True)
+    app.run(host = host, port = port, debug=False, threaded= True)
     logger.debug("Server started on port 5000")
 if __name__ == '__main__':
     start_server()

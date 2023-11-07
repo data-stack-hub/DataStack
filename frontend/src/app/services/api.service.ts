@@ -16,9 +16,9 @@ export class ApiService {
     let options = {
       params:params
     }
-    // options.params['session_id'] = this.get_session_id()
+    options.params['session_id'] = this.get_session_id()
     return this.http.get(url, options).pipe(tap((data:any)=>{
-      // localStorage.setItem('session_id',(data?.appstate?.session_id || 'default'))
+      localStorage.setItem('session_id',(data?.appstate?.session_id || 'default'))
     }))
   }
 

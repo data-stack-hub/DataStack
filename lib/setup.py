@@ -4,7 +4,7 @@ from setuptools import findall
 
 setuptools.setup(
     name='datastack',
-    version='0.0.1',
+    version='0.0.2',
     author="Vishal Vora, Mayur Pokiya, Karan Doshi", 
     description="Tool to build data apps on the fly",
     entry_points={"console_scripts":["datastack = datastack.cli:main"]},
