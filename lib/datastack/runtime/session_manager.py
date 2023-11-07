@@ -41,9 +41,9 @@ class AppSession():
         setattr(self.script_thread, 'session_id', self.id)
         self.script_thread.start()
         self.script_thread.join()
-        for c in runtime.return_collect_cls():
-            if c.__dict__['session_id'] == self.id:
-                self.main_class = c
+        # for c in runtime.return_collect_cls():
+        #     if c.__dict__['session_id'] == self.id:
+        #         self.main_class = c
         self.my_module = getattr(self.script_thread, 'my_module')
         # print('my module post ', self.my_module.__dict__)
         # print('post vars',{k: v for k, v in self.my_module.__dict__.items() if not k.startswith("__")})
@@ -51,6 +51,7 @@ class AppSession():
             # print(type(b) == datastack , type(b), a,b)
             if type(b) == datastack and b.main:
                 self.class_object_name = a
+                self.main_class = getattr(self.my_module, self.class_object_name)
 
 
         # print('ds from thread', getattr(self.script_thread, 'ds'))

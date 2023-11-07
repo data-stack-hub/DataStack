@@ -47,22 +47,16 @@ def load_app():
 
     session = seesion_mgr.connect_session()
     print(seesion_mgr.__dict__)
-
-
-
     return json.dumps(session.main_class.build_app(), cls=NpEncoder)
 
 def rerun(cls, my_module, session):
     global a1
     a1 = {k: v for k, v in my_module.__dict__.items() if not k.startswith("__")}
-    my_module.cls = cls
-    # print('last', runtime.get_main_class().rerun(a1, {}))
-    # return json.dumps(cls.rerun(a1, {}), cls=NpEncoder)
-    class_name = session.class_object_name
-    print('class_name',class_name)
-    return json.dumps(getattr(my_module, class_name).rerun(a1), cls=NpEncoder)
+    # my_module.cls = cls
+    # class_name = session.class_object_name
+    # print('class_name',class_name)
+    return json.dumps(session.main_class.rerun(a1), cls=NpEncoder)
     
-
 def update_block(app_json, block, parent):
     block_status = False
     def it(e):
