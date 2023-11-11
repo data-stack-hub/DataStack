@@ -19,6 +19,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import * as PlotlyJS from 'plotly.js-dist-min';
 import { PlotlyModule } from 'angular-plotly.js';
 
+import { AngularSlickgridModule } from 'angular-slickgrid';
+
+
 PlotlyModule.plotlyjs = PlotlyJS;
 
 import { NgZorroAntdModule} from './ng-zorro-antd.module';
@@ -27,6 +30,7 @@ import { ExpanderComponent } from './components/elements/expander/expander.compo
 import { EditableComponent } from './components/elements/editable/editable.component'
 registerLocaleData(en);
 
+// @dynamic
 @NgModule({
   declarations: [
     AppComponent,
@@ -36,6 +40,7 @@ registerLocaleData(en);
     // MyComponentWrapperComponent
   ],
   imports: [
+    AngularSlickgridModule.forRoot(),
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
@@ -44,6 +49,7 @@ registerLocaleData(en);
     BrowserAnimationsModule,
     PlotlyModule,
     NgZorroAntdModule
+
   ],
   providers: [{ provide: APP_BASE_HREF, useValue: '/' },
   { provide: LocationStrategy, useClass: HashLocationStrategy },

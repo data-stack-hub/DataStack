@@ -31,6 +31,13 @@
           ></nz-alert>
 
       </ng-container>
+      <div class="container">
+        <angular-slickgrid gridId="grid1"
+                  [columnDefinitions]="columnDefinitions"
+                  [gridOptions]="gridOptions"
+                  [dataset]="dataset">
+        </angular-slickgrid>
+      </div>
       <ng-container
         *ngTemplateOutlet="elements; context:{value:container}">
       </ng-container>
