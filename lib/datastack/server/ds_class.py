@@ -636,7 +636,7 @@ class datastack():
         return list(filter(lambda p: p['id'] == id, all_app_blocks))
 
     def gat_all_blocks(self):
-        return [block for page in ['main_page'] + self.blocks['pages'] for block in self.blocks[page]]
+        return [block for page in ['main_page'] + self.blocks['pages'] for block in self.blocks[page] if isinstance(block, dict)]
     
     def get_block_by_id(self, id):
         try:
