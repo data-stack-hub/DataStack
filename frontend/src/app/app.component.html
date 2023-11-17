@@ -31,13 +31,7 @@
           ></nz-alert>
 
       </ng-container>
-      <div class="container">
-        <angular-slickgrid gridId="grid1"
-                  [columnDefinitions]="columnDefinitions"
-                  [gridOptions]="gridOptions"
-                  [dataset]="dataset">
-        </angular-slickgrid>
-      </div>
+
       <ng-container
         *ngTemplateOutlet="elements; context:{value:container}">
       </ng-container>
@@ -201,7 +195,7 @@
         <plotly-plot [data]=graph.data [layout]="graph.layout" [config] ="{editable:true}"></plotly-plot>
         
       </div>
-      <div *ngIf="element.type == 'dataframe'">
+      <div *ngIf="element.type == 'table'">
         <nz-table #basicTable nzSize="small" [nzData]="element.prop.data" nzBordered>
           <thead>
             <tr>
@@ -219,6 +213,14 @@
             </tr>
           </tbody>
         </nz-table>
+      </div>
+      <div *ngIf="element.type == 'dataframe'" style="margin:5px;">
+        <angular-slickgrid [gridId]="element.prop.grid_id"
+        [columnDefinitions]="element.prop.columns"
+        [gridOptions]="gridOptions"
+        (onAngularGridCreated)="angularGridReady($event?.detail)"
+        [dataset]="element.prop.data">
+</angular-slickgrid>
       </div>
       <div *ngIf="element.type == 'code'">
         <nz-code-editor style="border:1px solid" [style.height.px]="height" [(ngModel)]="element.prop.code" [nzEditorOption]="{ language: 'python',scrollbar: {vertical: 'hidden'} , minimap:{enabled:false}, automaticLayout: true,  wordWrap: 'on', scrollBeyondLastLine: false}" (nzEditorInitialized)="onEditorInit($event)"></nz-code-editor>
