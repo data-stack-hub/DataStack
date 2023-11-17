@@ -10,6 +10,8 @@ Welcome to datastack's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   modules
+   doc_test
 
 
 Indices and tables

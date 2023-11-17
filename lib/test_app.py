@@ -226,6 +226,10 @@ ds.sidebar().divider()
 # Iframe
 ds.subheader('Iframe')
 def change_iframe(a):
+    """this is the doc string test
+    test line 1
+    test line 2
+    """
     global url
     if a['payload'] == 'Wikipedia':
         url = 'https://www.wikipedia.org/'
