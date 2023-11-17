@@ -25,6 +25,9 @@ extensions = [
     "sphinx.ext.napoleon",
 ]
 
+napoleon_google_docstring = True
+napoleon_numpy_docstring = True
+
 templates_path = ['_templates']
 exclude_patterns = []
 
