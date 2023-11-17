@@ -8,18 +8,6 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath("../.."))
-import sphinx.apidoc
-def setup(app):
-    sphinx.apidoc.main(['-f', #Overwrite existing files
-                        '-T', #Create table of contents
-                        #'-e', #Give modules their own pages
-                        '-E', #user docstring headers
-                        #'-M', #Modules first
-                        '-o', #Output the files to:
-                        './docs/sources/', #Output Directory
-                        'lib', #Main Module directory
-                        ]
-    )
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
