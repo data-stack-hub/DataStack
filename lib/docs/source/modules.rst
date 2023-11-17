@@ -4,7 +4,6 @@ lib
 .. toctree::
    :maxdepth: 4
 
-   advance_list
    datastack
    doc_test
    setup
