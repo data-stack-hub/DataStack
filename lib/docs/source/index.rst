@@ -18,12 +18,6 @@ server
    :undoc-members:
    :show-inheritance:
 
-caching
-====================================
-.. automodule:: datastack.server.caching
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 session manager
 ====================================
