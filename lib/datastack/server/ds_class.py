@@ -19,7 +19,7 @@ class datastack():
     *_var = variable name for * property
     """
     def __init__(self, type='main_page', path='', title='', main=False):
-        "Ds class init"
+        """Ds class init"""
         self.type = type
         self.path = path
         self.title = title

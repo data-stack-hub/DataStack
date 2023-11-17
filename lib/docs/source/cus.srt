@@ -1,4 +1,0 @@
-.. automodule:: datastack.server.server
-   :members:
-   :undoc-members:
-   :show-inheritance:

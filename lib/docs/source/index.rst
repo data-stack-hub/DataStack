@@ -3,19 +3,31 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to datastack's documentation!
-=====================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-   
-   modules
+datastack
+====================================
+.. automodule:: datastack.server.ds_class
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
+server
+====================================
+.. automodule:: datastack.server.server
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-Indices and tables
-==================
+caching
+====================================
+.. automodule:: datastack.server.caching
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+session manager
+====================================
+.. automodule:: datastack.runtime.session_manager
+   :members:
+   :undoc-members:
+   :show-inheritance:
