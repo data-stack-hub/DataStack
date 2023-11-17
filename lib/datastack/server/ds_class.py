@@ -1,12 +1,15 @@
+import hashlib
 import inspect
 from contextlib import contextmanager
 from datastack.runtime import runtime
 from datastack.logger import logger
+from datastack.server import caching
 import uuid,os
 import numpy as np
 import time, threading
 from pathlib import Path
 from varname import argname
+
 # from datastack.server.server import seesion_mgr
 
 class datastack():
@@ -267,13 +270,26 @@ class datastack():
         else:
             return None
 
-    def dataframe(self, data, id=''):
+    def table(self, data, id=''):
+        block = {
+            "id":id if id else self.dynamic_widget_id(),
+            "type":"table",
+            "prop":{
+                "data":data.to_json(orient="records"),
+                "columns":list(data.columns)
+            }
+        }
+        if not self.replace_block(id, block):
+            self.append_block(block)
+
+    def dataframe(self, data, id =''):
         block = {
             "id":id if id else self.dynamic_widget_id(),
             "type":"dataframe",
             "prop":{
                 "data":data.to_json(orient="records"),
-                "columns":list(data.columns)
+                "columns":[{'name':c, "id":c, "field":c, 'sortable':True, 'minWidth':max(len(c)*9,100), 'maxWidth':400} for c in list(data.columns)],
+                "grid_id":'a' + self.dynamic_widget_id()
             }
         }
         if not self.replace_block(id, block):
@@ -333,7 +349,72 @@ class datastack():
             }
         }
         self.append_block(block)
-        
+    
+    def cache_data(self, func):
+
+        def inner1(*args, **kwargs):
+            print('before execution')
+            arg_pairs = []
+            for arg_idx in range(len(args)):
+                arg_name = self._get_positional_arg_name(func, arg_idx)
+                arg_pairs.append((arg_name, args[arg_idx]))
+            for kw_name, kw_val in kwargs.items():
+                arg_pairs.append((kw_name, kw_val))
+            print('functions args', arg_pairs)
+            args_hasher = hashlib.new("md5")
+            for s1,s2 in arg_pairs:
+                args_hasher.update(s1.encode())
+                args_hasher.update(s2.encode())
+            args_hash = args_hasher.hexdigest()
+            print('args_hash',args_hash)
+
+            func_hasher = hashlib.new("md5")
+            source_code = inspect.getsource(func)
+            func_hasher.update(func.__module__.encode())
+            func_hasher.update(func.__qualname__.encode())
+            func_hasher.update(source_code.encode())
+            func_hash = func_hasher.hexdigest()
+            print('function  hash ',func_hash)
+
+            try:
+                cache_class = caching.cache_storage[func_hash]
+
+                return_value = cache_class.mem_cache_get(args_hash)
+                print('cache hit')
+
+                    
+            except:
+                print('miss')
+                return_value = func(*args, **kwargs)
+                cache_class = caching.Cache_data(func_hash)
+                cache_class.mem_cache_set(args_hash,return_value)
+            # print(return_value)
+            print('after execution')
+            return return_value
+        return inner1
+    
+    def _get_positional_arg_name(self,func, arg_index: int) -> str | None:
+        """Return the name of a function's positional argument.
+
+        If arg_index is out of range, or refers to a parameter that is not a
+        named positional argument (e.g. an *args, **kwargs, or keyword-only param),
+        return None instead.
+        """
+        if arg_index < 0:
+            return None
+
+        params: list[inspect.Parameter] = list(inspect.signature(func).parameters.values())
+        if arg_index >= len(params):
+            return None
+
+        if params[arg_index].kind in (
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.POSITIONAL_ONLY,
+        ):
+            return params[arg_index].name
+
+        return None
+    
     def editable_html(self, key, id=''):
         default_html = [
       {
