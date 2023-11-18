@@ -8,6 +8,7 @@ import { ApiService } from './services/api.service';
 declare const monaco: any;
 import { marked } from 'marked';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { AngularGridInstance, Column, GridOption } from 'angular-slickgrid';
 
 interface trace {
   x:Array<any>,
@@ -72,7 +73,9 @@ export class AppComponent {
   spinning = false
   app_loading = true
   app_error = false
-
+  columnDefinitions: Column[] = [];
+  gridOptions: GridOption = {};
+  dataset: any[] = [];
 
   public graph = {
     data: [
@@ -82,6 +85,7 @@ export class AppComponent {
     layout: { title: 'A Fancy Plot', 'xaxis':{'type':'category'}},
     config : {editable:true, responsive: true}
 };
+  angularGrid: AngularGridInstance;
 
   constructor(private api:ApiService, public sanitizer: DomSanitizer, public renderer: Renderer2, public notification:NzNotificationService){
 
@@ -108,7 +112,7 @@ export class AppComponent {
       this.app_error = true
     })
 
-
+    this.prepareGrid();
   }
 
   
@@ -179,12 +183,17 @@ export class AppComponent {
   str_to_json_fix(list){
     console.log(list)
     list.forEach(element => {
-      if (element['type']== 'dataframe' || element['type']== 'chart'){
+      if (element['type']== 'dataframe' || element['type']== 'chart' || element['type']== 'table'){
         element.prop.data = JSON.parse(element.prop.data)
         if (element['type'] == 'chart'){
           // element.prop.data.data[0].marker.size = 12
         }
       }
+      // if (element['type']== 'dataframe' ){
+      //   console.log(element.prop.columns)
+      //   element.prop.columns = JSON.parse(element.prop.columns)
+    
+      // }
       if (element['type'] == 'expander'){
         this.str_to_json_fix(element['data'])
       }
@@ -488,7 +497,48 @@ notify(data){
   )
 
 }
+
+angularGridReady(angularGrid: AngularGridInstance) {
+  console.log(angularGrid)
+  this.angularGrid = angularGrid;
+  this.angularGrid.resizerService.resizeColumnsByCellContent(true);
 }
+
+prepareGrid() {
+  this.columnDefinitions = [
+    { id: 'title_tkrtkrgmdfmgfdmgkfd', name: 'title_tkrtkrgmdfmgfdmgkfd', field: 'title_tkrtkrgmdfmgfdmgkfd', sortable: true },
+    { id: 'duration', name: 'Duration (days)', field: 'duration', sortable: true },
+    { id: '%', name: '% Complete', field: 'percentComplete', sortable: true },
+    { id: 'start', name: 'Start', field: 'start' },
+    { id: 'finish', name: 'Finish', field: 'finish' },
+  ];
+
+  this.gridOptions = 
+  {
+    enableAutoResize: true,
+    enableSorting: true,
+     // resizing by cell content is opt-in
+      // we first need to disable the 2 default flags to autoFit/autosize
+      autoFitColumnsOnFirstLoad: false,
+      enableAutoSizeColumns: false,
+    //   // then enable resize by content with these 2 flags
+      autosizeColumnsByCellContentOnFirstLoad: true,
+
+      enableAutoResizeColumnsByCellContent: true,
+
+  };
+
+
+  // fill the dataset with your data (or read it from the DB)
+  this.dataset = [
+    { id: 0, title_tkrtkrgmdfmgfdmgkfd: 'E0100CTHQ', duration: 45, percentComplete: 5, start: '2001-01-01', finish: '2001-01-31' },
+    { id: 1, title_tkrtkrgmdfmgfdmgkfd: 'E0100CTHQ', duration: 33, percentComplete: 34, start: '2001-01-11', finish: '2001-02-04' },
+  ];
+}
+
+}
+
+
 
 
 

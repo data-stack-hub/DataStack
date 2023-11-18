@@ -33,10 +33,17 @@
                  }
             ],
             "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",    
+              "node_modules/flatpickr/dist/flatpickr.css",
               "src/theme.less",
-              "src/styles.css"
+              "src/styles.css",
+              "node_modules/@slickgrid-universal/common/dist/styles/css/slickgrid-theme-bootstrap.css",
+              "node_modules/font-awesome/css/font-awesome.min.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/bootstrap/dist/js/bootstrap.js",
+              "node_modules/sortablejs/Sortable.min.js"
+            ]
           },
           "configurations": {
             "production": {

@@ -1,10 +1,11 @@
 from flask import jsonify
-import datastack as ds
+from datastack import datastack
 import pandas as pd
 import datetime
 from PIL import Image
 import numpy as np
 # -------------------------------- user py file ------------------------------
+ds= datastack(main=True)
 def dummy_fn():
     pass
 
@@ -225,6 +226,10 @@ ds.sidebar().divider()
 # Iframe
 ds.subheader('Iframe')
 def change_iframe(a):
+    """this is the doc string test
+    test line 1
+    test line 2
+    """
     global url
     if a['payload'] == 'Wikipedia':
         url = 'https://www.wikipedia.org/'

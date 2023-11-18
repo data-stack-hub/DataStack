@@ -1,47 +1,76 @@
 
+<img src="lib/docs/images/image-3.png" width="100">
 
-run python server
+# Welcom to DataStack
+
+**The Fastes way to build apps in python**
+
+Datastack is an open-source framework that enables you to easily build real-time web apps, internal tools, dashboards, weekend projects, data entry forms, or prototypes using just Python—no frontend experience required.
+
+## Installation
+
 ```
+pip install git+https://github.com/data-stack-hub/DataStack.git#subdirectory=lib
+```
+or 
+
+```bash
 git clone https://github.com/data-stack-hub/DataStack.git
-cd data-stack-rdf\lib
-pip install --editable .
-datastack run test_app.py
-datastack run test_app.ipynb
+cd DataStack\lib
+pip install .
 ```
-open http://localhost:5000
+## Quickstart
+
+Create new file `counter.py` with following code:
+
+```python
+from datastack import datastack
+ds = datastack(main=True)
+
+ds.subheader('DataStack click counter app')
+
+count = 0 
+
+def inc_count():
+    global count
+    count += 1
+
+ds.button('Click', on_click=inc_count)
+ds.write('counts: ' + str(count))
+```
+
+Now run it to open the app!
+```
+$ datastack run counter.py
+```
+
+Open app in browser `localhost:5000`
+
+![Alt text](<lib/docs/images/counter.gif>)
 
 
-examples 
-- lib\test_app.py
-- lib\test_app.ipynb
+
+# DataStack Widgets
 
 
 ```python
 # write text
-import datastack as ds
 ds.write('some text')
 ```
 
 ```python
 #  dropdown selection
 ds.subheader('Dropdown Selection')
-selected_value = ds.select(['a','b','c'], on_change=dummy_fn )
+selected_value = ds.select(['a','b','c'])
 ds.write('selected value: ' + selected_value)
-ds.divider()
+
 ```
 
 ```python
 # list
 ds.subheader('List')
-def list_click(a):
-    global selection_from_list
-    selection_from_list = a['payload']
-    print(a)
-
-selection_from_list = ''
-ds.list(['a','b','c'], on_click=list_click)
+selection_from_list = ds.list(['a','b','c'])
 ds.write('Selected Option: ' + selection_from_list)
-ds.divider()
 ```
 
 ```python
@@ -53,29 +82,22 @@ ds.subheader('Button click')
 count = 0
 ds.button('Click', on_click=inc_count)
 ds.write('Count value: '+ str(count))
-ds.divider()
+
 ```
 
 ```python
 # input
 ds.subheader('Input value')
-input_value = 'default value'
-ds.input(input_value)
+input_value = ds.input(input_value)
 ds.write('Input: '+ input_value)
-ds.divider()
+
 ```
 
 ```python
 #  HTML
 ds.subheader("HTML")
-df = pd.DataFrame(
-    [["a", "b"], ["c", "d"]],
-    index=["row 1", "row 2"],
-    columns=["col 1", "col 2"])
-
-ds.html(df.to_html())
 ds.html("<div style='color:green'>HTML Text</div>")
-ds.divider()
+
 ```
 
 ```python
@@ -112,6 +134,12 @@ ds.dataframe(df)
 ```
 
 ```python
+# table
+ds.write('table')
+ds.table(df)
+```
+
+```python
 # data input
-df = ds.date_input()
+date = ds.date_input()
 ```

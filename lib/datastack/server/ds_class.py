@@ -1,11 +1,16 @@
+import hashlib
 import inspect
 from contextlib import contextmanager
 from datastack.runtime import runtime
 from datastack.logger import logger
+from datastack.server import caching
 import uuid,os
 import numpy as np
-import time
+import time, threading
 from pathlib import Path
+from varname import argname
+
+# from datastack.server.server import seesion_mgr
 
 class datastack():
     """
@@ -14,15 +19,17 @@ class datastack():
     *_var = variable name for * property
     """
     def __init__(self, type='main_page', path='', title='', main=False):
+        """Ds class init"""
         self.type = type
         self.path = path
         self.title = title
+        self.main = main
         self.app={
             'current_page':'main_page',
             'sidebar':[],
             'main_page':[],
             'pages':[],
-            'appstate':{"session_id":"default", 'notifications':[]}
+            'appstate':{"session_id":getattr(threading.current_thread(), 'session_id'), 'notifications':[]}
         }
         self.blocks = {
             'sidebar':[],
@@ -30,9 +37,13 @@ class datastack():
             'pages':[]
         }
         self.state = {}
+        print('ds_thread: ', threading.current_thread())
+        self.session_id = getattr(threading.current_thread(), 'session_id')
         if main:
             runtime.set_main_class(self)
-
+            runtime.collect_cls(self)
+            # self.session_id = getattr(threading.current_thread(), 'session_id')
+            # seesion_mgr.append(self)
     def dynamic_widget_id(self):
         return str(time.time_ns())
 #  change to on_click = function name and on_click_source = function code
@@ -106,19 +117,25 @@ class datastack():
         self.append_block(block)
 
     def header(self, data, id=''):
+        import threading
+        print('header thread: ',threading.current_thread())
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         # print(string)
-        args = string[string.find('.header(') + 7:-1].split(',')
+        # args = string[string.find('.header(') + 7:-1].split(',')
         block = {
             "id":id if id else self.dynamic_widget_id(),
             "type":'header',
             "prop":{
                 "data":data,
-                "data_var":args[0]
+                "data_var":str(argname('data', vars_only=False))
             }
         }
+        try:
+            block['prop']['data_var'] = argname('data')
+        except:
+            pass
         self.append_block(block)
 
     def subheader(self, data, id=''):
@@ -126,13 +143,13 @@ class datastack():
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         # print(string)
-        args = string[string.find('.header(') + 7:-1].split(',')
+        # args = string[string.find('.header(') + 7:-1].split(',')
         block = {
             "id":id if id else self.dynamic_widget_id(),
             "type":'subheader',
             "prop":{
                 "data":data,
-                "data_var":args[0]
+                "data_var":str(argname('data', vars_only=False))
             }
         }
         if not self.replace_block(id, block):
@@ -254,13 +271,26 @@ class datastack():
         else:
             return None
 
-    def dataframe(self, data, id=''):
+    def table(self, data, id=''):
+        block = {
+            "id":id if id else self.dynamic_widget_id(),
+            "type":"table",
+            "prop":{
+                "data":data.to_json(orient="records"),
+                "columns":list(data.columns)
+            }
+        }
+        if not self.replace_block(id, block):
+            self.append_block(block)
+
+    def dataframe(self, data, id =''):
         block = {
             "id":id if id else self.dynamic_widget_id(),
             "type":"dataframe",
             "prop":{
                 "data":data.to_json(orient="records"),
-                "columns":list(data.columns)
+                "columns":[{'name':c, "id":c, "field":c, 'sortable':True, 'minWidth':max(len(c)*9,100), 'maxWidth':400} for c in list(data.columns)],
+                "grid_id":'a' + self.dynamic_widget_id()
             }
         }
         if not self.replace_block(id, block):
@@ -320,7 +350,72 @@ class datastack():
             }
         }
         self.append_block(block)
-        
+    
+    def cache_data(self, func):
+
+        def inner1(*args, **kwargs):
+            print('before execution')
+            arg_pairs = []
+            for arg_idx in range(len(args)):
+                arg_name = self._get_positional_arg_name(func, arg_idx)
+                arg_pairs.append((arg_name, args[arg_idx]))
+            for kw_name, kw_val in kwargs.items():
+                arg_pairs.append((kw_name, kw_val))
+            print('functions args', arg_pairs)
+            args_hasher = hashlib.new("md5")
+            for s1,s2 in arg_pairs:
+                args_hasher.update(s1.encode())
+                args_hasher.update(s2.encode())
+            args_hash = args_hasher.hexdigest()
+            print('args_hash',args_hash)
+
+            func_hasher = hashlib.new("md5")
+            source_code = inspect.getsource(func)
+            func_hasher.update(func.__module__.encode())
+            func_hasher.update(func.__qualname__.encode())
+            func_hasher.update(source_code.encode())
+            func_hash = func_hasher.hexdigest()
+            print('function  hash ',func_hash)
+
+            try:
+                cache_class = caching.cache_storage[func_hash]
+
+                return_value = cache_class.mem_cache_get(args_hash)
+                print('cache hit')
+
+                    
+            except:
+                print('miss')
+                return_value = func(*args, **kwargs)
+                cache_class = caching.Cache_data(func_hash)
+                cache_class.mem_cache_set(args_hash,return_value)
+            # print(return_value)
+            print('after execution')
+            return return_value
+        return inner1
+    
+    def _get_positional_arg_name(self,func, arg_index: int) -> str | None:
+        """Return the name of a function's positional argument.
+
+        If arg_index is out of range, or refers to a parameter that is not a
+        named positional argument (e.g. an *args, **kwargs, or keyword-only param),
+        return None instead.
+        """
+        if arg_index < 0:
+            return None
+
+        params: list[inspect.Parameter] = list(inspect.signature(func).parameters.values())
+        if arg_index >= len(params):
+            return None
+
+        if params[arg_index].kind in (
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.POSITIONAL_ONLY,
+        ):
+            return params[arg_index].name
+
+        return None
+    
     def editable_html(self, key, id=''):
         default_html = [
       {
@@ -594,9 +689,6 @@ class datastack():
         self.app['appstate']['dfs']  = [attr[0] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)]
         self.app['appstate']['columns'] = list(itertools.chain(* [ [attr[0]  + "." +  str(col) for col in   attr[1].columns.tolist()] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)]))
 
-        # print(list(itertools.chain(*[attr[1].columns.tolist() for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)])) )
-        # print( list(itertools.chain(* [ [attr[0]  + ":" +  col for col in   attr[1].columns.tolist()] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)])))
-
     def update_app_state(self, key, value):
         self.state[key] = value
         
@@ -626,7 +718,7 @@ class datastack():
         return list(filter(lambda p: p['id'] == id, all_app_blocks))
 
     def gat_all_blocks(self):
-        return [block for page in ['main_page'] + self.blocks['pages'] for block in self.blocks[page]]
+        return [block for page in ['main_page'] + self.blocks['pages'] for block in self.blocks[page] if isinstance(block, dict)]
     
     def get_block_by_id(self, id):
         try:
@@ -675,17 +767,15 @@ class datastack():
         def _update_state(location):
           for c in location:
                 try:
-                    if c['type'] == 'text' or c['type'] == 'html' :
+                    if c['type'] == 'text' or c['type'] == 'html' or c['type'] == 'header' or c['type'] == 'subheader' :
                         c['prop']['data'] = eval(c['prop']['data_var'])
                     if c['type'] == 'date_input' or c['type'] == 'input':
                         c['prop']['value'] = eval(c['prop']['value_var'])
                     if c['type'] == 'button':
                         c['prop']['title'] = eval(c['prop']['title_var'])
                     if c['type'] =='select':
-                        print(c)
                         c['prop']['value'] = eval(c['prop']['value_var'])
                         if 'options_var' in c['prop']:
-                            print(eval(c['prop']['options_var']))
                             c['prop']['options'] =[opt for opt in eval(c['prop']['options_var'])] 
                     if c['type'] == 'iframe':
                         c['prop']['url'] = eval(c['prop']['url_var'])
@@ -713,11 +803,12 @@ class datastack():
                             with open(os.path.join(Path(os.path.dirname(__file__)).parent.absolute(),'static/app.json'), 'r') as f:
                                 html = json.loads(f.read())[c['wid']]['block']['prop']['html']
                         except Exception as e:
-                            logger.error(e)
+                            logger.error('update state:' + str(e))
                             html = default_html
                         c['prop']['html'] = html
                 except Exception as e:
-                    logger.error(e)
+                    logger.error('update state:' + str(e))
+                    print(c)
         for location in ['main_page', 'sidebar'] + self.app['pages']:
             _update_state(self.app[location])
 
@@ -740,18 +831,18 @@ class datastack():
         # # if any class in sidebar
         # # _app = [a[0] for a in _app]
         # _app =  self.build_element_from_blocks(_app)
-        print(_app)
+        # print(_app)
         # self.app['sidebar'] = [ item for sublist in _app for item in sublist]
         t = self.build_element_from_blocks([a[0] for a in _app])
         self.app['sidebar'] = t
         self.app['pages'] = np.unique(np.array(self.app['pages'])).tolist()
         return self.app
 
-    def rerun(self, my_vars, old_app):
+    def rerun(self, my_vars={}, old_app=''):
 
         for k,v in my_vars.items():
             globals()[k] = v
-
+        # print({k: v for k, v in globals().items() if not k.startswith("__")})
         self.build_app()
         self.update_state()
         # old_app = self.app.copy()

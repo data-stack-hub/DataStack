@@ -1,9 +1,10 @@
 from flask import jsonify
-import datastack as ds
+from datastack import datastack 
 import pandas as pd
 import datetime
 from PIL import Image
 import numpy as np
+ds = datastack(main=True)
 # -------------------------------- user py file ------------------------------
 def dummy_fn():
     pass
