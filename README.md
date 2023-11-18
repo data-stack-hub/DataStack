@@ -1,4 +1,6 @@
-![Alt text](image-3.png)
+
+<img src="image-3.png" width="100">
+
 # Welcom to DataStack
 
 **The Fastes way to build apps in python**
