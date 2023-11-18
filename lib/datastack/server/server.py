@@ -2,7 +2,7 @@ from typing import overload
 from flask import Flask
 from flask import request, jsonify, send_from_directory
 from flask_cors import CORS
-
+from waitress import serve
 from datastack.runtime import runtime
 from datastack.runtime import session_manager
 from datastack.logger import logger
@@ -235,7 +235,9 @@ def start_server(file_path, host='localhost', port=5000):
     logger.debug("Starting server...")
     # import webbrowser
     # webbrowser.open('http://127.0.0.1:4200/')
-    app.run(host = host, port = port, debug=False, threaded= True)
+    # app.run(host = host, port = port, debug=False, threaded= True)
+    host = 'localhost' if 'None' else host
+    serve(app, host=host, port=5000 if 'None' else port)
     logger.debug("Server started on port 5000")
 if __name__ == '__main__':
     start_server()

@@ -123,13 +123,13 @@ class datastack():
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         # print(string)
-        args = string[string.find('.header(') + 7:-1].split(',')
+        # args = string[string.find('.header(') + 7:-1].split(',')
         block = {
             "id":id if id else self.dynamic_widget_id(),
             "type":'header',
             "prop":{
                 "data":data,
-                "data_var":args[0]
+                "data_var":str(argname('data', vars_only=False))
             }
         }
         try:
@@ -143,13 +143,13 @@ class datastack():
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         # print(string)
-        args = string[string.find('.header(') + 7:-1].split(',')
+        # args = string[string.find('.header(') + 7:-1].split(',')
         block = {
             "id":id if id else self.dynamic_widget_id(),
             "type":'subheader',
             "prop":{
                 "data":data,
-                "data_var":args[0]
+                "data_var":str(argname('data', vars_only=False))
             }
         }
         if not self.replace_block(id, block):
@@ -803,11 +803,12 @@ class datastack():
                             with open(os.path.join(Path(os.path.dirname(__file__)).parent.absolute(),'static/app.json'), 'r') as f:
                                 html = json.loads(f.read())[c['wid']]['block']['prop']['html']
                         except Exception as e:
-                            logger.error(e)
+                            logger.error('update state:' + str(e))
                             html = default_html
                         c['prop']['html'] = html
                 except Exception as e:
-                    logger.error(e)
+                    logger.error('update state:' + str(e))
+                    print(c)
         for location in ['main_page', 'sidebar'] + self.app['pages']:
             _update_state(self.app[location])
 
