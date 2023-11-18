@@ -5,12 +5,18 @@
 
 **The Fastes way to build apps in python**
 
-Datastack is a pen-source framework that enables you to easily build realtime webapps internal tools, dashboards, weekend project, data entry form or prototype with just python no frontend experiance required
+Datastack is an open-source framework that enables you to easily build real-time web apps, internal tools, dashboards, weekend projects, data entry forms, or prototypes using just Python—no frontend experience required.
 
 ## Installation
+
+```
+pip install git+https://github.com/data-stack-hub/DataStack.git#subdirectory=lib
+```
+or 
+
 ```bash
 git clone https://github.com/data-stack-hub/DataStack.git
-cd data-stack-rdf\lib
+cd DataStack\lib
 pip install .
 ```
 ## Quickstart
