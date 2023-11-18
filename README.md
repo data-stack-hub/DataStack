@@ -1,5 +1,5 @@
 
-<img src="image-3.png" width="100">
+<img src="lib/docs/images/image-3.png" width="100">
 
 # Welcom to DataStack
 
@@ -40,9 +40,7 @@ $ datastack run counter.py
 
 Open app in browser `localhost:5000`
 
-![Alt text](image-1.png)
-
-
+![Alt text](<lib/docs/images/counter.gif>)
 
 
 
