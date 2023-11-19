@@ -10,6 +10,11 @@ Datastack is an open-source framework that enables you to easily build real-time
 ## Installation
 
 ```
+pip install pydatastack
+```
+
+## Build from Source
+```
 pip install git+https://github.com/data-stack-hub/DataStack.git#subdirectory=lib
 ```
 or 

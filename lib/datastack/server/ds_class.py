@@ -297,6 +297,118 @@ class datastack():
             self.append_block(block)
 
     def write(self, data,  location='', id=''):
+        """
+        Write arguments to the app.
+
+        This is the Swiss Army knife of Streamlit commands: it does different
+        things depending on what you throw at it. Unlike other Streamlit commands,
+        write() has some unique properties:
+
+        1. You can pass in multiple arguments, all of which will be written.
+        2. Its behavior depends on the input types as follows.
+        3. It returns None, so its "slot" in the App cannot be reused.
+
+        Parameters
+        ----------
+        *args : any
+            One or many objects to print to the App.
+
+            Arguments are handled as follows:
+
+            - write(string)     : Prints the formatted Markdown string, with
+                support for LaTeX expression, emoji shortcodes, and colored text.
+                See docs for st.markdown for more.
+            - write(data_frame) : Displays the DataFrame as a table.
+            - write(error)      : Prints an exception specially.
+            - write(func)       : Displays information about a function.
+            - write(module)     : Displays information about the module.
+            - write(class)      : Displays information about a class.
+            - write(dict)       : Displays dict in an interactive widget.
+            - write(mpl_fig)    : Displays a Matplotlib figure.
+            - write(altair)     : Displays an Altair chart.
+            - write(keras)      : Displays a Keras model.
+            - write(graphviz)   : Displays a Graphviz graph.
+            - write(plotly_fig) : Displays a Plotly figure.
+            - write(bokeh_fig)  : Displays a Bokeh figure.
+            - write(sympy_expr) : Prints SymPy expression using LaTeX.
+            - write(htmlable)   : Prints _repr_html_() for the object if available.
+            - write(obj)        : Prints str(obj) if otherwise unknown.
+
+        unsafe_allow_html : bool
+            This is a keyword-only argument that defaults to False.
+
+            By default, any HTML tags found in strings will be escaped and
+            therefore treated as pure text. This behavior may be turned off by
+            setting this argument to True.
+
+            That said, *we strongly advise against it*. It is hard to write secure
+            HTML, so by using this argument you may be compromising your users'
+            security. For more information, see:
+
+            https://github.com/streamlit/streamlit/issues/152
+
+        Example
+        -------
+
+        Its basic use case is to draw Markdown-formatted text, whenever the
+        input is a string:
+
+        >>> import streamlit as st
+        >>>
+        >>> st.write('Hello, *World!* :sunglasses:')
+
+        ..  output::
+            https://doc-write1.streamlit.app/
+            height: 150px
+
+        As mentioned earlier, ``st.write()`` also accepts other data formats, such as
+        numbers, data frames, styled data frames, and assorted objects:
+
+        >>> import streamlit as st
+        >>> import pandas as pd
+        >>>
+        >>> st.write(1234)
+        >>> st.write(pd.DataFrame({
+        ...     'first column': [1, 2, 3, 4],
+        ...     'second column': [10, 20, 30, 40],
+        ... }))
+
+        ..  output::
+            https://doc-write2.streamlit.app/
+            height: 350px
+
+        Finally, you can pass in multiple arguments to do things like:
+
+        >>> import streamlit as st
+        >>>
+        >>> st.write('1 + 1 = ', 2)
+        >>> st.write('Below is a DataFrame:', data_frame, 'Above is a dataframe.')
+
+        ..  output::
+            https://doc-write3.streamlit.app/
+            height: 410px
+
+        Oh, one more thing: ``st.write`` accepts chart objects too! For example:
+
+        >>> import streamlit as st
+        >>> import pandas as pd
+        >>> import numpy as np
+        >>> import altair as alt
+        >>>
+        >>> df = pd.DataFrame(
+        ...     np.random.randn(200, 3),
+        ...     columns=['a', 'b', 'c'])
+        ...
+        >>> c = alt.Chart(df).mark_circle().encode(
+        ...     x='a', y='b', size='c', color='c', tooltip=['a', 'b', 'c'])
+        >>>
+        >>> st.write(c)
+
+        ..  output::
+            https://doc-vega-lite-chart.streamlit.app/
+            height: 300px
+
+        """
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
