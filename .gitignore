@@ -9,9 +9,8 @@ build/
 # dist/
 eggs/
 .eggs/
-# *.egg-info/
+*.egg-info/
 *.egg
-*.egg-info
 .prerelease-version
 
 enovix_test_app.py
