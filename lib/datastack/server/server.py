@@ -126,7 +126,7 @@ def run_block():
     f = StringIO()
     with redirect_stdout(f):
         # exec(request.json['prop']['code'])
-        exec(request.json['prop']['code'], my_module.__dict__)
+        exec(request.json['prop']['code'], seesion_mgr.get_session(request.json['session_id']).my_module.__dict__)
     s = f.getvalue()
 
     import ast, pandas
@@ -188,7 +188,7 @@ def run_fn():
     
 
 
-    on_change_type = ['input','select', 'date_input','slider']
+    on_change_type = ['input','select', 'date_input','slider', 'radio_button']
     if request.json['type'] == 'list' and request.json['payload']['action'] == 'click':
         update_var(request.json['prop']['value_var'], request.json['payload']['value'], main_class, my_module)
     elif request.json['type'] in on_change_type and request.json['payload']['action'] == 'change' and request.json['payload']['value'] is not  None and request.json['prop']['value_var'] is not None:
@@ -196,14 +196,16 @@ def run_fn():
     elif request.json["type"] == 'page_link':
         main_class.set_page(request.json['prop']['data'])
 
-    if 'on_change' in request.json['prop']:
+    if 'on_change' in request.json['prop'] and request.json['prop']['on_change']:
         try:
             fn = getattr(my_module, request.json['prop']['on_change'])
             print(fn)
             try:
                 block = session.main_class.get_app_block_by_id(request.json['id'])[0]
                 print('block',block)
-                if 'args' in block['prop']:
+                if block['type'] == 'chart':
+                    fn(request.json['payload']['value'])
+                elif 'args' in block['prop']:
                     fn(*tuple(block['prop']['args']))
                 else:
                     fn()

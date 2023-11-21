@@ -9,7 +9,7 @@ import numpy as np
 import time, threading
 from pathlib import Path
 from varname import argname
-
+from varname import varname
 # from datastack.server.server import seesion_mgr
 
 class datastack():
@@ -72,7 +72,6 @@ class datastack():
             "type":'button',
             "prop":{
                 "title":name,
-                "on_change":click_fn_name,
                 "on_change_source":click_fn,
                 "title_var":args1[0],
                 "args":args
@@ -80,9 +79,15 @@ class datastack():
             }
         }
         try:
+            block['prop']['on_change'] = argname('on_click')
+        except:
+            pass
+
+        try:
             block['prop'].update(args_var =  string.split("args=")[1])
         except:pass
-        self.append_block(block)
+        if not self.replace_block(id, block):
+            self.append_block(block)
 
     def input(self,value='', id = '', on_change ="", args={}):
         frame = inspect.currentframe()
@@ -105,7 +110,8 @@ class datastack():
                 'args':args
             }
         }
-        self.append_block(block)
+        if not self.replace_block(id, block):
+            self.append_block(block)
         return value
 
     def divider(self):
@@ -136,7 +142,8 @@ class datastack():
             block['prop']['data_var'] = argname('data')
         except:
             pass
-        self.append_block(block)
+        if not self.replace_block(id, block):
+            self.append_block(block)
 
     def subheader(self, data, id=''):
         frame = inspect.currentframe()
@@ -156,7 +163,7 @@ class datastack():
             self.append_block(block)
 
 
-    def select(self, label='', options=[], value='', on_change='', default_value=0, id='', args={}):
+    def select(self, label='', options=[], on_change='', default_value=0, id='', args={}):
         from varname import varname
         # list options args to be corrected
         # print(varname())
@@ -180,7 +187,7 @@ class datastack():
             "prop":{
                 "options":[opt for opt in options],
                 "label":label,
-                "value":value,
+                "value":default_value,
                 'value_var': varname(), #self.get_value_assign_var(inspect.currentframe().f_back),
                 # "on_change":argname('on_change') or '',
                 'args':args
@@ -198,7 +205,31 @@ class datastack():
             print(e)
         # print('selec comp', component)
         self.append_block(block)
-        return 'default'
+        return default_value
+    
+    def radio_button(self, options=[], default_value='', on_change='', label='', id=''):
+        block = {
+            "id":id if id else self.dynamic_widget_id(),
+            "type":'radio_button',
+            "prop":{
+                "options":[opt for opt in options],
+                "label":label,
+                "value":default_value,
+                "on_change":'' if on_change == '' else argname('on_change')
+            }
+        }
+        try:
+            block['prop']['value_var'] = varname()
+        except:
+            pass
+        try:
+            block['prop']['options_var'] = str(argname('options', vars_only=False))
+        except:
+            print()
+
+        if not self.replace_block(id, block):
+            self.append_block(block)
+        return default_value
     
     def list(self, data, on_click='', id='', slot_start="", slot_end="", ):
         frame = inspect.currentframe()
@@ -768,7 +799,7 @@ class datastack():
         }
         self.append_block(block)
 
-    def chart(self, data, id=''):
+    def chart(self, data, on_click = '', id=''):
         import json
         import plotly.tools
         fig =  plotly.tools.return_figure_from_figure_or_data(
@@ -780,10 +811,16 @@ class datastack():
             'id':id if id else self.dynamic_widget_id(),
             "type":"chart",
             "prop":{
-            "data":fig,
-            "data_var":argname('data', vars_only=False)
+                "data":fig,
+                "data_var":argname('data', vars_only=False)
             }
         }
+        
+        try:
+            block['prop']['on_change'] = argname('on_click')
+        except:
+            pass
+
         if not self.replace_block(id, block):
             self.append_block(block)
 
@@ -830,16 +867,25 @@ class datastack():
         return list(filter(lambda p: p['id'] == id, all_app_blocks))
 
     def gat_all_blocks(self):
-        return [block for page in ['main_page'] + self.blocks['pages'] for block in self.blocks[page] if isinstance(block, dict)]
+        # print(self.blocks)
+        # for page in  self.blocks['pages']:
+        #     print(self.blocks[page])
+        #     for block in self.blocks[page]:
+        #         print('bbb---', block)
+        return [block for page in ['main_page']  for block in self.blocks[page] if isinstance(block, dict)]
     
     def get_block_by_id(self, id):
+        # self.gat_all_blocks()
         try:
             return list(filter(lambda p: p['id'] == id, self.gat_all_blocks()))
         except Exception as e:
+            print('error get block by id',e)
             logger.error(e)
 
     def replace_block(self, id, new_block):
         block =  self.get_block_by_id(id)
+        if id == 'title':
+            print('title block',block)
         if block:
             block[0].update(new_block)
             return True
@@ -885,7 +931,7 @@ class datastack():
                         c['prop']['value'] = eval(c['prop']['value_var'])
                     if c['type'] == 'button':
                         c['prop']['title'] = eval(c['prop']['title_var'])
-                    if c['type'] =='select':
+                    if c['type'] =='select' or c['type'] == 'radio_button':
                         c['prop']['value'] = eval(c['prop']['value_var'])
                         if 'options_var' in c['prop']:
                             c['prop']['options'] =[opt for opt in eval(c['prop']['options_var'])] 

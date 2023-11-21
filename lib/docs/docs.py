@@ -6,6 +6,12 @@ from docutils.core import publish_parts
 from docutils.parsers.rst import directives
 
 ds = datastack(main=True)
+
+opt = ds.radio_button(['a','b'])
+ds.write(opt)
+
+
+
 prefix = 'ds'
 obj = ds
 membername = 'write'

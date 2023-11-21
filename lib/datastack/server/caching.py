@@ -10,7 +10,7 @@ class Cache_data:
     
         self.mem_cache: TTLCache[str, bytes] = TTLCache(
                     maxsize=10,
-                    ttl=30          
+                    ttl=300000000      
                 )
 
     def mem_cache_set(self,key, value):

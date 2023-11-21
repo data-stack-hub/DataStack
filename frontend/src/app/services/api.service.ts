@@ -18,7 +18,9 @@ export class ApiService {
     }
     options.params['session_id'] = this.get_session_id()
     return this.http.get(url, options).pipe(tap((data:any)=>{
+      if ('appstate' in data){
       localStorage.setItem('session_id',(data?.appstate?.session_id || 'default'))
+      }
     }))
   }
 
@@ -26,7 +28,9 @@ export class ApiService {
     console.log(url, data)
     data['session_id']= this.get_session_id()
     return this.http.post(url, data).pipe(tap((data:any)=>{
-      localStorage.setItem('session_id',data.appstate?.session_id)
+      if ('appstate' in data){
+        localStorage.setItem('session_id',data.appstate?.session_id)
+      }
     }, catchError(this.eh)))
   }
   eh(error){

@@ -142,6 +142,7 @@ export class AppComponent {
 
   req(e:any, payload:any){
     this.spinning = true
+    console.log(payload)
     this.api.post(this.url + 'run_fn',{...e, ...{"payload":payload}})
     .subscribe((res:any)=>{
       console.log(res)
@@ -151,8 +152,6 @@ export class AppComponent {
       // this.container = JSON.parse(JSON.stringify(res[this.page].filter((element:any)=>element.location != 'sidebar')))
       // this.sidebar = res[this.page].filter((element:any)=>element.location == 'sidebar')
 
-    }, (error)=>{
-      console.log('error:',error)
     })
   }
 
@@ -534,6 +533,17 @@ prepareGrid() {
     { id: 0, title_tkrtkrgmdfmgfdmgkfd: 'E0100CTHQ', duration: 45, percentComplete: 5, start: '2001-01-01', finish: '2001-01-31' },
     { id: 1, title_tkrtkrgmdfmgfdmgkfd: 'E0100CTHQ', duration: 33, percentComplete: 34, start: '2001-01-11', finish: '2001-02-04' },
   ];
+}
+
+plotly_click(element, event){
+  console.log(event)
+  event.points.forEach(element => {
+  delete element.xaxis
+  delete element.yaxis
+  delete element.fullData  
+  });
+
+  this.req(element,  {value: event.points, action:'chart_click'})
 }
 
 }
