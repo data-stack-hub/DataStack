@@ -238,8 +238,8 @@ def start_server(file_path, host='localhost', port=5000):
     # import webbrowser
     # webbrowser.open('http://127.0.0.1:4200/')
     # app.run(host = host, port = port, debug=False, threaded= True)
-    host = 'localhost' if 'None' else host
-    serve(app, host=host, port=5000 if 'None' else port)
+    host = 'localhost' if host == 'None' else host
+    serve(app, host=host, port=5000 if port  == 'None' else port)
     logger.debug("Server started on port 5000")
 if __name__ == '__main__':
     start_server()
