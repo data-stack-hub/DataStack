@@ -239,7 +239,9 @@ def start_server(file_path, host='localhost', port=5000):
     # webbrowser.open('http://127.0.0.1:4200/')
     # app.run(host = host, port = port, debug=False, threaded= True)
     host = 'localhost' if host == 'None' else host
-    serve(app, host=host, port=5000 if port  == 'None' else port)
+    port = 5000 if port  == 'None' else port
+    print(host, port)
+    serve(app, host=host, port=port)
     logger.debug("Server started on port 5000")
 if __name__ == '__main__':
     start_server()
