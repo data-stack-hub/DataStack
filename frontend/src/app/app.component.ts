@@ -9,6 +9,7 @@ declare const monaco: any;
 import { marked } from 'marked';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { AngularGridInstance, Column, GridOption } from 'angular-slickgrid';
+import { ExcelExportService } from '@slickgrid-universal/excel-export';
 
 interface trace {
   x:Array<any>,
@@ -515,7 +516,14 @@ prepareGrid() {
   this.gridOptions = 
   {
     enableAutoResize: true,
+    autoResize: {
+      container: '#demo-container',
+      rightPadding: 50
+    },
+    gridHeight:400,
     enableSorting: true,
+    enableExcelExport: true,
+    registerExternalResources: [new ExcelExportService()] ,
      // resizing by cell content is opt-in
       // we first need to disable the 2 default flags to autoFit/autosize
       autoFitColumnsOnFirstLoad: false,
