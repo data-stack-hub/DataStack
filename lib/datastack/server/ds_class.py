@@ -315,6 +315,8 @@ class datastack():
             self.append_block(block)
 
     def dataframe(self, data, id =''):
+        if 'id' not in data.columns:
+            data['id'] = np.arange(data.shape[0])
         block = {
             "id":id if id else self.dynamic_widget_id(),
             "type":"dataframe",
