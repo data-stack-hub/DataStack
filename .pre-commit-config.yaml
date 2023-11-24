@@ -8,3 +8,7 @@ repos:
     rev: 22.10.0
     hooks:
     -   id: black
+        args:
+          # Configure Black to support only syntax supported by the minimum supported Python version in setup.py.
+          - --target-version=py37
+        files: \.py$|\.pyi$
