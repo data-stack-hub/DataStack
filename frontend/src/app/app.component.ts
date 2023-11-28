@@ -116,7 +116,7 @@ export class AppComponent {
     this.prepareGrid();
   }
 
-  
+
  isHttps(): boolean {
   return window.location.href.startsWith("https://")
 }
@@ -130,6 +130,10 @@ export class AppComponent {
     console.log(event.target.value)
     // this.container = this.api.post('http://localhost:5000/run_fn',{...e, ...{"payload":event.target.value}})
     this.req(e,{value : event.target.value, action:'change'})
+  }
+
+  menu_click(e:any, value){
+    this.req(e, {value: value, action:'change'})
   }
 
   onSelected(e:any, value:any){
@@ -163,7 +167,7 @@ export class AppComponent {
     console.log(all_pages)
     all_pages.forEach(page=>{
       this.str_to_json_fix(res[page].concat(all_elements))
-      
+
     })
 
     this.page = res['current_page']
@@ -176,7 +180,7 @@ export class AppComponent {
         this.notify(element)
       });
     }
-  
+
     console.log(res)
   }
 
@@ -192,7 +196,7 @@ export class AppComponent {
       // if (element['type']== 'dataframe' ){
       //   console.log(element.prop.columns)
       //   element.prop.columns = JSON.parse(element.prop.columns)
-    
+
       // }
       if (element['type'] == 'expander'){
         this.str_to_json_fix(element['data'])
@@ -201,7 +205,7 @@ export class AppComponent {
         element['data'].forEach(element1 => {
           this.str_to_json_fix(element1)
         });
-        
+
       }
     });
 
@@ -268,12 +272,12 @@ export class AppComponent {
       else {
         propertyParent = c_propertyParent
       }
-      
+
     }
     propertyParent[propertyName] = event;
     console.log(obj)
   }
- 
+
   get_df_columns(event, trace, axis){
     console.log(event)
     this.api.post(this.url + 'run_block', {prop:{
@@ -299,7 +303,7 @@ export class AppComponent {
       imageUrl: "",
     }
     if (index +1 == element['prop']['html'].length || true){
-      this.add_new_block(element, index+1)  
+      this.add_new_block(element, index+1)
     }
     else{
     let element = e.target.parentElement.nextElementSibling.firstElementChild;
@@ -363,7 +367,7 @@ export class AppComponent {
       }
       this.current_block = new_block
     }
- 
+
     console.log(this.current_block)
     this.update_on_server(this.current_element, this.current_block,'')
   }
@@ -391,7 +395,7 @@ add_new_block(element:any, index:any=-1){
   setTimeout(() => {
     document.getElementById(new_block['_id'])?.focus()
   });
-  
+
 }
   block_change(e:any, block:any, event:any){
     console.log(event.target.innerHTML)
@@ -421,7 +425,7 @@ add_new_block(element:any, index:any=-1){
       console.log(e.getContentHeight())
       this.height = e.getContentHeight() +20
 
-    });  
+    });
 
     e.onDidChangeContent((event)=>{
       console.log(event)
@@ -433,7 +437,7 @@ add_new_block(element:any, index:any=-1){
     console.log('relouting code editor', e.getContentHeight())
     // this.height = this.editor.getContentHeight()
     // this.editor.layout({height:this.height})
-    
+
   }
 
   page_link(element:any){
@@ -444,7 +448,7 @@ add_new_block(element:any, index:any=-1){
     this.req(element,  {value: event, action:'change'})
   }
 
-  date_changed(element:any, event:any){  
+  date_changed(element:any, event:any){
 
 
     this.req(element,{value: formatISO(event, { representation: 'date' }), action:'change'}  )
@@ -490,11 +494,11 @@ get_marked(data){
 }
 
 notify(data){
-  this.notification
-  .blank(
-    'Notification' ,
-    data.data
-  )
+  // this.notification
+  // .blank(
+  //   'Notification' ,
+  //   data.data
+  // )
 
 }
 
@@ -513,13 +517,14 @@ prepareGrid() {
     { id: 'finish', name: 'Finish', field: 'finish' },
   ];
 
-  this.gridOptions = 
+  this.gridOptions =
   {
     enableAutoResize: true,
     autoResize: {
       container: '#demo-container',
       rightPadding: 50
     },
+    enableFiltering: true,
     gridHeight:400,
     enableSorting: true,
     enableExcelExport: true,
@@ -548,7 +553,7 @@ plotly_click(element, event){
   event.points.forEach(element => {
   delete element.xaxis
   delete element.yaxis
-  delete element.fullData  
+  delete element.fullData
   });
 
   this.req(element,  {value: event.points, action:'chart_click'})

@@ -4,51 +4,69 @@ from contextlib import contextmanager
 from datastack.runtime import runtime
 from datastack.logger import logger
 from datastack.server import caching
-import uuid,os
+from datastack.connections.sql_connection import SQLConnection
+import uuid, os
 import numpy as np
 import time, threading
 from pathlib import Path
 from varname import argname
 from varname import varname
+
 # from datastack.server.server import seesion_mgr
 
-class datastack():
+
+class datastack:
     """
-    on_change= function name
-    on_change_source = function source code
-    *_var = variable name for * property
+    Datastack class for holding all widgets
+
+    Parameters
+    ----------
+    type: str main_page | sidebar | container | column | tab | None
+
+    path: str
+        Path for pages
+
+    title: str
+        Title of container or tabs
+
+    main: bool
+        True value idenfify the class instance as main class where as false value identify as subclass
     """
-    def __init__(self, type='main_page', path='', title='', main=False):
-        """Ds class init"""
+
+    def __init__(self, type="main_page", path="", title="", main=False):
+        """Inserts or updates elements in the datstack apps."""
+
         self.type = type
-        self.path = path
         self.title = title
+        self.path = path
         self.main = main
-        self.app={
-            'current_page':'main_page',
-            'sidebar':[],
-            'main_page':[],
-            'pages':[],
-            'appstate':{"session_id":getattr(threading.current_thread(), 'session_id'), 'notifications':[]}
+
+        self.app = {
+            "current_page": "main_page",
+            "sidebar": [],
+            "main_page": [],
+            "pages": [],
+            "appstate": {
+                "session_id": getattr(threading.current_thread(), "session_id"),
+                "notifications": [],
+            },
         }
-        self.blocks = {
-            'sidebar':[],
-            'main_page':[],
-            'pages':[]
-        }
+        self.blocks = {"sidebar": [], "main_page": [], "pages": []}
         self.state = {}
-        print('ds_thread: ', threading.current_thread())
-        self.session_id = getattr(threading.current_thread(), 'session_id')
-        if main:
-            runtime.set_main_class(self)
-            runtime.collect_cls(self)
-            # self.session_id = getattr(threading.current_thread(), 'session_id')
-            # seesion_mgr.append(self)
+
+        self.session_id = getattr(threading.current_thread(), "session_id")
+
+        # to be checked if this is required
+        # if main:
+        #     runtime.set_main_class(self)
+        #     runtime.collect_cls(self)
+
     def dynamic_widget_id(self):
         return str(time.time_ns())
-#  change to on_click = function name and on_click_source = function code
-#  move frame logic to somewhere else
-    def button(self, name, on_click='', args={}, id=''):
+
+    #  change to on_click = function name and on_click_source = function code
+    #  move frame logic to somewhere else
+    def button(self, name, on_click="", args={}, id=""):
 
         """
         on_click = function name
@@ -58,113 +76,111 @@ class datastack():
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        args1= string.replace(".sidebar(",'')[string.find('(')+1 :-1].split(',')
+        args1 = string.replace(".sidebar(", "")[string.find("(") + 1 : -1].split(",")
         # print('button_args', args)
-        if on_click :
+        if on_click:
             click_fn = inspect.getsource(on_click)
             click_fn_name = args1[1].split("=")[1]
         else:
-            click_fn =''
-            click_fn_name =''
+            click_fn = ""
+            click_fn_name = ""
 
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":'button',
-            "prop":{
-                "title":name,
-                "on_change_source":click_fn,
-                "title_var":args1[0],
-                "args":args
- 
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "button",
+            "prop": {
+                "title": name,
+                "on_change_source": click_fn,
+                "title_var": args1[0],
+                "args": args,
+            },
         }
         try:
-            block['prop']['on_change'] = argname('on_click')
+            block["prop"]["on_change"] = argname("on_click", vars_only=True)
         except:
             pass
 
         try:
-            block['prop'].update(args_var =  string.split("args=")[1])
-        except:pass
+            block["prop"].update(args_var=string.split("args=")[1])
+        except:
+            pass
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def input(self,value='', id = '', on_change ="", args={}):
+    def input(self, value="", id="", on_change="", args={}):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         # args = string[string.find('(') + 1:-1].split(',')
-        if on_change :
+        if on_change:
             change_fn = inspect.getsource(on_change)
-            change_fn_name = string[string.find('on_change=') + 10:-1].split(',')[0].replace("on_change=",'').replace(' ','')
+            change_fn_name = (
+                string[string.find("on_change=") + 10 : -1]
+                .split(",")[0]
+                .replace("on_change=", "")
+                .replace(" ", "")
+            )
         else:
-            change_fn =''
-            change_fn_name =''
+            change_fn = ""
+            change_fn_name = ""
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"input",
-            'prop':{
-                "value":value,
-                "value_var":self.get_value_assign_var(inspect.currentframe().f_back),
-                "on_change":change_fn_name,
-                'args':args
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "input",
+            "prop": {
+                "value": value,
+                "value_var": self.get_value_assign_var(inspect.currentframe().f_back),
+                "on_change": change_fn_name,
+                "args": args,
+            },
         }
         if not self.replace_block(id, block):
             self.append_block(block)
         return value
 
     def divider(self):
-        block = {
-            "id":self.dynamic_widget_id(),
-            "type":"divider",
-            "prop":{}
-        }
+        block = {"id": self.dynamic_widget_id(), "type": "divider", "prop": {}}
         self.append_block(block)
 
-    def header(self, data, id=''):
+    def header(self, data, id=""):
         import threading
-        print('header thread: ',threading.current_thread())
+
+        print("header thread: ", threading.current_thread())
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         # print(string)
         # args = string[string.find('.header(') + 7:-1].split(',')
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":'header',
-            "prop":{
-                "data":data,
-                "data_var":str(argname('data', vars_only=False))
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "header",
+            "prop": {"data": data, "data_var": str(argname("data", vars_only=False))},
         }
         try:
-            block['prop']['data_var'] = argname('data')
+            block["prop"]["data_var"] = argname("data")
         except:
             pass
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def subheader(self, data, id=''):
+    def subheader(self, data, id=""):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         # print(string)
         # args = string[string.find('.header(') + 7:-1].split(',')
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":'subheader',
-            "prop":{
-                "data":data,
-                "data_var":str(argname('data', vars_only=False))
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "subheader",
+            "prop": {"data": data, "data_var": str(argname("data", vars_only=False))},
         }
         if not self.replace_block(id, block):
             self.append_block(block)
 
-
-    def select(self, label='', options=[], on_change='', default_value=0, id='', args={}):
+    def select(
+        self, label="", options=[], on_change="", default_value=0, id="", args={}
+    ):
         from varname import varname
+
         # list options args to be corrected
         # print(varname())
         frame = inspect.currentframe()
@@ -173,103 +189,141 @@ class datastack():
         # args = string[string.find('on_change=') + 6:-1].split(',')
         # print('selected arge',type(args), args)
         # print('assigned var', self.get_value_assign_var(inspect.currentframe().f_back))
-        if on_change :
+        if on_change:
             change_fn = inspect.getsource(on_change)
-            change_fn_name = string[string.find('on_change=') + 10:-1].split(',')[0].replace("on_change=",'').replace(' ','')
+            change_fn_name = (
+                string[string.find("on_change=") + 10 : -1]
+                .split(",")[0]
+                .replace("on_change=", "")
+                .replace(" ", "")
+            )
         else:
-            change_fn =''
-            change_fn_name =''
+            change_fn = ""
+            change_fn_name = ""
         from varname import argname
 
         block = {
-            "id":id if id else  self.dynamic_widget_id(),
-            "type":"select",
-            "prop":{
-                "options":[opt for opt in options],
-                "label":label,
-                "value":default_value,
-                'value_var': varname(), #self.get_value_assign_var(inspect.currentframe().f_back),
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "select",
+            "prop": {
+                "options": [opt for opt in options],
+                "label": label,
+                "value": default_value,
+                "value_var": varname(),  # self.get_value_assign_var(inspect.currentframe().f_back),
                 # "on_change":argname('on_change') or '',
-                'args':args
-            }
+                "args": args,
+            },
         }
         try:
-             block['prop']['on_change'] = argname('on_change')
+            block["prop"]["on_change"] = argname("on_change")
         except:
-            print('error on change function')
+            print("error on change function")
         try:
-            print(argname('options', vars_only=False))
-            block['prop']['options_var'] = str(argname('options', vars_only=False))
+            print(argname("options", vars_only=False))
+            block["prop"]["options_var"] = str(argname("options", vars_only=False))
             print(block)
         except Exception as e:
             print(e)
         # print('selec comp', component)
         self.append_block(block)
         return default_value
-    
-    def radio_button(self, options=[], default_value='', on_change='', label='', id=''):
+
+    def radio_button(self, options=[], default_value="", on_change="", label="", id=""):
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":'radio_button',
-            "prop":{
-                "options":[opt for opt in options],
-                "label":label,
-                "value":default_value,
-                "on_change":'' if on_change == '' else argname('on_change')
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "radio_button",
+            "prop": {
+                "options": [opt for opt in options],
+                "label": label,
+                "value": default_value,
+                "on_change": "" if on_change == "" else argname("on_change"),
+            },
         }
         try:
-            block['prop']['value_var'] = varname()
+            block["prop"]["value_var"] = varname()
         except:
             pass
         try:
-            block['prop']['options_var'] = str(argname('options', vars_only=False))
+            block["prop"]["options_var"] = str(argname("options", vars_only=False))
         except:
             print()
 
         if not self.replace_block(id, block):
             self.append_block(block)
         return default_value
-    
-    def list(self, data, on_click='', id='', slot_start="", slot_end="", ):
+
+    def list(
+        self,
+        data,
+        on_click="",
+        id="",
+        slot_start="",
+        slot_end="",
+    ):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        args = string[string.find('on_click=') + 9:-1].split(',')
-        args_options = string[string.find('(')+1:string.find(', on_click=')].replace(').list(','')
+        args = string[string.find("on_click=") + 9 : -1].split(",")
+        args_options = string[
+            string.find("(") + 1 : string.find(", on_click=")
+        ].replace(").list(", "")
         # .replace(',','').replace(' ','')
-        if on_click :
+        if on_click:
             click_fn = inspect.getsource(on_click)
             click_fn_name = args[0]
         else:
-            click_fn =''
-            click_fn_name =''
+            click_fn = ""
+            click_fn_name = ""
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"list",
-            "prop":{
-                "data":data,
-                "value":'',
-                "value_var":self.get_value_assign_var(inspect.currentframe().f_back),
-                "on_change":click_fn_name,
-                "on_change_source":click_fn,
-                "slot_start":slot_start,
-                "slot_end":slot_end,
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "list",
+            "prop": {
+                "data": data,
+                "value": "",
+                "value_var": self.get_value_assign_var(inspect.currentframe().f_back),
+                "on_change": click_fn_name,
+                "on_change_source": click_fn,
+                "slot_start": slot_start,
+                "slot_end": slot_end,
+            },
         }
 
-        self.append_block(block)
+        if not self.replace_block(id, block):
+            self.append_block(block)
+
+    def menu(self, data, default_value="", on_change="", id=""):
+        print("adding menu block")
+        block = {
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "menu",
+            "prop": {
+                "data": data,
+                "value": default_value,
+            },
+        }
+        try:
+            block["prop"]["value_var"] = varname()
+        except:
+            pass
+
+        try:
+            block["prop"]["on_change"] = argname("on_change", vars_only=False)
+        except:
+            pass
+        if not self.replace_block(id, block):
+            self.append_block(block)
 
     def notification(self, data):
-        data['notification_id'] = self.dynamic_widget_id()
-        self.app['appstate']['notifications'].append(data)
-        print('notification added', self.app['appstate']['notifications'])
-        
+        data["notification_id"] = self.dynamic_widget_id()
+        self.app["appstate"]["notifications"].append(data)
+        print("notification added", self.app["appstate"]["notifications"])
+
     def clear_notifications(self):
-        self.app['appstate']['notifications'] = []
+        self.app["appstate"]["notifications"] = []
 
     def get_value_assign_var(self, f):
         import dis
+
         """
         # method 1
         frame = inspect.currentframe()
@@ -283,53 +337,68 @@ class datastack():
             if instr.offset == inspect.currentframe().f_back.f_lasti:
                 print('inspect',instr)
                 break
-        assert instr.opname.startswith('CALL_') 
-        print(next(it).argval)       
+        assert instr.opname.startswith('CALL_')
+        print(next(it).argval)
         """
 
         # method 2
         import sys
+
         # f = inspect.currentframe().f_back # get stack frame of caller (depth=1)
         # next op should be STORE_NAME (current op calls the constructor)
-        opname = dis.opname[f.f_code.co_code[f.f_lasti+2]]
+        opname = dis.opname[f.f_code.co_code[f.f_lasti + 2]]
         # print('opname',opname)
-        if opname == 'STORE_NAME' or  opname =='STORE_GLOBAL' : # not all objects will be assigned a name
+        if (
+            opname == "STORE_NAME" or opname == "STORE_GLOBAL"
+        ):  # not all objects will be assigned a name
             # STORE_NAME argument is the name index
-            namei = f.f_code.co_code[f.f_lasti+3]
+            namei = f.f_code.co_code[f.f_lasti + 3]
             name = f.f_code.co_names[namei]
             # print('is this?', name)
             return name
         else:
             return None
 
-    def table(self, data, id=''):
+    def table(self, data, column_definition={}, id=""):
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"table",
-            "prop":{
-                "data":data.to_json(orient="records"),
-                "columns":list(data.columns)
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "table",
+            "prop": {
+                "data": data.to_json(orient="records"),
+                "columns": list(data.columns),
+                "column_defination": column_definition,
+            },
         }
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def dataframe(self, data, id =''):
-        if 'id' not in data.columns:
-            data['id'] = np.arange(data.shape[0])
+    def dataframe(self, data, id=""):
+        if "id" not in data.columns:
+            data["id"] = np.arange(data.shape[0])
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"dataframe",
-            "prop":{
-                "data":data.to_json(orient="records"),
-                "columns":[{'name':c, "id":c, "field":c, 'sortable':True, 'minWidth':max(len(c)*9,100), 'maxWidth':400} for c in list(data.columns)],
-                "grid_id":'a' + self.dynamic_widget_id()
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "dataframe",
+            "prop": {
+                "data": data.to_json(orient="records"),
+                "columns": [
+                    {
+                        "name": c,
+                        "id": c,
+                        "field": c,
+                        "sortable": True,
+                        "minWidth": max(len(c) * 9, 100),
+                        "maxWidth": 400,
+                        "filterable": True,
+                    }
+                    for c in list(data.columns)
+                ],
+                "grid_id": "a" + self.dynamic_widget_id(),
+            },
         }
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def write(self, data,  location='', id=''):
+    def write(self, data, location="", id=""):
         """
         Write arguments to the app.
 
@@ -446,73 +515,61 @@ class datastack():
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
         # print(string)
-        args = string[string.find('.write(') + 7:-1].split(',')
-        
+        args = string[string.find(".write(") + 7 : -1].split(",")
+
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":'text',
-            "location":location,
-            "prop":{
-                "data":data,
-                "data_var":args[0]
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "text",
+            "location": location,
+            "prop": {"data": data, "data_var": args[0]},
         }
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def html(self, html, id=''):
+    def html(self, html, id=""):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        args = string[string.find('(') + 1:-1].split(',')
+        args = string[string.find("(") + 1 : -1].split(",")
 
         block = {
-            "id":self.dynamic_widget_id(),
-            "type":'html',
-            "prop":{
-                "data":html,
-                'data_var':args[0]
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "html",
+            "prop": {"data": html, "data_var": argname("html")},
         }
-        self.append_block(block)
+        if not self.replace_block(id, block):
+            self.append_block(block)
 
-    def markdown(self, data, id=''):
+    def markdown(self, data, id=""):
         block = {
-            "id":self.dynamic_widget_id(),
-            "type":"markdown",
-            "prop":{
-                "data":data
-            }
+            "id": self.dynamic_widget_id(),
+            "type": "markdown",
+            "prop": {"data": data},
         }
-        self.append_block(block)
+        if not self.replace_block(id, block):
+            self.append_block(block)
 
     def tag(self, data):
-        block = {
-            "id":self.dynamic_widget_id(),
-            "type":"tag",
-            "prop":{
-                "data":data
-            }
-        }
-        self.append_block(block)
-    
-    def cache_data(self, func):
+        block = {"id": self.dynamic_widget_id(), "type": "tag", "prop": {"data": data}}
+        if not self.replace_block(id, block):
+            self.append_block(block)
 
+    def cache_data(self, func):
         def inner1(*args, **kwargs):
-            print('before execution')
+            print("before execution")
             arg_pairs = []
             for arg_idx in range(len(args)):
                 arg_name = self._get_positional_arg_name(func, arg_idx)
                 arg_pairs.append((arg_name, args[arg_idx]))
             for kw_name, kw_val in kwargs.items():
                 arg_pairs.append((kw_name, kw_val))
-            print('functions args', arg_pairs)
+            print("functions args", arg_pairs)
             args_hasher = hashlib.new("md5")
-            for s1,s2 in arg_pairs:
+            for s1, s2 in arg_pairs:
                 args_hasher.update(s1.encode())
                 args_hasher.update(s2.encode())
             args_hash = args_hasher.hexdigest()
-            print('args_hash',args_hash)
+            print("args_hash", args_hash)
 
             func_hasher = hashlib.new("md5")
             source_code = inspect.getsource(func)
@@ -520,26 +577,26 @@ class datastack():
             func_hasher.update(func.__qualname__.encode())
             func_hasher.update(source_code.encode())
             func_hash = func_hasher.hexdigest()
-            print('function  hash ',func_hash)
+            print("function  hash ", func_hash)
 
             try:
                 cache_class = caching.cache_storage[func_hash]
 
                 return_value = cache_class.mem_cache_get(args_hash)
-                print('cache hit')
+                print("cache hit")
 
-                    
             except:
-                print('miss')
+                print("miss")
                 return_value = func(*args, **kwargs)
                 cache_class = caching.Cache_data(func_hash)
-                cache_class.mem_cache_set(args_hash,return_value)
+                cache_class.mem_cache_set(args_hash, return_value)
             # print(return_value)
-            print('after execution')
+            print("after execution")
             return return_value
+
         return inner1
-    
-    def _get_positional_arg_name(self,func, arg_index: int) -> str | None:
+
+    def _get_positional_arg_name(self, func, arg_index: int) -> str | None:
         """Return the name of a function's positional argument.
 
         If arg_index is out of range, or refers to a parameter that is not a
@@ -549,7 +606,9 @@ class datastack():
         if arg_index < 0:
             return None
 
-        params: list[inspect.Parameter] = list(inspect.signature(func).parameters.values())
+        params: list[inspect.Parameter] = list(
+            inspect.signature(func).parameters.values()
+        )
         if arg_index >= len(params):
             return None
 
@@ -560,91 +619,101 @@ class datastack():
             return params[arg_index].name
 
         return None
-    
-    def editable_html(self, key, id=''):
+
+    def editable_html(self, key, id=""):
         default_html = [
-      {
-        "_id": "5f54d75b114c6d176d7e9765",
-        "html": "Heading",
-        "tag": "h1",
-        "imageUrl": "",
-      }
-    ]
-        file_path = os.path.join(Path(os.path.dirname(__file__)).parent.absolute(),'static/app.json')
-        
+            {
+                "_id": "5f54d75b114c6d176d7e9765",
+                "html": "Heading",
+                "tag": "h1",
+                "imageUrl": "",
+            }
+        ]
+        file_path = os.path.join(
+            Path(os.path.dirname(__file__)).parent.absolute(), "static/app.json"
+        )
+
         try:
             import json
-            with open(file_path, 'r') as f:
-                html = json.loads(f.read())[key]['block']['prop']['html']
+
+            with open(file_path, "r") as f:
+                html = json.loads(f.read())[key]["block"]["prop"]["html"]
         except Exception as e:
             logger.error(e)
             html = default_html
         # if not html:
         #     html = default_html
         logger.info(html)
-        block={
-            "id":id if id else self.dynamic_widget_id(),
-            'wid':key,
-            "type":'editable_html',
-            "is_root":True,
-            "prop":{
-                "html":html
-            },
+        block = {
+            "id": id if id else self.dynamic_widget_id(),
+            "wid": key,
+            "type": "editable_html",
+            "is_root": True,
+            "prop": {"html": html},
         }
         self.append_block(block)
 
-
     def sidebar(self):
-        cls = datastack(type='sidebar')
-        self.append_block(cls, 'sidebar')
+        cls = datastack(type="sidebar")
+        self.append_block(cls, "sidebar")
         return cls
 
     def expander(self, name):
-        cls = datastack(type='expander', title=name)
+        cls = datastack(type="expander", title=name)
         self.append_block(cls)
         return cls
 
-    def columns(self, col_number, id=''):
-        cols = [datastack(type ="column") for x in range(0,col_number)]
+    def columns(self, col_number, id=""):
+        cols = [datastack(type="column") for x in range(0, col_number)]
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"column",
-            "data":cols,
-            "prop":{}
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "column",
+            "data": cols,
+            "prop": {},
         }
         self.append_block(block)
         return cols
 
-    def tabs(self, tab_list, id=''):
-        tab = [datastack(type ="tab", title=tab_list[x]) for x in range(0,len(tab_list))]
+    def tabs(self, tab_list, id=""):
+        tab = [
+            datastack(type="tab", title=tab_list[x]) for x in range(0, len(tab_list))
+        ]
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"tabs",
-            "data":tab,
-            "prop":{
-                "tabs":tab_list
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "tabs",
+            "data": tab,
+            "prop": {"tabs": tab_list},
         }
         self.append_block(block)
-        return tab    
-    
-    def slider(self, min, max, value, id=''):
+        return tab
+
+    def slider(self, min, max, value, id=""):
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"slider",
-            "prop":{
-                "min":min,
-                "max":max,
-                "value":value,
-                "value_var":self.get_value_assign_var(inspect.currentframe().f_back),
-                "on_change":"update_var",
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "slider",
+            "prop": {
+                "min": min,
+                "max": max,
+                "value": value,
+                "value_var": self.get_value_assign_var(inspect.currentframe().f_back),
+                "on_change": "update_var",
+            },
         }
         self.append_block(block)
 
-    def date_input(self,label:str=None,value:str=None,min:str='1970-01-01',max:str='2500-01-01',date_format:str='yyyy-MM-dd',use_container_width:bool=False,disabled:bool=False, id=''):
+    def date_input(
+        self,
+        label: str = None,
+        value: str = None,
+        min: str = "1970-01-01",
+        max: str = "2500-01-01",
+        date_format: str = "yyyy-MM-dd",
+        use_container_width: bool = False,
+        disabled: bool = False,
+        id="",
+    ):
         """
-        label (str) : A short label explaining to the user what this date input is for. 
+        label (str) : A short label explaining to the user what this date input is for.
 
         value (str): The value of this widget when it first renders (ex.: 2023-01-01).
         min (str) : The minimum selectable date (ex.: 2023-01-01).
@@ -652,61 +721,65 @@ class datastack():
         date_format (str) : To set the date format (ex.: dd-MMM-yyyy).
         use_container_width (bool) : An optional boolean, which makes the date picker stretch its width to match the parent container.
         disabled (bool) : An optional boolean, which disables the date input if set to True. The default is False.
+
+        Parameters
+        ----------
+        *args : any
         """
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"date_input",
-            "prop":{
-                "label":label,
-                "value":value,  
-                "date_format" : date_format,
-                "min":min,
-                "max":max,
-                "use_container_width":use_container_width,
-                "disabled":disabled,
-                "value_var":self.get_value_assign_var(inspect.currentframe().f_back),
-                "on_change":"update_var",
-            }
-        }
-        self.append_block(block)        
-
-    def success(self,text:str=None, id=''):
-        block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"success",
-            "prop":{
-                "value":text,
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "date_input",
+            "prop": {
+                "label": label,
+                "value": value,
+                "date_format": date_format,
+                "min": min,
+                "max": max,
+                "use_container_width": use_container_width,
+                "disabled": disabled,
+                "value_var": self.get_value_assign_var(inspect.currentframe().f_back),
+                "on_change": "update_var",
+            },
         }
         self.append_block(block)
 
-    def info(self,text:str=None, id=''):
+    def success(self, text: str = None, id=""):
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"info",
-            "prop":{
-                "value":text,
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "success",
+            "prop": {
+                "value": text,
+            },
         }
         self.append_block(block)
 
-    def warning(self,text:str=None, id=''):
+    def info(self, text: str = None, id=""):
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"warning",
-            "prop":{
-                "value":text,
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "info",
+            "prop": {
+                "value": text,
+            },
         }
         self.append_block(block)
 
-    def error(self,text:str=None, id=''):
+    def warning(self, text: str = None, id=""):
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"error",
-            "prop":{
-                "value":text,
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "warning",
+            "prop": {
+                "value": text,
+            },
+        }
+        self.append_block(block)
+
+    def error(self, text: str = None, id=""):
+        block = {
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "error",
+            "prop": {
+                "value": text,
+            },
         }
         self.append_block(block)
 
@@ -714,53 +787,56 @@ class datastack():
     # @contextmanager
     def container(self):
         # prevent nesting insider the layout element
-        cls = datastack(type ="container")
+        cls = datastack(type="container")
         self.append_block(cls)
         return cls
-    
 
     def page(self, path):
-        cls = datastack(type='page', path=path)
-        self.append_block(cls, 'pages')
+        cls = datastack(type="page", path=path)
+        self.append_block(cls, "pages")
         return cls
 
-    
-    def code(self, data, key, id=''):
+    def code(self, data, key, id=""):
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            'wid':key,
-            "type":"code",
-            "prop":{
-                "code":data
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "wid": key,
+            "type": "code",
+            "prop": {"code": data},
         }
 
-        with open(os.path.join(Path(os.path.dirname(__file__)).parent.absolute(),'static/app.json'), 'r') as f:
+        with open(
+            os.path.join(
+                Path(os.path.dirname(__file__)).parent.absolute(), "static/app.json"
+            ),
+            "r",
+        ) as f:
             import json
+
             try:
-                b =  json.loads(f.read())
+                b = json.loads(f.read())
             except:
                 b = {}
         if key in b:
-            block['prop']['code'] = b[key]['block']['prop']['code']
-            block['prop']['last_run_result'] = b[key]['block']['prop']['last_run_result']
+            block["prop"]["code"] = b[key]["block"]["prop"]["code"]
+            block["prop"]["last_run_result"] = b[key]["block"]["prop"][
+                "last_run_result"
+            ]
         self.append_block(block)
-        return ''
+        return ""
 
-    def query(self, data, id=''):
+    def query(self, data, id=""):
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"query",
-            "prop":{
-                'query':data
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "query",
+            "prop": {"query": data},
         }
         self.append_block(block)
-        return ''
-    
-    def image(self, data, id=''):
+        return ""
+
+    def image(self, data, id=""):
         import io
         import base64
+
         if not isinstance(data, io.BytesIO):
             buffered = io.BytesIO()
             data.save(buffered, format=data.format)
@@ -768,105 +844,113 @@ class datastack():
             buffered = data
         img_str = base64.b64encode(buffered.getvalue())
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"image",
-            "prop":{
-                "data": 'data:image/png;base64, '  + img_str.decode("utf-8") 
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "image",
+            "prop": {"data": "data:image/png;base64, " + img_str.decode("utf-8")},
         }
         if not self.replace_block(id, block):
             self.append_block(block)
 
-
     def pyplot(self, fig):
         import io
+
         image = io.BytesIO()
         fig.savefig(image)
         self.image(image)
-      
 
-    def iframe(self, url, id=''):
+    def iframe(self, url, id=""):
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        args = string[string.find('(') + 1:-1].split(',')
+        args = string[string.find("(") + 1 : -1].split(",")
 
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"iframe",
-            "prop":{
-                "url":url,
-                "url_var":args[0]
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "iframe",
+            "prop": {"url": url, "url_var": args[0]},
         }
         self.append_block(block)
 
-    def chart(self, data, on_click = '', id=''):
+    def chart(self, data, on_click="", id=""):
         import json
         import plotly.tools
-        fig =  plotly.tools.return_figure_from_figure_or_data(
-            data, validate_figure=True
-        )
+
+        fig = plotly.tools.return_figure_from_figure_or_data(data, validate_figure=True)
         fig = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
         from varname import argname
+
         block = {
-            'id':id if id else self.dynamic_widget_id(),
-            "type":"chart",
-            "prop":{
-                "data":fig,
-                "data_var":argname('data', vars_only=False)
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "chart",
+            "prop": {"data": fig, "data_var": argname("data", vars_only=False)},
         }
-        
+
         try:
-            block['prop']['on_change'] = argname('on_click')
+            block["prop"]["on_change"] = argname("on_click")
         except:
             pass
 
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def chart_builder(self, id=''):
+    def chart_builder(self, id=""):
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"chart_builder",
-            "prop":{}
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "chart_builder",
+            "prop": {},
         }
         self.append_block(block)
 
     def get_all_dfs(self):
         import pandas as pd
         import itertools
-        self.app['appstate']['dfs']  = [attr[0] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)]
-        self.app['appstate']['columns'] = list(itertools.chain(* [ [attr[0]  + "." +  str(col) for col in   attr[1].columns.tolist()] for attr in inspect.getmembers(runtime.get_module()) if isinstance(attr[1], pd.DataFrame)]))
+
+        self.app["appstate"]["dfs"] = [
+            attr[0]
+            for attr in inspect.getmembers(runtime.get_module())
+            if isinstance(attr[1], pd.DataFrame)
+        ]
+        self.app["appstate"]["columns"] = list(
+            itertools.chain(
+                *[
+                    [attr[0] + "." + str(col) for col in attr[1].columns.tolist()]
+                    for attr in inspect.getmembers(runtime.get_module())
+                    if isinstance(attr[1], pd.DataFrame)
+                ]
+            )
+        )
 
     def update_app_state(self, key, value):
         self.state[key] = value
-        
-    def page_link(self, page_name, id=''):
+
+    def page_link(self, page_name, id=""):
         block = {
-            "id":id if id else self.dynamic_widget_id(),
-            "type":"page_link",
-            "prop":{
-                "data":page_name,
-                "on_change":'load_page'
-            }
+            "id": id if id else self.dynamic_widget_id(),
+            "type": "page_link",
+            "prop": {"data": page_name, "on_change": "load_page"},
         }
         self.append_block(block)
 
     def set_page(self, page_name):
-        self.app['current_page'] = page_name
+        self.app["current_page"] = page_name
 
-    def append_block(self,block, location='main_page'):
+    def sql_connection(self, params):
+        return SQLConnection(params)
+
+    def append_block(self, block, location="main_page"):
         self.blocks[location].append(block)
 
     def get_app_block_by_id(self, id):
-        all_app_blocks = [block for page in ['main_page'] + self.app['pages'] for block in self.app[page]]
+        all_app_blocks = [
+            block
+            for page in ["main_page", "sidebar"] + self.app["pages"]
+            for block in self.app[page]
+        ]
         for b in all_app_blocks:
-            if b['type'] == 'column':
-                for data_block in b['data']:
+            if b["type"] == "column":
+                for data_block in b["data"]:
                     all_app_blocks = all_app_blocks + data_block
-        return list(filter(lambda p: p['id'] == id, all_app_blocks))
+        return list(filter(lambda p: p["id"] == id, all_app_blocks))
 
     def gat_all_blocks(self):
         # print(self.blocks)
@@ -874,102 +958,154 @@ class datastack():
         #     print(self.blocks[page])
         #     for block in self.blocks[page]:
         #         print('bbb---', block)
-        return [block for page in ['main_page']  for block in self.blocks[page] if isinstance(block, dict)]
-    
+        return [
+            block
+            for page in ["main_page"]
+            for block in self.blocks[page]
+            if isinstance(block, dict)
+        ]
+
     def get_block_by_id(self, id):
         # self.gat_all_blocks()
         try:
-            return list(filter(lambda p: p['id'] == id, self.gat_all_blocks()))
+            return list(filter(lambda p: p["id"] == id, self.gat_all_blocks()))
         except Exception as e:
-            print('error get block by id',e)
+            print("error get block by id", e)
             logger.error(e)
 
     def replace_block(self, id, new_block):
-        block =  self.get_block_by_id(id)
-        if id == 'title':
-            print('title block',block)
+        block = self.get_block_by_id(id)
+        if id == "title":
+            print("title block", block)
         if block:
             block[0].update(new_block)
             return True
-        else: return False
-        
-    
-    def dump_app(self):
-        self.app ={
-            'current_page':'main_page',
-            'sidebar':[],
-            'main_page':[],
-            'pages':[],
-            'appstate':{"session_id":"default", 'notifications':[]}
-        }
-        self.blocks = {
-            'sidebar':[],
-            'main_page':[],
-            'pages':[],
-            'notifications':[]
-        }
-        
-    def build_element_from_blocks(self,blocks):
-        # with parent
-        # return [ dict(each_one, **{'parent':x.type}) for each_one in x.blocks['main_page']] 
+        else:
+            return False
 
-        _app =  [ {"id":"", "type":x.type, "title":x.title, "data":x.blocks['main_page']}  if isinstance(x, object) and x.__class__.__name__ =='datastack' and x.type != 'sidebar' else x for x in blocks]
+    def dump_app(self):
+        self.app = {
+            "current_page": "main_page",
+            "sidebar": [],
+            "main_page": [],
+            "pages": [],
+            "appstate": {"session_id": "default", "notifications": []},
+        }
+        self.blocks = {"sidebar": [], "main_page": [], "pages": [], "notifications": []}
+
+    def build_element_from_blocks(self, blocks):
+        # with parent
+        # return [ dict(each_one, **{'parent':x.type}) for each_one in x.blocks['main_page']]
+
+        _app = [
+            {"id": "", "type": x.type, "title": x.title, "data": x.blocks["main_page"]}
+            if isinstance(x, object)
+            and x.__class__.__name__ == "datastack"
+            and x.type != "sidebar"
+            else x
+            for x in blocks
+        ]
         # for columns and tabs
-        _app = [{"id":"", "type":x['type'],"prop":x['prop'], "data":[self.build_element_from_blocks(c.blocks['main_page']) for c in x['data']]} if x['type'] == 'column' else x for x in _app ]
-        _app = [{"id":"", "type":x['type'],"prop":x['prop'], "data":[
-            {"id":"", "type":"tab", "title":c.title, "data":self.build_element_from_blocks(c.blocks['main_page']) }
-            for c in x['data']]} if x['type'] == 'tabs' else x for x in _app ]
-        _app = [x if x['type'] == 'list' else x for x in _app ]
+        _app = [
+            {
+                "id": "",
+                "type": x["type"],
+                "prop": x["prop"],
+                "data": [
+                    self.build_element_from_blocks(c.blocks["main_page"])
+                    for c in x["data"]
+                ],
+            }
+            if x["type"] == "column"
+            else x
+            for x in _app
+        ]
+        _app = [
+            {
+                "id": "",
+                "type": x["type"],
+                "prop": x["prop"],
+                "data": [
+                    {
+                        "id": "",
+                        "type": "tab",
+                        "title": c.title,
+                        "data": self.build_element_from_blocks(c.blocks["main_page"]),
+                    }
+                    for c in x["data"]
+                ],
+            }
+            if x["type"] == "tabs"
+            else x
+            for x in _app
+        ]
+        _app = [x if x["type"] == "list" else x for x in _app]
         return _app
-    
 
     def update_state(self):
         def _update_state(location):
-          for c in location:
+            for c in location:
                 try:
-                    if c['type'] == 'text' or c['type'] == 'html' or c['type'] == 'header' or c['type'] == 'subheader' :
-                        c['prop']['data'] = eval(c['prop']['data_var'])
-                    if c['type'] == 'date_input' or c['type'] == 'input':
-                        c['prop']['value'] = eval(c['prop']['value_var'])
-                    if c['type'] == 'button':
-                        c['prop']['title'] = eval(c['prop']['title_var'])
-                    if c['type'] =='select' or c['type'] == 'radio_button':
-                        c['prop']['value'] = eval(c['prop']['value_var'])
-                        if 'options_var' in c['prop']:
-                            c['prop']['options'] =[opt for opt in eval(c['prop']['options_var'])] 
-                    if c['type'] == 'iframe':
-                        c['prop']['url'] = eval(c['prop']['url_var'])
-                    if c['type'] == 'list':
-                        c['prop']['value'] = eval(c['prop']['value_var'])
-                    if c['type'] == 'chart':
+                    if (
+                        c["type"] == "text"
+                        or c["type"] == "html"
+                        or c["type"] == "header"
+                        or c["type"] == "subheader"
+                    ):
+                        c["prop"]["data"] = eval(c["prop"]["data_var"])
+                    if c["type"] == "date_input" or c["type"] == "input":
+                        c["prop"]["value"] = eval(c["prop"]["value_var"])
+                    if c["type"] == "button":
+                        c["prop"]["title"] = eval(c["prop"]["title_var"])
+                    if c["type"] == "select" or c["type"] == "radio_button":
+                        c["prop"]["value"] = eval(c["prop"]["value_var"])
+                        if "options_var" in c["prop"]:
+                            c["prop"]["options"] = [
+                                opt for opt in eval(c["prop"]["options_var"])
+                            ]
+                    if c["type"] == "iframe":
+                        c["prop"]["url"] = eval(c["prop"]["url_var"])
+                    if c["type"] == "list" or c["type"] == "menu":
+                        c["prop"]["value"] = eval(c["prop"]["value_var"])
+                    if c["type"] == "chart":
                         # c['prop']['data'] = eval(c['prop']['data_var'])
                         pass
-                    if c['type'] == 'expander' or c['type'] == 'container':
-                        _update_state(c['data'])
-                    if c['type'] == 'column':
-                        for col in c['data']:
+                    if c["type"] == "expander" or c["type"] == "container":
+                        _update_state(c["data"])
+                    if c["type"] == "column":
+                        for col in c["data"]:
                             _update_state(col)
-                    if c['type'] == 'editable_html':
+                    if c["type"] == "editable_html":
                         default_html = [
-                                            {
-                                                "_id": "5f54d75b114c6d176d7e9765",
-                                                "html": "Heading",
-                                                "tag": "h1",
-                                                "imageUrl": "",
-                                            }
-                                        ]
+                            {
+                                "_id": "5f54d75b114c6d176d7e9765",
+                                "html": "Heading",
+                                "tag": "h1",
+                                "imageUrl": "",
+                            }
+                        ]
                         try:
                             import json
-                            with open(os.path.join(Path(os.path.dirname(__file__)).parent.absolute(),'static/app.json'), 'r') as f:
-                                html = json.loads(f.read())[c['wid']]['block']['prop']['html']
+
+                            with open(
+                                os.path.join(
+                                    Path(os.path.dirname(__file__)).parent.absolute(),
+                                    "static/app.json",
+                                ),
+                                "r",
+                            ) as f:
+                                html = json.loads(f.read())[c["wid"]]["block"]["prop"][
+                                    "html"
+                                ]
                         except Exception as e:
-                            logger.error('update state:' + str(e))
+                            logger.error("update state:" + str(e))
                             html = default_html
-                        c['prop']['html'] = html
+                        c["prop"]["html"] = html
                 except Exception as e:
-                    logger.error('update state:' + str(e))
+                    logger.error("update state:" + str(e))
                     print(c)
-        for location in ['main_page', 'sidebar'] + self.app['pages']:
+
+        for location in ["main_page", "sidebar"] + self.app["pages"]:
             _update_state(self.app[location])
 
     def build_app(self):
@@ -977,30 +1113,37 @@ class datastack():
         # main page
         # _app =  [ self.build_element_from_cls(x) if isinstance(x, object) and x.__class__.__name__ =='datastack' else [x] for x in self.blocks['main_page']]
         # self.app['main_page'] = [item for sublist in _app for item in sublist]
-        self.app['main_page'] = self.build_element_from_blocks(self.blocks['main_page'])
+        self.app["main_page"] = self.build_element_from_blocks(self.blocks["main_page"])
 
         # all pages
-        for page in self.blocks['pages']:
-            self.app['pages'].append(page.path)
+        for page in self.blocks["pages"]:
+            self.app["pages"].append(page.path)
             # _page = [ x.blocks['main_page'] if isinstance(x, object) and x.__class__.__name__ =='datastack' else [x] for x in page.blocks['main_page']]
             # self.app[page.__dict__['path']] = [item for sublist in _page for item in sublist]
-            self.app[page.__dict__['path']] = self.build_element_from_blocks(page.blocks['main_page'])
+            self.app[page.__dict__["path"]] = self.build_element_from_blocks(
+                page.blocks["main_page"]
+            )
 
         #  sidebar
-        _app =  [x.blocks['main_page'] if isinstance(x, object) and x.__class__.__name__ =='datastack' else [x] for x in self.blocks['sidebar']]
+        _app = [
+            x.blocks["main_page"]
+            if isinstance(x, object) and x.__class__.__name__ == "datastack"
+            else [x]
+            for x in self.blocks["sidebar"]
+        ]
         # # if any class in sidebar
         # # _app = [a[0] for a in _app]
         # _app =  self.build_element_from_blocks(_app)
         # print(_app)
         # self.app['sidebar'] = [ item for sublist in _app for item in sublist]
         t = self.build_element_from_blocks([a[0] for a in _app])
-        self.app['sidebar'] = t
-        self.app['pages'] = np.unique(np.array(self.app['pages'])).tolist()
+        self.app["sidebar"] = t
+        self.app["pages"] = np.unique(np.array(self.app["pages"])).tolist()
         return self.app
 
-    def rerun(self, my_vars={}, old_app=''):
+    def rerun(self, my_vars={}, old_app=""):
 
-        for k,v in my_vars.items():
+        for k, v in my_vars.items():
             globals()[k] = v
         # print({k: v for k, v in globals().items() if not k.startswith("__")})
         self.build_app()

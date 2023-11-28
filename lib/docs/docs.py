@@ -1,37 +1,41 @@
-
 from datastack import datastack
 import inspect, types
+
 # import stoutput
 from docutils.core import publish_parts
 from docutils.parsers.rst import directives
+import pandas as pd
 
 ds = datastack(main=True)
 
-opt = ds.radio_button(['a','b'])
-ds.write(opt)
 
-
-
-prefix = 'ds'
+prefix = "ds"
 obj = ds
-membername = 'write'
-member = getattr(obj, membername)
-import docstring_parser
-docstring = getattr(member, "__doc__","")
-docstring_obj = docstring_parser.parse(docstring)
-details ={}
 
-details["args"] = []
-for param in docstring_obj.params:
-    arg_obj = {}
-    arg_obj["name"] = param.arg_name  ## Store the argument name
-    arg_obj["type_name"] = param.type_name  # Store the argument type
-    arg_obj["is_optional"] = param.is_optional  # Store the optional flag
-    arg_obj["description"] = param.description
-    arg_obj["default"] = param.default
-    details["args"].append(arg_obj)
-details["returns"] = []
-if type(docstring_obj.returns) is not None:
+
+def generate_doc():
+    membername = ds.state["selected_menu"]
+    member = getattr(obj, membername)
+    # print('member', member)
+    import docstring_parser
+
+    docstring = getattr(member, "__doc__", "")
+    docstring_obj = docstring_parser.parse(docstring)
+    # print(docstring_obj)
+    details = {}
+
+    details["args"] = []
+    for param in docstring_obj.params:
+        arg_obj = {}
+        arg_obj["name"] = param.arg_name  ## Store the argument name
+        arg_obj["type_name"] = param.type_name  # Store the argument type
+        arg_obj["is_optional"] = param.is_optional  # Store the optional flag
+        arg_obj["description"] = parse_rst(param.description)
+        arg_obj["default"] = param.default
+        details["args"].append(arg_obj)
+
+    details["returns"] = []
+    if type(docstring_obj.returns) is not None:
         for returns in docstring_obj.many_returns:
             return_obj = {}
             return_obj["type_name"] = returns.type_name
@@ -39,7 +43,38 @@ if type(docstring_obj.returns) is not None:
             return_obj["description"] = returns.description
             return_obj["return_name"] = returns.return_name
             details["returns"].append(return_obj)
-print('args:', details["args"])
+    # print('args:', details["args"])
+    arguments = get_sig_string_without_annots(member)
+
+    # ds.header('ds.write')
+    short_description = parse_rst(
+        ""
+        if docstring_obj.short_description is None
+        else docstring_obj.short_description
+    )
+    long_description = parse_rst(
+        "" if docstring_obj.long_description is None else docstring_obj.long_description
+    )
+    ds.html(short_description, id="s_d")
+    ds.html(long_description, id="l_d")
+
+    ds.subheader("Function signature", id="fn_sig")
+    # sing_container = ds.container()
+    signature = f"{prefix}.{membername}({arguments})"
+    ds.list([signature], id="sig")
+    if len(details["args"]) > 0:
+        ds.subheader("Parameters", id="param")
+
+        # for arg in details['args']:
+        #     ds.write(arg['name'], id='params_name')
+        #     ds.write(arg['description'], id='desc')
+        ds.table(
+            pd.DataFrame.from_dict(details["args"]),
+            column_definition={"description": "html"},
+            id="arg_table",
+        )
+    else:
+        ds.table(pd.DataFrame.from_dict({}), id="arg_table")
 
 
 def get_sig_string_without_annots(func):
@@ -110,6 +145,8 @@ def get_sig_string_without_annots(func):
 
     # Return the formatted argument string
     return ", ".join(args)
+
+
 def parse_rst(rst_string):
     """Parses RST string to HTML using docutils."""
     docutil_settings = {"embed_stylesheet": 0}
@@ -121,24 +158,18 @@ def parse_rst(rst_string):
     )
     return str(document["body"])
 
-arguments = get_sig_string_without_annots(ds.write)
 
-ds.header('ds.write')
-ds.html(parse_rst(docstring_obj.short_description))
-ds.html(parse_rst(docstring_obj.long_description))
+# ds.sidebar().list(dir(obj))
+sb = ds.sidebar()
 
-ds.subheader('Function signature')
-ds.write(f'{prefix}.{membername}({arguments})')
-ds.subheader('Parameters')
-for arg in details['args']:
-     ds.write(arg['name'])
-     ds.write(arg['description'])
-
-
-
-
-
+selected_menu = sb.menu(
+    [m for m in dir(obj) if not m.startswith("_")],
+    default_value="write",
+    on_change=generate_doc,
+)
+ds.header(selected_menu)
 # for membername in dir(obj):
 #     member = getattr(obj, membername)
-#     print(getattr(obj, "__doc__", ""))
-#     print(getattr(member, "__doc__", ""))
+#     print('member', membername)
+# print(getattr(obj, "__doc__", ""))
+# print(getattr(member, "__doc__", ""))

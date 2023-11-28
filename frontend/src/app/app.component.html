@@ -4,7 +4,7 @@
 
 <div style="display: flex; flex-direction: row;inset: 0; place-content: flex-start; align-items: stretch; position: absolute; width: 100%;">
 
-  
+
   <!-- sidebar -->
   <div style="display: block;">
     <div *ngIf="sidebar?.length > 0"
@@ -54,12 +54,12 @@
     <!-- {{value | json}} -->
     <div *ngFor="let element of value; trackBy:trackElement" >
 
-      <div *ngFor="let key of element.prop | keyvalue">        
+      <div *ngFor="let key of element.prop | keyvalue">
         <div *ngIf="key.key=='label'">
-          <h3>{{element.prop.label}}</h3> 
+          <h3 style="font-size: 14px;">{{element.prop.label}}</h3>
         </div>
       </div>
-      
+
 
       <div  *ngIf="element.type == 'button'">
         <button nz-button nzType="primary" (click)="click(element)">{{element.prop.title}}</button>
@@ -71,7 +71,7 @@
         <h1> <span style="font-size: calc(1.4rem + 1vw); font-weight:700">{{element.prop.data}}</span></h1>
       </div>
       <div *ngIf="element.type == 'subheader'">
-        <h3 style="font-size: calc(1.3rem + .4vw); font-weight:600">{{element.prop.data}}</h3> 
+        <h3 style="font-size: calc(1.3rem + .4vw); font-weight:600">{{element.prop.data}}</h3>
       </div>
       <div *ngIf="element.type == 'text'">
         {{element.prop.data}}
@@ -81,7 +81,7 @@
         <nz-tag nzMode="closeable">{{element.prop.data}}</nz-tag>
       </div>
       <div *ngIf="element.type == 'html'">
-        <!-- {{element.prop.data}} --> 
+        <!-- {{element.prop.data}} -->
         <div [innerHTML]="element.prop.data"></div>
       </div>
       <div *ngIf="element.type == 'editable_html'">
@@ -95,7 +95,7 @@
         <nz-slider [nzMin]="element.prop.min" [nzMax]="element.prop.max"  (nzOnAfterChange)="slider_value_changed(element, $event)"></nz-slider>
       </div>
       <div *ngIf="element.type == 'date_input'">
-        <nz-date-picker [nzDisabledDate]="date_min_max(element.prop.min,element.prop.max)"  [style.display]="element.prop.use_container_width ? 'block' : null" [nzShowTime]="false" [nzFormat]= element.prop.date_format [(ngModel)]="element.prop.value" (ngModelChange)="date_changed(element,$event)" [nzDisabled]="element.prop.disabled"></nz-date-picker>      
+        <nz-date-picker [nzDisabledDate]="date_min_max(element.prop.min,element.prop.max)"  [style.display]="element.prop.use_container_width ? 'block' : null" [nzShowTime]="false" [nzFormat]= element.prop.date_format [(ngModel)]="element.prop.value" (ngModelChange)="date_changed(element,$event)" [nzDisabled]="element.prop.disabled"></nz-date-picker>
       </div>
       <div *ngIf="element.type == 'success' || element.type == 'info' || element.type == 'warning' || element.type == 'error'">
         <nz-alert [nzType]="element.type" [nzMessage]="element.prop.value"></nz-alert>
@@ -117,22 +117,22 @@
         </ul> -->
         <nz-list >
           <nz-list-item *ngFor="let l of element.prop.data" style="align-items: start;">
-            <div *ngIf = "false">
-            <div>
+            <div *ngIf = "true">
+            <!-- <div>
               <img width="100" alt="logo" *ngIf="l.image" [src]="l.image" />
-            </div>
+            </div> -->
             <div style="width:100%; text-align: left; padding:10px">
-              {{l[element.prop.slot_start]}}<br>
+              {{l}}
             </div>
-            <div style="padding: 10px; padding-right: 40px;">{{l[element.prop.slot_end]}}</div>
+            <!-- <div style="padding: 10px; padding-right: 40px;">{{l}}</div> -->
           </div>
-          
-          <div>
+
+          <!-- <div>
             <img width="100" alt="logo" *ngIf="l.image" [src]="l.image" />
-          </div>   
+          </div>
           <div  [innerHTML] = 'get_marked(l[element.prop.slot_start])' style="width:100%; text-align: left; padding:10px"></div>
-          <div  [innerHTML] = 'get_marked(l[element.prop.slot_end])' style="padding: 10px; padding-right: 40px;text-wrap:nowrap"></div>
-          
+          <div  [innerHTML] = 'get_marked(l[element.prop.slot_end])' style="padding: 10px; padding-right: 40px;text-wrap:nowrap"></div> -->
+
           </nz-list-item>
         </nz-list>
 
@@ -140,15 +140,15 @@
 
       <div *ngIf="element.type == 'page_link'">
         <div (click)="page_link(element)"><span nz-icon nzType="file" nzTheme="outline"></span> {{element.prop.data}}</div>
-        
+
       </div>
       <div *ngIf="element.type == 'iframe'" style="height: 93vh">
         <iframe width="100%" height="100%" [src]="sanitizer.bypassSecurityTrustResourceUrl(element.prop.url)"></iframe>
       </div>
-      <div *ngIf ="element.type == 'container'"> 
+      <div *ngIf ="element.type == 'container'">
         <ng-container *ngTemplateOutlet="elements; context:{value:element.data}"></ng-container>
       </div>
-      <div *ngIf ="element.type == 'column'" nz-row >
+      <div *ngIf ="element.type == 'column'" nz-row  style="padding-top: 10px;">
         <div *ngFor="let data of element.data" nz-col nzFlex="1" style="background: #f7f7f7;
         padding: 5px;
         border-radius: 5px;
@@ -163,13 +163,21 @@
           </nz-tab>
         </nz-tabset>
       </div>
-      <div *ngIf ="element.type == 'expander'"> 
+      <div *ngIf ="element.type == 'expander'">
         <!-- <details><summary>{{element.title}}</summary> <ng-container *ngTemplateOutlet="elements; context:{value:element.data}"></ng-container></details> -->
         <nz-collapse nzGhost> <nz-collapse-panel [nzHeader]="element.title"> <ng-container *ngTemplateOutlet="elements; context:{value:element.data}"></ng-container></nz-collapse-panel></nz-collapse>
       </div>
+
+      <div *ngIf ="element.type == 'menu' ">
+        <ul nz-menu >
+          <li nz-menu-item *ngFor="let l of element.prop.data" (click)="menu_click(element, l)">{{l}}</li>
+        </ul>
+      </div>
+
+
       <div *ngIf="element.type == 'image'">
         <div style="text-align:center">
-          <img style="margin-left: auto;margin-right: auto;" 
+          <img style="margin-left: auto;margin-right: auto;"
           [src]="element.prop.data"/>
           </div>
       </div>
@@ -204,9 +212,9 @@
           Border size: <input  (change) = "update_chart(trace, 'line.width', $event)" >
           <hr>
         </div>
-       
+
         <plotly-plot [data]=graph.data [layout]="graph.layout" [config] ="{editable:true}"></plotly-plot>
-        
+
       </div>
       <div *ngIf="element.type == 'table'">
         <nz-table #basicTable nzSize="small" [nzData]="element.prop.data" nzBordered>
@@ -219,8 +227,10 @@
           </thead>
           <tbody>
             <tr *ngFor="let data of basicTable.data">
-              <td *ngFor="let col of element.prop.columns">
-                {{data[col]}}
+              <td *ngFor="let col of element.prop.columns" >
+
+                <div [innerHTML] = data[col]></div>
+                <!-- {{data[col]}} -->
               </td>
               <!-- {{data.col1}} -->
             </tr>
@@ -265,15 +275,15 @@
       <div *ngIf="block.type == 'code'"><app-code [element]="element" [root]="root" [block]="block"></app-code></div>
       <div *ngIf="block.type == 'expander'">
         <app-expander [element]="block">
-    
+
           <ng-container *ngTemplateOutlet="editable;context:{element:block, root:element}"></ng-container>
         </app-expander>
       </div>
-      
+
     </div>
     <div (click)="add_new_block(element, 2)">Add</div>
   </div>
-    
+
     <!-- <span  #editableDiv  (input)="change_editable(element,$event)" [innerHTML]="element.prop.html"></span> -->
   </ng-template>
 
@@ -304,7 +314,6 @@
   <!-- spinner -->
   <nz-spin nzSimple [nzSize]="'small'" style="z-index: 1000; position: fixed; right:10px; top:10px" *ngIf="spinning"></nz-spin>
 
-  
 
 
-  
+
