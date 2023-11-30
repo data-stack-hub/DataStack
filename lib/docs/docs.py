@@ -75,6 +75,55 @@ def generate_doc():
         )
     else:
         ds.table(pd.DataFrame.from_dict({}), id="arg_table")
+    if docstring:
+        try:
+            from numpydoc.docscrape import NumpyDocString
+
+            # Explicitly create the 'Example' section which Streamlit seems to use a lot of.
+            NumpyDocString.sections.update({"Example": []})
+            numpydoc_obj = NumpyDocString(docstring)
+
+            if "Notes" in numpydoc_obj and len(numpydoc_obj["Notes"]) > 0:
+                collapsed = "\n".join(numpydoc_obj["Notes"])
+                details["notes"] = parse_rst(collapsed)
+
+            if "Warning" in numpydoc_obj and len(numpydoc_obj["Warning"]) > 0:
+                collapsed = "\n".join(numpydoc_obj["Warning"])
+                details["warnings"] = parse_rst(collapsed)
+
+            if "Example" in numpydoc_obj and len(numpydoc_obj["Example"]) > 0:
+                collapsed = "\n".join(numpydoc_obj["Example"])
+                details["example"] = strip_code_prompts(parse_rst(collapsed))
+
+            if "Examples" in numpydoc_obj and len(numpydoc_obj["Examples"]) > 0:
+                collapsed = "\n".join(numpydoc_obj["Examples"])
+                # collapsed = "\n".join(line.lstrip() for line in numpydoc_obj["Examples"])
+                print(numpydoc_obj["Examples"])
+                print(collapsed)
+                import html
+
+                details["examples"] = strip_code_prompts(parse_rst(collapsed))
+                ds.subheader("Example")
+                ds.html(details["examples"])
+                from pathlib import Path
+
+                code = collapsed  # .replace(">>> ",'')
+                sourcefile = "v1.py"
+                Path(sourcefile).write_text(code)
+                # compiled = compile(code, sourcefile, mode="exec")
+                # exec(compiled)
+        except Exception as e:
+            print(e)
+
+
+def strip_code_prompts(rst_string):
+    """Removes >>> and ... prompts from code blocks in examples."""
+    return (
+        rst_string.replace("&gt;&gt;&gt; ", "")
+        .replace("&gt;&gt;&gt;\n", "\n")
+        .replace("\n... ", "\n")
+        .replace("\n...", "\n")
+    )
 
 
 def get_sig_string_without_annots(func):
@@ -160,9 +209,9 @@ def parse_rst(rst_string):
 
 
 # ds.sidebar().list(dir(obj))
-sb = ds.sidebar()
+# sb = ds.sidebar()
 
-selected_menu = sb.menu(
+selected_menu = ds.sidebar().menu(
     [m for m in dir(obj) if not m.startswith("_")],
     default_value="write",
     on_change=generate_doc,

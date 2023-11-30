@@ -11,6 +11,7 @@ import time, threading
 from pathlib import Path
 from varname import argname
 from varname import varname
+from typing import Optional, Callable, Tuple
 
 # from datastack.server.server import seesion_mgr
 
@@ -64,46 +65,71 @@ class datastack:
     def dynamic_widget_id(self):
         return str(time.time_ns())
 
-    #  change to on_click = function name and on_click_source = function code
-    #  move frame logic to somewhere else
-    def button(self, name, on_click="", args={}, id=""):
+    def button(
+        self,
+        name: str,
+        on_click: Optional[callable] = None,
+        args: Optional[Tuple] = None,
+        id: Optional[str] = None,
+    ):
+        """Button widget.
 
+        Parameters
+        ----------
+        name : str
+            A name of button, clerly explain the purpouse of button to user.
+
+        on_click : callable
+            callable function to invoke when button is clicked
+
+        args : tuple
+            An optional tuple of args to pass to the callback.
+
+        Examples
+        --------
+        Simple button
+
+        >>> ds.button('Click')
+
+        Button on_click
+
+        >>> def click():
+        ...     ds.write('button clicked')
+        >>> ds.button('Click', on_click=click)
         """
-        on_click = function name
-        on_click_source = function source code
-        title_var = variable name for title
-        """
-        frame = inspect.currentframe()
-        frame = inspect.getouterframes(frame)[1]
-        string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        args1 = string.replace(".sidebar(", "")[string.find("(") + 1 : -1].split(",")
+        # frame = inspect.currentframe()
+        # frame = inspect.getouterframes(frame)[1]
+        # string = inspect.getframeinfo(frame[0]).code_context[0].strip()
+        # args1 = string.replace(".sidebar(", "")[string.find("(") + 1 : -1].split(",")
         # print('button_args', args)
-        if on_click:
-            click_fn = inspect.getsource(on_click)
-            click_fn_name = args1[1].split("=")[1]
-        else:
-            click_fn = ""
-            click_fn_name = ""
+        # if on_click:
+        #     click_fn = inspect.getsource(on_click)
+        #     click_fn_name = args1[1].split("=")[1]
+        # else:
+        #     click_fn = ""
+        #     click_fn_name = ""
 
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "button",
             "prop": {
                 "title": name,
-                "on_change_source": click_fn,
-                "title_var": args1[0],
+                # "on_change_source": click_fn,
+                "title_var": argname("name", func=self.button),
                 "args": args,
             },
         }
         try:
-            block["prop"]["on_change"] = argname("on_click", vars_only=True)
+            block["prop"]["on_change"] = argname(
+                "on_click", vars_only=True, func=self.button
+            )
         except:
             pass
 
-        try:
-            block["prop"].update(args_var=string.split("args=")[1])
-        except:
-            pass
+        # try:
+        #     block["prop"].update(args_var=string.split("args=")[1])
+        # except:
+        #     pass
         if not self.replace_block(id, block):
             self.append_block(block)
 
@@ -307,9 +333,12 @@ class datastack:
             pass
 
         try:
-            block["prop"]["on_change"] = argname("on_change", vars_only=False)
-        except:
-            pass
+            # print('menu on change',argname("on_change", func=self.menu))
+            block["prop"]["on_change"] = argname("on_change", func=self.menu)
+
+        except Exception as e:
+            print(e)
+
         if not self.replace_block(id, block):
             self.append_block(block)
 
@@ -535,7 +564,7 @@ class datastack:
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "html",
-            "prop": {"data": html, "data_var": argname("html")},
+            "prop": {"data": html, "data_var": argname("html", vars_only=False)},
         }
         if not self.replace_block(id, block):
             self.append_block(block)
