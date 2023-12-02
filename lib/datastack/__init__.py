@@ -1,6 +1,7 @@
-from datastack.server.ds_class import datastack
+from datastack.stacker.stacker import datastack
 import threading
-print('init thread: ',threading.current_thread())
+
+print("init thread: ", threading.current_thread())
 
 datastack = datastack
 # main = datastack(main=True)
@@ -42,4 +43,3 @@ datastack = datastack
 # tag = main.tag
 # notification = main.notification
 # update_app_state = main.update_app_state
-

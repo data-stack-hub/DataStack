@@ -1,7 +1,8 @@
 import uuid
-from datastack.server.ds_class import datastack
+from datastack.stacker.stacker import datastack
 import importlib, os, threading
-from datastack.server import ds_class
+
+# from datastack.server import ds_class
 from datastack.runtime import runtime
 from datastack.logger import logger
 from datastack.server import utils
@@ -9,6 +10,8 @@ from pathlib import Path
 import sys
 from io import StringIO
 from contextlib import redirect_stdout
+
+from datastack import util
 
 
 class SessionManager:
@@ -53,14 +56,16 @@ class AppSession:
         self.my_module = getattr(self.script_thread, "my_module")
         # print('my module post ', self.my_module.__dict__)
         # print('post vars',{k: v for k, v in self.my_module.__dict__.items() if not k.startswith("__")})
-        for a, b in {
-            k: v for k, v in self.my_module.__dict__.items() if not k.startswith("__")
-        }.items():
-            # print(type(b) == datastack , type(b), a,b)
-            if type(b) == datastack and b.main:
-                self.class_object_name = a
-                self.main_class = getattr(self.my_module, self.class_object_name)
-
+        # for a, b in {
+        #     k: v for k, v in self.my_module.__dict__.items() if not k.startswith("__")
+        # }.items():
+        #     # print(type(b) == datastack , type(b), a,b)
+        #     if type(b) == datastack and b.main:
+        #         self.class_object_name = a
+        #         self.main_class = getattr(self.my_module, self.class_object_name)
+        self.class_object_name, self.main_class = util.get_ds_class(
+            self.my_module, datastack, _type="old"
+        )
         # print('ds from thread', getattr(self.script_thread, 'ds'))
         # cls = getattr(self.script_thread, 'ds')
         # print('type: ', cls.build_app())

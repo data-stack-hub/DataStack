@@ -6,7 +6,7 @@
 
 datastack
 ====================================
-.. automodule:: datastack.server.ds_class
+.. automodule:: datastack.stacker.stacker
    :members:
    :undoc-members:
    :show-inheritance:

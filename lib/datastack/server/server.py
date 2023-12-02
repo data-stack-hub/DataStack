@@ -259,10 +259,10 @@ def run_fn():
             print(fn)
             try:
                 block = session.main_class.get_app_block_by_id(request.json["id"])[0]
-                # print('block',block)
+                print("block", block)
                 if block["type"] == "chart":
                     fn(request.json["payload"]["value"])
-                elif "args" in block["prop"]:
+                elif "args" in block["prop"] and block["prop"]["args"] is not None:
                     fn(*tuple(block["prop"]["args"]))
                 else:
                     fn()
