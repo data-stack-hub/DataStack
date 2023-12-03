@@ -11,7 +11,7 @@ import time, threading
 from pathlib import Path
 from varname import argname
 from varname import varname
-from typing import Optional, Callable, Tuple
+from typing import Iterable, Optional, Callable, Tuple
 
 # from datastack.server.server import seesion_mgr
 
@@ -97,17 +97,6 @@ class datastack:
         ...     ds.write('button clicked')
         >>> ds.button('Click', on_click=click)
         """
-        # frame = inspect.currentframe()
-        # frame = inspect.getouterframes(frame)[1]
-        # string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        # args1 = string.replace(".sidebar(", "")[string.find("(") + 1 : -1].split(",")
-        # print('button_args', args)
-        # if on_click:
-        #     click_fn = inspect.getsource(on_click)
-        #     click_fn_name = args1[1].split("=")[1]
-        # else:
-        #     click_fn = ""
-        #     click_fn_name = ""
 
         block = {
             "id": id if id else self.dynamic_widget_id(),
@@ -121,79 +110,112 @@ class datastack:
         }
         try:
             block["prop"]["on_change"] = argname(
-                "on_click", vars_only=True, func=self.button
+                "on_click", vars_only=False, func=self.button
             )
         except:
             pass
 
-        # try:
-        #     block["prop"].update(args_var=string.split("args=")[1])
-        # except:
-        #     pass
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def input(self, value="", id="", on_change="", args={}):
-        frame = inspect.currentframe()
-        frame = inspect.getouterframes(frame)[1]
-        string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        # args = string[string.find('(') + 1:-1].split(',')
-        if on_change:
-            change_fn = inspect.getsource(on_change)
-            change_fn_name = (
-                string[string.find("on_change=") + 10 : -1]
-                .split(",")[0]
-                .replace("on_change=", "")
-                .replace(" ", "")
-            )
-        else:
-            change_fn = ""
-            change_fn_name = ""
+    def input(
+        self,
+        label: str,
+        value: str | None = "",
+        id: Optional[str] = None,
+        on_change: Optional[callable] = "",
+        args: Optional[Tuple] = None,
+    ):
+        """Display a single-line text input widget
+
+        Parameters
+        ----------
+
+        label : str
+            A short label explaining to the user what this input is for.
+
+        value : str or None
+            The text value of this element when it first renders.
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+
+        on_change : callable
+            An option callback invoked when this text input's value chnages.
+
+        args : dict
+            An optional tuple of args to pass to the callback
+        """
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "input",
             "prop": {
                 "value": value,
-                "value_var": self.get_value_assign_var(inspect.currentframe().f_back),
-                "on_change": change_fn_name,
                 "args": args,
             },
         }
+        try:
+            block["prop"]["on_change"] = argname(
+                "on_click", vars_only=False, func=self.input
+            )
+        except:
+            pass
+
+        try:
+            block["prop"]["value_var"] = varname()
+        except:
+            pass
+
         if not self.replace_block(id, block):
             self.append_block(block)
         return value
 
     def divider(self):
+        """A divider line separates different content."""
+
         block = {"id": self.dynamic_widget_id(), "type": "divider", "prop": {}}
         self.append_block(block)
 
-    def header(self, data, id=""):
-        import threading
+    def header(self, data, id: Optional[str] = None):
+        """Display text in header formatting.
 
-        print("header thread: ", threading.current_thread())
-        frame = inspect.currentframe()
-        frame = inspect.getouterframes(frame)[1]
-        string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        # print(string)
-        # args = string[string.find('.header(') + 7:-1].split(',')
+        Parameters
+        ----------
+
+        data : str
+            The text to display
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+        """
+
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "header",
             "prop": {"data": data, "data_var": str(argname("data", vars_only=False))},
         }
+
         try:
             block["prop"]["data_var"] = argname("data")
         except:
             pass
+
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def subheader(self, data, id=""):
-        frame = inspect.currentframe()
-        frame = inspect.getouterframes(frame)[1]
-        string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        # print(string)
-        # args = string[string.find('.header(') + 7:-1].split(',')
+    def subheader(self, data, id: Optional[str] = None):
+        """Display text in subheader formatting.
+
+        Parameters
+        ----------
+
+        data : str
+            The text to display
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+        """
+
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "subheader",
@@ -203,30 +225,36 @@ class datastack:
             self.append_block(block)
 
     def select(
-        self, label="", options=[], on_change="", default_value=0, id="", args={}
+        self,
+        label: str,
+        options: Iterable = [],
+        value: str | None = "",
+        id: Optional[str] = None,
+        on_change: Optional[callable] = "",
+        args: Optional[Tuple] = None,
     ):
-        from varname import varname
+        """Select component to select value from options
 
-        # list options args to be corrected
-        # print(varname())
-        frame = inspect.currentframe()
-        frame = inspect.getouterframes(frame)[1]
-        string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        # args = string[string.find('on_change=') + 6:-1].split(',')
-        # print('selected arge',type(args), args)
-        # print('assigned var', self.get_value_assign_var(inspect.currentframe().f_back))
-        if on_change:
-            change_fn = inspect.getsource(on_change)
-            change_fn_name = (
-                string[string.find("on_change=") + 10 : -1]
-                .split(",")[0]
-                .replace("on_change=", "")
-                .replace(" ", "")
-            )
-        else:
-            change_fn = ""
-            change_fn_name = ""
-        from varname import argname
+        Paramaters
+        ----------
+        label : str
+            A short label explaining to the user what this input is for.
+
+        options : Itrerable
+            Options for select element.
+
+        value : str or None
+            The text value of this element when it first renders.
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+
+        on_change : callable
+            An option callback invoked when this text input's value chnages.
+
+        args : dict
+            An optional tuple of args to pass to the callback
+        """
 
         block = {
             "id": id if id else self.dynamic_widget_id(),
@@ -234,34 +262,67 @@ class datastack:
             "prop": {
                 "options": [opt for opt in options],
                 "label": label,
-                "value": default_value,
-                "value_var": varname(),  # self.get_value_assign_var(inspect.currentframe().f_back),
-                # "on_change":argname('on_change') or '',
+                "value": value,
+                "value_var": varname(),
                 "args": args,
             },
         }
+
         try:
-            block["prop"]["on_change"] = argname("on_change")
+            block["prop"]["on_change"] = argname(
+                "on_change", vars_only=False, func=self.select
+            )
         except:
             print("error on change function")
+
         try:
-            print(argname("options", vars_only=False))
             block["prop"]["options_var"] = str(argname("options", vars_only=False))
-            print(block)
         except Exception as e:
             print(e)
-        # print('selec comp', component)
-        self.append_block(block)
-        return default_value
 
-    def radio_button(self, options=[], default_value="", on_change="", label="", id=""):
+        if not self.replace_block(id, block):
+            self.append_block(block)
+        return value
+
+    def radio_button(
+        self,
+        label: str,
+        options: Iterable = [],
+        value: str | None = "",
+        id: Optional[str] = None,
+        on_change: Optional[callable] = "",
+        args: Optional[Tuple] = None,
+    ):
+        """Display a radio button element
+
+        Parameters
+        ----------
+
+        label : str
+            A short label explaining to the user what this input is for.
+
+        options : Itrerable
+            Options for select element.
+
+        value : str or None
+            The text value of this element when it first renders.
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+
+        on_change : callable
+            An option callback invoked when this text input's value chnages.
+
+        args : dict
+            An optional tuple of args to pass to the callback
+        """
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "radio_button",
             "prop": {
                 "options": [opt for opt in options],
                 "label": label,
-                "value": default_value,
+                "value": value,
                 "on_change": "" if on_change == "" else argname("on_change"),
             },
         }
@@ -269,62 +330,103 @@ class datastack:
             block["prop"]["value_var"] = varname()
         except:
             pass
+
         try:
-            block["prop"]["options_var"] = str(argname("options", vars_only=False))
+            block["prop"]["options_var"] = str(
+                argname("options", vars_only=True, func=self.radio_button)
+            )
         except:
             print()
 
         if not self.replace_block(id, block):
             self.append_block(block)
-        return default_value
+        return value
 
     def list(
         self,
-        data,
-        on_click="",
-        id="",
-        slot_start="",
-        slot_end="",
+        data: Iterable = [],
+        on_click: Optional[Callable] = None,
+        id: Optional[str] = None,
+        slot_start: Optional[str] = None,
+        slot_end: Optional[str] = None,
     ):
-        frame = inspect.currentframe()
-        frame = inspect.getouterframes(frame)[1]
-        string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        args = string[string.find("on_click=") + 9 : -1].split(",")
-        args_options = string[
-            string.find("(") + 1 : string.find(", on_click=")
-        ].replace(").list(", "")
-        # .replace(',','').replace(' ','')
-        if on_click:
-            click_fn = inspect.getsource(on_click)
-            click_fn_name = args[0]
-        else:
-            click_fn = ""
-            click_fn_name = ""
+        """Display list element
+
+        Parameters
+        ----------
+
+        data : Iterable
+            Iterable list to display
+
+        on_click : Callable
+            An option callback invoked when this list is clicked.
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+
+        slot_start :  str
+            data top be diplay at the beginning of the list
+
+        slot_end : str
+            data to be dipalay at the end of the list
+        """
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "list",
             "prop": {
                 "data": data,
                 "value": "",
-                "value_var": self.get_value_assign_var(inspect.currentframe().f_back),
-                "on_change": click_fn_name,
-                "on_change_source": click_fn,
                 "slot_start": slot_start,
                 "slot_end": slot_end,
             },
         }
+        try:
+            block["prop"]["on_change"] = argname(
+                "on_change", vars_only=False, func=self.list
+            )
+        except:
+            pass
+
+        try:
+            block["prop"]["value_var"] = varname()
+        except:
+            pass
 
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def menu(self, data, default_value="", on_change="", id=""):
-        print("adding menu block")
+    def menu(
+        self,
+        data: Iterable,
+        value: Optional[str] = None,
+        id: Optional[str] = None,
+        on_change: Optional[callable] = None,
+    ):
+        """Display menu
+
+        parameters
+        ----------
+
+        data : Iterable
+            data to be displayed in the menu.
+
+        value : str or None
+            The text value of this element when it first renders.
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+
+        on_change : callable
+            An option callback invoked when this text input's value chnages.
+
+        """
+
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "menu",
             "prop": {
                 "data": data,
-                "value": default_value,
+                "value": value,
             },
         }
         try:
@@ -333,62 +435,86 @@ class datastack:
             pass
 
         try:
-            # print('menu on change',argname("on_change", func=self.menu))
-            block["prop"]["on_change"] = argname("on_change", func=self.menu)
+            block["prop"]["on_change"] = argname(
+                "on_change", vars_only=False, func=self.menu
+            )
 
         except Exception as e:
             print(e)
 
         if not self.replace_block(id, block):
             self.append_block(block)
+        return value
 
-    def notification(self, data):
+    def notification(self, data: str):
+        """Diaplay a short message
+
+        Parameters
+        ----------
+
+        data : str
+            The string to display
+        """
         data["notification_id"] = self.dynamic_widget_id()
         self.app["appstate"]["notifications"].append(data)
-        print("notification added", self.app["appstate"]["notifications"])
 
     def clear_notifications(self):
+        """Clear all notifications"""
         self.app["appstate"]["notifications"] = []
 
-    def get_value_assign_var(self, f):
-        import dis
+    # def get_value_assign_var(self, f):
+    #     import dis
 
+    #     """
+    #     # method 1
+    #     frame = inspect.currentframe()
+    #     frame = inspect.getouterframes(frame)[1]
+    #     s = inspect.getframeinfo(frame[0])
+    #     code = inspect.currentframe().f_back.f_code
+    #     print('code', dis.code_info(code))
+
+    #     it = iter(dis.get_instructions(code))
+    #     for instr in it:
+    #         if instr.offset == inspect.currentframe().f_back.f_lasti:
+    #             print('inspect',instr)
+    #             break
+    #     assert instr.opname.startswith('CALL_')
+    #     print(next(it).argval)
+    #     """
+
+    #     # method 2
+    #     import sys
+
+    #     # f = inspect.currentframe().f_back # get stack frame of caller (depth=1)
+    #     # next op should be STORE_NAME (current op calls the constructor)
+    #     opname = dis.opname[f.f_code.co_code[f.f_lasti + 2]]
+    #     # print('opname',opname)
+    #     if (
+    #         opname == "STORE_NAME" or opname == "STORE_GLOBAL"
+    #     ):  # not all objects will be assigned a name
+    #         # STORE_NAME argument is the name index
+    #         namei = f.f_code.co_code[f.f_lasti + 3]
+    #         name = f.f_code.co_names[namei]
+    #         # print('is this?', name)
+    #         return name
+    #     else:
+    #         return None
+
+    def table(self, data, column_definition: dict = {}, id: Optional[str] = None):
+        """Display a dataframe as an interactive table.
+
+        parameters
+        ----------
+
+        data : pandas.DataFrame
+            The data to display.
+
+        column_defination : dict
+            define columns
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
         """
-        # method 1
-        frame = inspect.currentframe()
-        frame = inspect.getouterframes(frame)[1]
-        s = inspect.getframeinfo(frame[0])
-        code = inspect.currentframe().f_back.f_code
-        print('code', dis.code_info(code))
-
-        it = iter(dis.get_instructions(code))
-        for instr in it:
-            if instr.offset == inspect.currentframe().f_back.f_lasti:
-                print('inspect',instr)
-                break
-        assert instr.opname.startswith('CALL_')
-        print(next(it).argval)
-        """
-
-        # method 2
-        import sys
-
-        # f = inspect.currentframe().f_back # get stack frame of caller (depth=1)
-        # next op should be STORE_NAME (current op calls the constructor)
-        opname = dis.opname[f.f_code.co_code[f.f_lasti + 2]]
-        # print('opname',opname)
-        if (
-            opname == "STORE_NAME" or opname == "STORE_GLOBAL"
-        ):  # not all objects will be assigned a name
-            # STORE_NAME argument is the name index
-            namei = f.f_code.co_code[f.f_lasti + 3]
-            name = f.f_code.co_names[namei]
-            # print('is this?', name)
-            return name
-        else:
-            return None
-
-    def table(self, data, column_definition={}, id=""):
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "table",
@@ -401,7 +527,18 @@ class datastack:
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def dataframe(self, data, id=""):
+    def dataframe(self, data, id: Optional[str] = None):
+        """Display dataframe
+
+        Parameters
+        ----------
+
+        data : pandas.DataFrame
+            The data to display
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+        """
         if "id" not in data.columns:
             data["id"] = np.arange(data.shape[0])
         block = {
@@ -427,149 +564,72 @@ class datastack:
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def write(self, data, location="", id=""):
+    def write(self, data, id: Optional[str] = None):
         """
-        Write arguments to the app.
-
-        This is the Swiss Army knife of Streamlit commands: it does different
-        things depending on what you throw at it. Unlike other Streamlit commands,
-        write() has some unique properties:
-
-        1. You can pass in multiple arguments, all of which will be written.
-        2. Its behavior depends on the input types as follows.
-        3. It returns None, so its "slot" in the App cannot be reused.
+        Write text to the app.
 
         Parameters
         ----------
-        *args : any
-            One or many objects to print to the App.
+        data : str
+            text to display
 
-            Arguments are handled as follows:
-
-            - write(string)     : Prints the formatted Markdown string, with
-                support for LaTeX expression, emoji shortcodes, and colored text.
-                See docs for st.markdown for more.
-            - write(data_frame) : Displays the DataFrame as a table.
-            - write(error)      : Prints an exception specially.
-            - write(func)       : Displays information about a function.
-            - write(module)     : Displays information about the module.
-            - write(class)      : Displays information about a class.
-            - write(dict)       : Displays dict in an interactive widget.
-            - write(mpl_fig)    : Displays a Matplotlib figure.
-            - write(altair)     : Displays an Altair chart.
-            - write(keras)      : Displays a Keras model.
-            - write(graphviz)   : Displays a Graphviz graph.
-            - write(plotly_fig) : Displays a Plotly figure.
-            - write(bokeh_fig)  : Displays a Bokeh figure.
-            - write(sympy_expr) : Prints SymPy expression using LaTeX.
-            - write(htmlable)   : Prints _repr_html_() for the object if available.
-            - write(obj)        : Prints str(obj) if otherwise unknown.
-
-        unsafe_allow_html : bool
-            This is a keyword-only argument that defaults to False.
-
-            By default, any HTML tags found in strings will be escaped and
-            therefore treated as pure text. This behavior may be turned off by
-            setting this argument to True.
-
-            That said, *we strongly advise against it*. It is hard to write secure
-            HTML, so by using this argument you may be compromising your users'
-            security. For more information, see:
-
-            https://github.com/streamlit/streamlit/issues/152
+        id : str
+            An optional string or integer to use as the unique key for the element.
 
         Example
         -------
 
-        Its basic use case is to draw Markdown-formatted text, whenever the
-        input is a string:
+        Basic use case
 
-        >>> import streamlit as st
-        >>>
-        >>> st.write('Hello, *World!* :sunglasses:')
-
-        ..  output::
-            https://doc-write1.streamlit.app/
-            height: 150px
-
-        As mentioned earlier, ``st.write()`` also accepts other data formats, such as
-        numbers, data frames, styled data frames, and assorted objects:
-
-        >>> import streamlit as st
-        >>> import pandas as pd
-        >>>
-        >>> st.write(1234)
-        >>> st.write(pd.DataFrame({
-        ...     'first column': [1, 2, 3, 4],
-        ...     'second column': [10, 20, 30, 40],
-        ... }))
-
-        ..  output::
-            https://doc-write2.streamlit.app/
-            height: 350px
-
-        Finally, you can pass in multiple arguments to do things like:
-
-        >>> import streamlit as st
-        >>>
-        >>> st.write('1 + 1 = ', 2)
-        >>> st.write('Below is a DataFrame:', data_frame, 'Above is a dataframe.')
-
-        ..  output::
-            https://doc-write3.streamlit.app/
-            height: 410px
-
-        Oh, one more thing: ``st.write`` accepts chart objects too! For example:
-
-        >>> import streamlit as st
-        >>> import pandas as pd
-        >>> import numpy as np
-        >>> import altair as alt
-        >>>
-        >>> df = pd.DataFrame(
-        ...     np.random.randn(200, 3),
-        ...     columns=['a', 'b', 'c'])
-        ...
-        >>> c = alt.Chart(df).mark_circle().encode(
-        ...     x='a', y='b', size='c', color='c', tooltip=['a', 'b', 'c'])
-        >>>
-        >>> st.write(c)
-
-        ..  output::
-            https://doc-vega-lite-chart.streamlit.app/
-            height: 300px
+        >>> ds.write('Hello, World!')
 
         """
-        frame = inspect.currentframe()
-        frame = inspect.getouterframes(frame)[1]
-        string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        # print(string)
-        args = string[string.find(".write(") + 7 : -1].split(",")
-
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "text",
-            "location": location,
-            "prop": {"data": data, "data_var": args[0]},
+            "prop": {
+                "data": data,
+                "data_var": argname("data", vars_only=False, func=self.write),
+            },
         }
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def html(self, html, id=""):
-        frame = inspect.currentframe()
-        frame = inspect.getouterframes(frame)[1]
-        string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        args = string[string.find("(") + 1 : -1].split(",")
+    def html(self, html: str, id: Optional[str] = None):
+        """Diapy html element
+
+        Parameters
+        ----------
+        html : str
+            html string
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+        """
 
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "html",
-            "prop": {"data": html, "data_var": argname("html", vars_only=False)},
+            "prop": {
+                "data": html,
+                "data_var": argname("html", vars_only=False, func=self.html),
+            },
         }
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def markdown(self, data, id=""):
+    def markdown(self, data: str, id: Optional[str] = None):
+        """Diaply markdown text
+
+        parameters
+        ----------
+
+        data : str
+            data to diaply
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+        """
         block = {
             "id": self.dynamic_widget_id(),
             "type": "markdown",
@@ -578,27 +638,41 @@ class datastack:
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def tag(self, data):
+    def tag(self, data: str):
+        """Display tag element
+
+        Paramaters
+        ----------
+
+        data : str
+            text to disply inside tag element
+        """
         block = {"id": self.dynamic_widget_id(), "type": "tag", "prop": {"data": data}}
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def cache_data(self, func):
+    def cache_data(self, func: callable):
+        """Decorator to cache functions that return data
+
+        parameters
+        ----------
+
+        func :  callable
+            the function to cache
+        """
+
         def inner1(*args, **kwargs):
-            print("before execution")
             arg_pairs = []
             for arg_idx in range(len(args)):
                 arg_name = self._get_positional_arg_name(func, arg_idx)
                 arg_pairs.append((arg_name, args[arg_idx]))
             for kw_name, kw_val in kwargs.items():
                 arg_pairs.append((kw_name, kw_val))
-            print("functions args", arg_pairs)
             args_hasher = hashlib.new("md5")
             for s1, s2 in arg_pairs:
                 args_hasher.update(s1.encode())
                 args_hasher.update(s2.encode())
             args_hash = args_hasher.hexdigest()
-            print("args_hash", args_hash)
 
             func_hasher = hashlib.new("md5")
             source_code = inspect.getsource(func)
@@ -606,21 +680,16 @@ class datastack:
             func_hasher.update(func.__qualname__.encode())
             func_hasher.update(source_code.encode())
             func_hash = func_hasher.hexdigest()
-            print("function  hash ", func_hash)
 
             try:
                 cache_class = caching.cache_storage[func_hash]
 
                 return_value = cache_class.mem_cache_get(args_hash)
-                print("cache hit")
 
             except:
-                print("miss")
                 return_value = func(*args, **kwargs)
                 cache_class = caching.Cache_data(func_hash)
                 cache_class.mem_cache_set(args_hash, return_value)
-            # print(return_value)
-            print("after execution")
             return return_value
 
         return inner1
@@ -683,16 +752,36 @@ class datastack:
         self.append_block(block)
 
     def sidebar(self):
+        """Sidebar"""
         cls = datastack(type="sidebar")
         self.append_block(cls, "sidebar")
         return cls
 
-    def expander(self, name):
+    def expander(self, name: str):
+        """A content area which can be collapsed and expanded.
+
+        Paramters
+        ---------
+
+        name : str
+            name of the expander
+        """
         cls = datastack(type="expander", title=name)
         self.append_block(cls)
         return cls
 
-    def columns(self, col_number, id=""):
+    def columns(self, col_number: int, id: Optional[str] = None):
+        """Insert containers laid out as side-by-side columns
+
+        Parameters
+        ----------
+
+        col_number : int
+            number of columns required
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+        """
         cols = [datastack(type="column") for x in range(0, col_number)]
         block = {
             "id": id if id else self.dynamic_widget_id(),
@@ -703,7 +792,18 @@ class datastack:
         self.append_block(block)
         return cols
 
-    def tabs(self, tab_list, id=""):
+    def tabs(self, tab_list: Iterable, id: Optional[str] = None):
+        """Insert containers separated into tabs.
+
+        Parameters
+        ----------
+
+        tab_list :  iterable
+            list of tabs to diaplay
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+        """
         tab = [
             datastack(type="tab", title=tab_list[x]) for x in range(0, len(tab_list))
         ]
@@ -716,7 +816,34 @@ class datastack:
         self.append_block(block)
         return tab
 
-    def slider(self, min, max, value, id=""):
+    def slider(
+        self,
+        min: int,
+        max: int,
+        value: int,
+        id: Optional[str] = None,
+        on_change: Optional[callable] = None,
+    ):
+        """Display a slider element.
+
+        Parameters
+        ----------
+
+        min : int
+            minimum value of slider
+
+        max : int
+            maximum value of slider
+
+        value : str or None
+            The text value of this element when it first renders.
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+
+        on_change : callable
+            An option callback invoked when this text input's value chnages.
+        """
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "slider",
@@ -724,11 +851,23 @@ class datastack:
                 "min": min,
                 "max": max,
                 "value": value,
-                "value_var": self.get_value_assign_var(inspect.currentframe().f_back),
-                "on_change": "update_var",
             },
         }
-        self.append_block(block)
+
+        try:
+            block["prop"]["on_change"] = argname(
+                "on_change", vars_only=False, func=self.select
+            )
+        except:
+            print("error on change function")
+
+        try:
+            block["prop"]["value_var"] = str(argname("value", vars_only=False))
+        except Exception as e:
+            print(e)
+
+        if not self.replace_block(id, block):
+            self.append_block(block)
 
     def date_input(
         self,
@@ -739,21 +878,40 @@ class datastack:
         date_format: str = "yyyy-MM-dd",
         use_container_width: bool = False,
         disabled: bool = False,
-        id="",
+        id: Optional[str] = None,
+        on_change: Optional[callable] = None,
     ):
-        """
-        label (str) : A short label explaining to the user what this date input is for.
-
-        value (str): The value of this widget when it first renders (ex.: 2023-01-01).
-        min (str) : The minimum selectable date (ex.: 2023-01-01).
-        max (str) : The maximum selectable date (ex.: 2023-01-01).
-        date_format (str) : To set the date format (ex.: dd-MMM-yyyy).
-        use_container_width (bool) : An optional boolean, which makes the date picker stretch its width to match the parent container.
-        disabled (bool) : An optional boolean, which disables the date input if set to True. The default is False.
+        """Display a date input element.
 
         Parameters
         ----------
-        *args : any
+        label : str
+            A short label explaining to the user what this date input is for.
+
+        value : str
+            The value of this widget when it first renders (ex.: 2023-01-01).
+
+        min : str
+            The minimum selectable date (ex.: 2023-01-01).
+
+        max : str
+            The maximum selectable date (ex.: 2023-01-01).
+
+        date_format : str
+            To set the date format (ex.: dd-MMM-yyyy).
+
+        use_container_width : bool
+            An optional boolean, which makes the date picker stretch its width to match the parent container.
+
+        disabled : bool
+            An optional boolean, which disables the date input if set to True. The default is False.
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+
+        on_change : callable
+            An option callback invoked when this text input's value chnages.
+
         """
         block = {
             "id": id if id else self.dynamic_widget_id(),
@@ -766,13 +924,37 @@ class datastack:
                 "max": max,
                 "use_container_width": use_container_width,
                 "disabled": disabled,
-                "value_var": self.get_value_assign_var(inspect.currentframe().f_back),
-                "on_change": "update_var",
             },
         }
-        self.append_block(block)
 
-    def success(self, text: str = None, id=""):
+        try:
+            block["prop"]["on_change"] = argname(
+                "on_change", vars_only=False, func=self.select
+            )
+        except:
+            print("error on change function")
+
+        try:
+            block["prop"]["value_var"] = str(argname("value", vars_only=False))
+        except Exception as e:
+            print(e)
+
+        if not self.replace_block(id, block):
+            self.append_block(block)
+
+    def success(self, text: str = None, id: Optional[str] = None):
+        """Display an informational message.
+
+        Parameters
+        ----------
+
+        text : str
+            The success text to display
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+        """
+
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "success",
@@ -782,7 +964,18 @@ class datastack:
         }
         self.append_block(block)
 
-    def info(self, text: str = None, id=""):
+    def info(self, text: str = None, id: Optional[str] = None):
+        """Display an informational message.
+
+        Parameters
+        ----------
+
+        text : str
+            The info text to display
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+        """
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "info",
@@ -792,7 +985,19 @@ class datastack:
         }
         self.append_block(block)
 
-    def warning(self, text: str = None, id=""):
+    def warning(self, text: str = None, id: Optional[str] = None):
+        """Display an warning message.
+
+        Parameters
+        ----------
+
+        text : str
+            The info text to display
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+        """
+
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "warning",
@@ -802,7 +1007,19 @@ class datastack:
         }
         self.append_block(block)
 
-    def error(self, text: str = None, id=""):
+    def error(self, text: str = None, id: Optional[str] = None):
+        """Display an error message.
+
+        Parameters
+        ----------
+
+        text : str
+            The info text to display
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+        """
+
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "error",
@@ -812,23 +1029,40 @@ class datastack:
         }
         self.append_block(block)
 
-    # # @classmethod
-    # @contextmanager
     def container(self):
-        # prevent nesting insider the layout element
+        """Insert a multi-element container."""
         cls = datastack(type="container")
         self.append_block(cls)
         return cls
 
-    def page(self, path):
+    def page(self, path: str):
+        """create a new page
+
+        Parameters
+        ----------
+
+        path : str
+            Path of page
+        """
         cls = datastack(type="page", path=path)
         self.append_block(cls, "pages")
         return cls
 
-    def code(self, data, key, id=""):
+    def code(self, data: str, id: Optional[str] = None):
+        """Dispay code element
+
+        Parameters
+        ----------
+        data : str
+            Code as string to display
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+        """
+        id = id if id else self.dynamic_widget_id()
         block = {
-            "id": id if id else self.dynamic_widget_id(),
-            "wid": key,
+            "id": id,
+            "wid": id,
             "type": "code",
             "prop": {"code": data},
         }
@@ -845,11 +1079,9 @@ class datastack:
                 b = json.loads(f.read())
             except:
                 b = {}
-        if key in b:
-            block["prop"]["code"] = b[key]["block"]["prop"]["code"]
-            block["prop"]["last_run_result"] = b[key]["block"]["prop"][
-                "last_run_result"
-            ]
+        if id in b:
+            block["prop"]["code"] = b[id]["block"]["prop"]["code"]
+            block["prop"]["last_run_result"] = b[id]["block"]["prop"]["last_run_result"]
         self.append_block(block)
         return ""
 
@@ -862,7 +1094,18 @@ class datastack:
         self.append_block(block)
         return ""
 
-    def image(self, data, id=""):
+    def image(self, data, id: Optional[str] = None):
+        """Diaplay an image
+
+        Parameters
+        ----------
+
+        data : ImageFile
+            image data to diaplay
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+        """
         import io
         import base64
 
@@ -881,37 +1124,67 @@ class datastack:
             self.append_block(block)
 
     def pyplot(self, fig):
+        """Display a matplotlib.pyplot figure.
+
+        Parameters
+        ----------
+        fig : Matplotlib Figure
+            The figure to plot.
+        """
         import io
 
         image = io.BytesIO()
         fig.savefig(image)
         self.image(image)
 
-    def iframe(self, url, id=""):
-        frame = inspect.currentframe()
-        frame = inspect.getouterframes(frame)[1]
-        string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        args = string[string.find("(") + 1 : -1].split(",")
+    def iframe(self, url: str, id: Optional[str]):
+        """Display iframe element
 
+        Parameters
+        ----------
+
+        url : str
+            url for iframe
+        """
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "iframe",
-            "prop": {"url": url, "url_var": args[0]},
+            "prop": {
+                "url": url,
+                "url_var": argname("url", vars_only=False, func=self.iframe),
+            },
         }
-        self.append_block(block)
+        if not self.replace_block(id, block):
+            self.append_block(block)
 
-    def chart(self, data, on_click="", id=""):
+    def chart(
+        self, data, on_click: Optional[callable] = None, id: Optional[str] = None
+    ):
+        """Display plotly chart
+
+        Parameters
+        ----------
+
+        data : plotly data
+            plotly fig object to display chart
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+
+        """
         import json
         import plotly.tools
 
         fig = plotly.tools.return_figure_from_figure_or_data(data, validate_figure=True)
         fig = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-        from varname import argname
 
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "chart",
-            "prop": {"data": fig, "data_var": argname("data", vars_only=False)},
+            "prop": {
+                "data": fig,
+                "data_var": argname("data", vars_only=False, func=self.chart),
+            },
         }
 
         try:

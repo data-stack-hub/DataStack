@@ -108,8 +108,8 @@ def generate_doc():
                 from pathlib import Path
 
                 code = collapsed  # .replace(">>> ",'')
-                sourcefile = "v1.py"
-                Path(sourcefile).write_text(code)
+                # sourcefile = "v1.py"
+                # Path(sourcefile).write_text(code)
                 # compiled = compile(code, sourcefile, mode="exec")
                 # exec(compiled)
         except Exception as e:
@@ -213,7 +213,7 @@ def parse_rst(rst_string):
 
 selected_menu = ds.sidebar().menu(
     [m for m in dir(obj) if not m.startswith("_")],
-    default_value="write",
+    value="write",
     on_change=generate_doc,
 )
 ds.header(selected_menu)
