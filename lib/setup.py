@@ -7,6 +7,8 @@ setuptools.setup(
     version="0.0.4",
     author="Vishal Vora, Mayur Pokiya, Karan Doshi",
     description="The Fastes way to build apps in python",
+    long_description_content_type="text/markdown",
+    long_description="Datastack package",
     entry_points={"console_scripts": ["datastack = datastack.cli:main"]},
     install_requires=[
         "click==8.1.3",
