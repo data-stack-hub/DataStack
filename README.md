@@ -3,7 +3,7 @@
 
 # Welcom to DataStack
 
-**The Fastes way to build apps in python**
+**The Fastest way to build apps in python**
 
 Datastack is an open-source framework that enables you to easily build real-time web apps, internal tools, dashboards, weekend projects, data entry forms, or prototypes using just Python—no frontend experience required.
 
@@ -17,7 +17,7 @@ pip install pydatastack
 ```
 pip install git+https://github.com/data-stack-hub/DataStack.git#subdirectory=lib
 ```
-or 
+or
 
 ```bash
 git clone https://github.com/data-stack-hub/DataStack.git
@@ -34,7 +34,7 @@ ds = datastack(main=True)
 
 ds.subheader('DataStack click counter app')
 
-count = 0 
+count = 0
 
 def inc_count():
     global count
