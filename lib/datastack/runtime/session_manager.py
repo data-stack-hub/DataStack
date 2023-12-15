@@ -54,25 +54,14 @@ class AppSession:
         #     if c.__dict__['session_id'] == self.id:
         #         self.main_class = c
         self.my_module = getattr(self.script_thread, "my_module")
-        # print('my module post ', self.my_module.__dict__)
-        # print('post vars',{k: v for k, v in self.my_module.__dict__.items() if not k.startswith("__")})
-        # for a, b in {
-        #     k: v for k, v in self.my_module.__dict__.items() if not k.startswith("__")
-        # }.items():
-        #     # print(type(b) == datastack , type(b), a,b)
-        #     if type(b) == datastack and b.main:
-        #         self.class_object_name = a
-        #         self.main_class = getattr(self.my_module, self.class_object_name)
-        self.class_object_name, self.main_class = util.get_ds_class(
-            self.my_module, datastack, _type="old"
-        )
-        # print('ds from thread', getattr(self.script_thread, 'ds'))
-        # cls = getattr(self.script_thread, 'ds')
-        # print('type: ', cls.build_app())
-        # print('runtime', runtime.return_collect_cls())
+        # print('thread var', getattr(self.script_thread, "test"))
 
-        # print(runtime.get_main_class.__dict__)
-        # print('thread attrib', getattr(self.script_thread, 'main'))
+        self.class_object_name = "STACKER_CLASS"
+        self.main_class = getattr(self.script_thread, "STACKER_CLASS")
+        setattr(self.my_module, self.class_object_name, self.main_class)
+        # self.class_object_name, self.main_class = util.get_ds_class(
+        #     self.my_module, datastack, _type="old"
+        # )
 
     def trashed_run_script(self):
         print(

@@ -187,7 +187,7 @@ export class AppComponent {
   str_to_json_fix(list){
     console.log(list)
     list.forEach(element => {
-      if (element['type']== 'dataframe' || element['type']== 'chart' || element['type']== 'table'){
+      if (false){
         element.prop.data = JSON.parse(element.prop.data)
         if (element['type'] == 'chart'){
           // element.prop.data.data[0].marker.size = 12
@@ -427,11 +427,13 @@ add_new_block(element:any, index:any=-1){
 
     });
 
-    e.onDidChangeContent((event)=>{
-      console.log(event)
-    })
+    // e.onDidChangeContent((event)=>{
+    //   console.log(event)
+    // })
     // this.editor.setModel(monaco.editor.createModel("console.log('Hello ng-zorro-antd')", 'typescript'));
-    console.log( e.getModel().getLineCount())
+    console.log( e.getModel().getLineCount(), e.getContentHeight())
+    this.height = e.getContentHeight() +20
+    // this.editor.layout()
   }
   rel(e){
     console.log('relouting code editor', e.getContentHeight())

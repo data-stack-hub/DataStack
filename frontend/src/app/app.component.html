@@ -145,7 +145,8 @@
       <div *ngIf="element.type == 'iframe'" style="height: 93vh">
         <iframe width="100%" height="100%" [src]="sanitizer.bypassSecurityTrustResourceUrl(element.prop.url)"></iframe>
       </div>
-      <div *ngIf ="element.type == 'container'">
+      <div *ngIf ="element.type == 'container'" style="border:1px solid rgba(49, 51, 63, 0.2); border-radius: 0.5rem;
+      padding: calc(1em - 1px); margin-top: 5px;margin-bottom: 5px;">
         <ng-container *ngTemplateOutlet="elements; context:{value:element.data}"></ng-container>
       </div>
       <div *ngIf ="element.type == 'column'" nz-row  style="padding-top: 10px;">
@@ -169,7 +170,7 @@
       </div>
 
       <div *ngIf ="element.type == 'menu' ">
-        <ul nz-menu >
+        <ul nz-menu [nzMode]="element.prop.mode">
           <li nz-menu-item *ngFor="let l of element.prop.data" (click)="menu_click(element, l)">{{l}}</li>
         </ul>
       </div>
@@ -245,13 +246,14 @@
         [dataset]="element.prop.data">
 </angular-slickgrid>
       </div>
-      <div *ngIf="element.type == 'code'">
-        <nz-code-editor style="border:1px solid" [style.height.px]="height" [(ngModel)]="element.prop.code" [nzEditorOption]="{ language: 'python',scrollbar: {vertical: 'hidden'} , minimap:{enabled:false}, automaticLayout: true,  wordWrap: 'on', scrollBeyondLastLine: false}" (nzEditorInitialized)="onEditorInit($event)"></nz-code-editor>
+      <div *ngIf="element.type == 'code'" style="border:1px solid rgba(49, 51, 63, 0.2); border-radius: 0.5rem;">
+      <app-code [block]="element"></app-code>
+        <!-- <nz-code-editor  [style.height.px]="height" [(ngModel)]="element.prop.code" [nzEditorOption]="{theme:'vs-dark',  language: 'python',scrollbar: {vertical: 'hidden'} , minimap:{enabled:false}, automaticLayout: true,  wordWrap: 'on', scrollBeyondLastLine: false}" (nzEditorInitialized)="onEditorInit($event)"></nz-code-editor> -->
 
         <!-- <textarea [(ngModel)]="element.prop.code" (input)="change_cell(element)" name="" id="" cols="30" rows="10" style="width: 100%;"></textarea> -->
-        <button (click)="run_block(element)">run</button>
+        <!-- <button (click)="run_block(element)">run</button>
         <div>{{element.prop.last_run_result}}</div>
-        <div>{{code_output}}</div>
+        <div>{{code_output}}</div> -->
       </div>
       <div *ngIf ="element.type == 'query'">
         <nz-code-editor style="border:1px solid" [style.height.px]="height" [(ngModel)]="element.prop.query" [nzEditorOption]="{ language: 'sql',scrollbar: {vertical: 'hidden'} , minimap:{enabled:false}, automaticLayout: true,  wordWrap: 'on', scrollBeyondLastLine: false}" (nzEditorInitialized)="onEditorInit($event)"></nz-code-editor>

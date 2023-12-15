@@ -67,6 +67,7 @@ def rerun(cls, my_module, session):
     # my_module.cls = cls
     # class_name = session.class_object_name
     # print('class_name',class_name)
+    print(session.main_class.rerun(a1))
     return json.dumps(session.main_class.rerun(a1), cls=NpEncoder)
 
 
@@ -220,8 +221,9 @@ def update_var_select(event):
 
 def run_fn():
     session = seesion_mgr.get_session(request.json["session_id"])
-
+    session.main_class.get_app_block_by_id(request.json["id"])
     my_module = session.my_module
+    print("name space", dir(my_module))
     main_class = getattr(my_module, session.class_object_name)
     print(session, main_class, my_module)
 
@@ -258,7 +260,7 @@ def run_fn():
             fn = getattr(my_module, request.json["prop"]["on_change"])
             print(fn)
             try:
-                block = session.main_class.get_app_block_by_id(request.json["id"])[0]
+                block = session.main_class.get_app_block_by_id(request.json["id"])
                 print("block", block)
                 if block["type"] == "chart":
                     fn(request.json["payload"]["value"])

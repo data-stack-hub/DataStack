@@ -5,7 +5,7 @@ from datastack.runtime import runtime
 from datastack.logger import logger
 from datastack.server import caching
 from datastack.connections.sql_connection import SQLConnection
-import uuid, os
+import uuid, os, json
 import numpy as np
 import time, threading
 from pathlib import Path
@@ -48,15 +48,20 @@ class datastack:
             "main_page": [],
             "pages": [],
             "appstate": {
-                "session_id": getattr(threading.current_thread(), "session_id"),
+                # "session_id": getattr(threading.current_thread(), "session_id"),
                 "notifications": [],
             },
         }
+
         self.blocks = {"sidebar": [], "main_page": [], "pages": []}
         self.state = {}
 
-        self.session_id = getattr(threading.current_thread(), "session_id")
-
+        if main:
+            self.session_id = getattr(threading.current_thread(), "session_id")
+            self.app["appstate"]["session_id"] = getattr(
+                threading.current_thread(), "session_id"
+            )
+            setattr(threading.current_thread(), "STACKER_CLASS", self)
         # to be checked if this is required
         # if main:
         #     runtime.set_main_class(self)
@@ -93,9 +98,14 @@ class datastack:
 
         Button on_click
 
+        >>> count = 0
+        >>>
         >>> def click():
-        ...     ds.write('button clicked')
+        ...     global count
+        ...     count += 1
+        >>>
         >>> ds.button('Click', on_click=click)
+        >>> ds.write('Count = {}'.format(count), id='count')
         """
 
         block = {
@@ -286,7 +296,7 @@ class datastack:
 
     def radio_button(
         self,
-        label: str,
+        label: str = "",
         options: Iterable = [],
         value: str | None = "",
         id: Optional[str] = None,
@@ -398,6 +408,7 @@ class datastack:
     def menu(
         self,
         data: Iterable,
+        mode: str = "",
         value: Optional[str] = None,
         id: Optional[str] = None,
         on_change: Optional[callable] = None,
@@ -409,6 +420,9 @@ class datastack:
 
         data : Iterable
             data to be displayed in the menu.
+
+        mode : vertical | horizontal | inline
+            Mode of menu display
 
         value : str or None
             The text value of this element when it first renders.
@@ -424,10 +438,7 @@ class datastack:
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "menu",
-            "prop": {
-                "data": data,
-                "value": value,
-            },
+            "prop": {"data": data, "value": value, "mode": mode},
         }
         try:
             block["prop"]["value_var"] = varname()
@@ -519,11 +530,13 @@ class datastack:
             "id": id if id else self.dynamic_widget_id(),
             "type": "table",
             "prop": {
-                "data": data.to_json(orient="records"),
+                "data": json.loads(data.to_json(orient="records")),
                 "columns": list(data.columns),
                 "column_defination": column_definition,
             },
         }
+
+        print("table data type", type(block["prop"]["data"]))
         if not self.replace_block(id, block):
             self.append_block(block)
 
@@ -545,7 +558,7 @@ class datastack:
             "id": id if id else self.dynamic_widget_id(),
             "type": "dataframe",
             "prop": {
-                "data": data.to_json(orient="records"),
+                "data": json.loads(data.to_json(orient="records")),
                 "columns": [
                     {
                         "name": c,
@@ -619,13 +632,13 @@ class datastack:
             self.append_block(block)
 
     def markdown(self, data: str, id: Optional[str] = None):
-        """Diaply markdown text
+        """Display markdown text
 
         parameters
         ----------
 
         data : str
-            data to diaply
+            data to display
 
         id : str
             An optional string or integer to use as the unique key for the element.
@@ -645,7 +658,7 @@ class datastack:
         ----------
 
         data : str
-            text to disply inside tag element
+            text to display inside tag element
         """
         block = {"id": self.dynamic_widget_id(), "type": "tag", "prop": {"data": data}}
         if not self.replace_block(id, block):
@@ -799,7 +812,7 @@ class datastack:
         ----------
 
         tab_list :  iterable
-            list of tabs to diaplay
+            list of tabs to display
 
         id : str
             An optional string or integer to use as the unique key for the element.
@@ -1049,7 +1062,7 @@ class datastack:
         return cls
 
     def code(self, data: str, id: Optional[str] = None):
-        """Dispay code element
+        """Display code element
 
         Parameters
         ----------
@@ -1101,7 +1114,7 @@ class datastack:
         ----------
 
         data : ImageFile
-            image data to diaplay
+            image data to display
 
         id : str
             An optional string or integer to use as the unique key for the element.
@@ -1176,7 +1189,7 @@ class datastack:
         import plotly.tools
 
         fig = plotly.tools.return_figure_from_figure_or_data(data, validate_figure=True)
-        fig = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+        # fig = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
         block = {
             "id": id if id else self.dynamic_widget_id(),
@@ -1248,11 +1261,49 @@ class datastack:
             for page in ["main_page", "sidebar"] + self.app["pages"]
             for block in self.app[page]
         ]
-        for b in all_app_blocks:
-            if b["type"] == "column":
-                for data_block in b["data"]:
-                    all_app_blocks = all_app_blocks + data_block
-        return list(filter(lambda p: p["id"] == id, all_app_blocks))
+        return_block = ""
+
+        def check_block_id(blocks, id):
+            nonlocal return_block
+            for block in blocks:
+                if block["type"] == "container" or block["type"] == "expander":
+                    check_block_id(block["data"], id)
+                elif block["type"] == "column":
+                    for col in block["data"]:
+                        check_block_id(col, id)
+                elif block["type"] == "tabs":
+                    for tab in block["data"]:
+                        check_block_id(tab["data"], id)
+                elif block["id"] == id:
+                    return_block = block
+
+        check_block_id(all_app_blocks, id)
+        return return_block
+
+        # def check_block_id(blocks, id):
+        #     f_blocks = list(filter(lambda p: p["id"] == id, blocks))
+        #     if f_blocks:
+        #         return f_blocks
+
+        # if blocks:
+        #     return blocks
+
+        # else:
+        #     print('not found in common')
+        #     for b in all_app_blocks:
+        #         print('checking for loop')
+        #         if b["type"] == "column" or b["type"] == "container" or b["type"] == 'expander':
+        #             for b1 in b['data']:
+        #                 blocks = list(filter(lambda p: p["id"] == id, b1))
+        #                 if blocks:
+        #                     return blocks
+        #         if b["type"] == "tabs":
+        #             print('checking tabs')
+        #             for b1 in b['data']:
+        #                 blocks = list(filter(lambda p: p["id"] == id, b1['data']))
+        #                 if blocks:
+        #                     return blocks
+        return []
 
     def gat_all_blocks(self):
         # print(self.blocks)
@@ -1341,6 +1392,25 @@ class datastack:
             else x
             for x in _app
         ]
+        _app = [
+            {
+                "id": "",
+                "type": x["type"],
+                "data": [
+                    {
+                        "type": c.__dict__["type"],
+                        "data": self.build_element_from_blocks(c.blocks["main_page"]),
+                    }
+                    if isinstance(c, object) and c.__class__.__name__ == "datastack"
+                    else c
+                    for c in x["data"]
+                ],
+            }
+            if x["type"] == "container"
+            else x
+            for x in _app
+        ]
+
         _app = [x if x["type"] == "list" else x for x in _app]
         return _app
 

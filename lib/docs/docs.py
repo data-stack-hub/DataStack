@@ -5,6 +5,7 @@ import inspect, types
 from docutils.core import publish_parts
 from docutils.parsers.rst import directives
 import pandas as pd
+import re, textwrap
 
 ds = datastack(main=True)
 
@@ -14,6 +15,7 @@ obj = ds
 
 
 def generate_doc():
+    details_container.dump_app()
     membername = ds.state["selected_menu"]
     member = getattr(obj, membername)
     # print('member', member)
@@ -55,26 +57,29 @@ def generate_doc():
     long_description = parse_rst(
         "" if docstring_obj.long_description is None else docstring_obj.long_description
     )
-    ds.html(short_description, id="s_d")
-    ds.html(long_description, id="l_d")
+    details_container.html(short_description, id="s_d")
+    details_container.html(long_description, id="l_d")
 
-    ds.subheader("Function signature", id="fn_sig")
+    details_container.subheader("Function signature", id="fn_sig")
     # sing_container = ds.container()
     signature = f"{prefix}.{membername}({arguments})"
-    ds.list([signature], id="sig")
+    sig_container = details_container.container()
+    sig_container.list([signature], id="sig")
     if len(details["args"]) > 0:
-        ds.subheader("Parameters", id="param")
+        details_container.subheader("Parameters", id="param")
 
         # for arg in details['args']:
         #     ds.write(arg['name'], id='params_name')
         #     ds.write(arg['description'], id='desc')
-        ds.table(
+        details_container.table(
             pd.DataFrame.from_dict(details["args"]),
             column_definition={"description": "html"},
             id="arg_table",
         )
     else:
-        ds.table(pd.DataFrame.from_dict({}), id="arg_table")
+        details_container.table(pd.DataFrame.from_dict({}), id="arg_table")
+    example_container = details_container.container()
+    example_container.write("thi is eampale container")
     if docstring:
         try:
             from numpydoc.docscrape import NumpyDocString
@@ -97,23 +102,81 @@ def generate_doc():
 
             if "Examples" in numpydoc_obj and len(numpydoc_obj["Examples"]) > 0:
                 collapsed = "\n".join(numpydoc_obj["Examples"])
-                # collapsed = "\n".join(line.lstrip() for line in numpydoc_obj["Examples"])
-                print(numpydoc_obj["Examples"])
-                print(collapsed)
-                import html
-
                 details["examples"] = strip_code_prompts(parse_rst(collapsed))
-                ds.subheader("Example")
-                ds.html(details["examples"])
-                from pathlib import Path
+                example_container.subheader("Example")
+                examples = extract_multiline_examples_from_docstring(docstring)
+                for i, example in enumerate(examples, 1):
+                    ex1 = textwrap.dedent(example).replace("ds", "res")
+                    example_container.code(textwrap.dedent(example))
+                    res = example_container.container()
+                    import tempfile
 
-                code = collapsed  # .replace(">>> ",'')
-                # sourcefile = "v1.py"
-                # Path(sourcefile).write_text(code)
-                # compiled = compile(code, sourcefile, mode="exec")
-                # exec(compiled)
+                    with tempfile.NamedTemporaryFile(
+                        mode="w", suffix=".py", delete=False
+                    ) as f:
+                        f.write(ex1)
+                        sourcefile = f.name
+                    globals().update({"res": res})
+
+                    exec(compile(ex1, sourcefile, "exec"), globals())
+            else:
+                example_container.dump_app()
         except Exception as e:
             print(e)
+
+
+def extract_multiline_examples_from_docstring(docstring):
+    """
+    Extract multiline examples from the docstring of a function.
+
+    Args:
+        func (function): The function from which to extract examples.
+
+    Returns:
+        list: List of multiline example strings.
+    """
+    # docstring = inspect.getdoc(func)
+
+    if not docstring:
+        return []
+
+    examples = []
+    current_example = []
+
+    # Use a simple regex to identify lines starting with '>>>'
+    example_pattern = re.compile(r"^\s*>>>( .+)?$")
+    ellipsis_pattern = re.compile(r"^\s*\.\.\. (.+)$")
+
+    in_example = False
+
+    for line in docstring.splitlines():
+        match = example_pattern.match(line)
+        if match:
+            # Start of a new example
+            in_example = True
+            if match.group(1) is not None:
+                current_example.append(match.group(1))
+        elif in_example and line.strip() == "":
+            # End of the current example
+            examples.append("\n".join(current_example))
+            current_example = []
+            in_example = False
+        elif in_example:
+            # Check for lines starting with '...'
+            ellipsis_match = ellipsis_pattern.match(line)
+            if ellipsis_match:
+                current_example.append(ellipsis_match.group(1))
+            else:
+                # Continue building the current example
+                current_example.append(line)
+
+    # Add the last example if there is one
+    import textwrap
+
+    if current_example:
+        examples.append(textwrap.dedent("\n".join(current_example)).strip())
+
+    return examples
 
 
 def strip_code_prompts(rst_string):
@@ -210,13 +273,35 @@ def parse_rst(rst_string):
 
 # ds.sidebar().list(dir(obj))
 # sb = ds.sidebar()
-
+ignor_list = [
+    "app",
+    "append_block",
+    "blocks",
+    "build_app",
+    "build_element_from_blocks",
+    "dump_app",
+    "dynamic_widget_id",
+    "get_all_blocks",
+    "get_all_dfs",
+    "get_app_block_by_id",
+    "get_block_by_id",
+    "main",
+    "replace_block",
+    "rerun",
+    "session_id",
+    "type",
+    "update_app_state",
+    "chart_builder",
+]
 selected_menu = ds.sidebar().menu(
-    [m for m in dir(obj) if not m.startswith("_")],
-    value="write",
+    [m for m in dir(obj) if not m.startswith("_") and m not in ignor_list],
+    value="button",
     on_change=generate_doc,
+    mode="vertical",
 )
 ds.header(selected_menu)
+details_container = ds.container()
+details_container.write("this is ")
 # for membername in dir(obj):
 #     member = getattr(obj, membername)
 #     print('member', membername)

@@ -37,13 +37,13 @@ export class CodeComponent {
     e.onDidContentSizeChange(()=>{
       console.log(e.getContentHeight())
       this.height = e.getContentHeight() +20
-      this.block_change()
-    });  
+      // this.block_change()
+    });
 
-    e.onDidChangeContent((event)=>{
-      console.log(event)
+    // e.onDidChangeContent((event)=>{
+    //   console.log(event)
 
-    })
+    // })
     // this.editor.setModel(monaco.editor.createModel("console.log('Hello ng-zorro-antd')", 'typescript'));
     console.log( e.getModel().getLineCount())
   }
