@@ -41,7 +41,7 @@ export class AppComponent {
   @ViewChild('editableDiv') editableDiv: any;
   @ViewChild('ul_list') ul_list: any;
   innerHTML:any
-  url = 'http://localhost:5000/'
+  url = 'https://localhost:5000/'
   code_output =''
   query_output: any;
   a = 'h1'
