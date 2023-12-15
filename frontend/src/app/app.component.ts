@@ -89,7 +89,7 @@ export class AppComponent {
   angularGrid: AngularGridInstance;
 
   constructor(private api:ApiService, public sanitizer: DomSanitizer, public renderer: Renderer2, public notification:NzNotificationService){
-
+    console.log(window.location.protocol)
     let host = window.location.hostname
     let port
     if (Number(window.location.port) == 4200){
@@ -101,7 +101,7 @@ export class AppComponent {
     }
 
     let basepath = window.location.pathname.replace("/\/+$/","").replace("/^\/+/","")
-    this.url = "http://" + host +":" + port +"/"
+    this.url = window.location.protocol + "//" + host +":" + port +"/"
     console.log(window.location.hostname,window.location.port, window.location.pathname )
     this.api.get(this.url +'app')
     .subscribe((res:any)=>{
