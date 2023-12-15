@@ -42,7 +42,7 @@ class AppSession:
 
     def __init__(self, file_path) -> None:
         self.id = str(uuid.uuid4())
-        self.user = os.getlogin()
+        self.user = ""
         self.script_path = file_path
         self.script_thread = threading.Thread(
             target=self.run_script, name="script_thread"
