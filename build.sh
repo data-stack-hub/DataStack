@@ -1,3 +1,3 @@
 
-cd frontend 
-ng build && cd .. && xcopy  .\\frontend\\dist\\frontend\\  .\\lib\\datastack\\static\\
+cd frontend
+ng build && cd .. && xcopy  .\\frontend\\dist\\frontend\\  .\\lib\\datastack\\static\\ /E
