@@ -155,6 +155,13 @@ class datastack:
 
         args : dict
             An optional tuple of args to pass to the callback
+
+        Examples
+        --------
+
+        >>> name = ds.input('Name')
+        >>> ds.write('your name:' + name)
+
         """
         block = {
             "id": id if id else self.dynamic_widget_id(),
@@ -197,6 +204,12 @@ class datastack:
 
         id : str
             An optional string or integer to use as the unique key for the element.
+
+        Examples
+        --------
+
+        >>> ds.header('This is header')
+
         """
 
         block = {
@@ -224,6 +237,12 @@ class datastack:
 
         id : str
             An optional string or integer to use as the unique key for the element.
+
+        Examples
+        --------
+
+        >>> ds.subheader('This is subheader')
+
         """
 
         block = {
@@ -245,7 +264,7 @@ class datastack:
     ):
         """Select component to select value from options
 
-        Paramaters
+        Parameters
         ----------
         label : str
             A short label explaining to the user what this input is for.
@@ -264,6 +283,12 @@ class datastack:
 
         args : dict
             An optional tuple of args to pass to the callback
+
+        Examples
+        --------
+
+        >>> operating_system = ds.select('Select operating system', ['ios', 'android', 'windows'])
+        >>> ds.write('You selected: ' + operating_system)
         """
 
         block = {
@@ -325,6 +350,12 @@ class datastack:
 
         args : dict
             An optional tuple of args to pass to the callback
+
+        Examples
+        --------
+
+        >>> operating_system = ds.radio_button('Select operating system', ['ios', 'android', 'windows'])
+        >>> ds.write('You selected: ' + operating_system)
         """
         block = {
             "id": id if id else self.dynamic_widget_id(),
