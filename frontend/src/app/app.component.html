@@ -77,7 +77,7 @@
         {{element.prop.data}}
       </div>
       <div *ngIf="element.type == 'markdown'" [innerHTML] = 'get_marked(element.prop.data)'></div>
-      <div *ngIf="element.type == 'tag'">
+      <div *ngIf="element.type == 'tag'" style="padding-bottom: 5px;">
         <nz-tag nzMode="closeable">{{element.prop.data}}</nz-tag>
       </div>
       <div *ngIf="element.type == 'html'">
@@ -92,7 +92,7 @@
         <input style="width: 100%;" [value]="element.prop.value" (change)="input_change(element, $event)">
       </div>
       <div *ngIf="element.type == 'slider'">
-        <nz-slider [nzMin]="element.prop.min" [nzMax]="element.prop.max"  (nzOnAfterChange)="slider_value_changed(element, $event)"></nz-slider>
+        <nz-slider [nzMin]="element.prop.min" [nzMax]="element.prop.max"  [(ngModel)]="element.prop.value" (nzOnAfterChange)="slider_value_changed(element, $event)"></nz-slider>
       </div>
       <div *ngIf="element.type == 'date_input'">
         <nz-date-picker [nzDisabledDate]="date_min_max(element.prop.min,element.prop.max)"  [style.display]="element.prop.use_container_width ? 'block' : null" [nzShowTime]="false" [nzFormat]= element.prop.date_format [(ngModel)]="element.prop.value" (ngModelChange)="date_changed(element,$event)" [nzDisabled]="element.prop.disabled"></nz-date-picker>

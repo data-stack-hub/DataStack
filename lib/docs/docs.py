@@ -16,7 +16,9 @@ obj = ds
 
 def generate_doc():
     details_container.dump_app()
+
     membername = ds.state["selected_menu"]
+    details_container.header(membername)
     member = getattr(obj, membername)
     # print('member', member)
     import docstring_parser
@@ -78,8 +80,8 @@ def generate_doc():
         )
     else:
         details_container.table(pd.DataFrame.from_dict({}), id="arg_table")
-    example_container = details_container.container()
-    example_container.write("thi is eampale container")
+    # example_container = details_container.container()
+    # example_container.write("thi is eampale container")
     if docstring:
         try:
             from numpydoc.docscrape import NumpyDocString
@@ -103,12 +105,12 @@ def generate_doc():
             if "Examples" in numpydoc_obj and len(numpydoc_obj["Examples"]) > 0:
                 collapsed = "\n".join(numpydoc_obj["Examples"])
                 details["examples"] = strip_code_prompts(parse_rst(collapsed))
-                example_container.subheader("Example")
+                details_container.subheader("Example")
                 examples = extract_multiline_examples_from_docstring(docstring)
                 for i, example in enumerate(examples, 1):
                     ex1 = textwrap.dedent(example).replace("ds", "res")
-                    example_container.code(textwrap.dedent(example))
-                    res = example_container.container()
+                    details_container.code(textwrap.dedent(example))
+                    res = details_container.container()
                     import tempfile
 
                     with tempfile.NamedTemporaryFile(
@@ -119,8 +121,8 @@ def generate_doc():
                     globals().update({"res": res})
 
                     exec(compile(ex1, sourcefile, "exec"), globals())
-            else:
-                example_container.dump_app()
+            # else:
+            #     example_container.dump_app()
         except Exception as e:
             print(e)
 
@@ -292,6 +294,17 @@ ignor_list = [
     "type",
     "update_app_state",
     "chart_builder",
+    "editable_html",
+    "query",
+    "page_link",
+    "clear_notifications",
+    "notification",
+    "gat_all_blocks",
+    "path",
+    "sql_connection",
+    "state",
+    "update_state",
+    "title",
 ]
 selected_menu = ds.sidebar().menu(
     [m for m in dir(obj) if not m.startswith("_") and m not in ignor_list],
@@ -299,11 +312,13 @@ selected_menu = ds.sidebar().menu(
     on_change=generate_doc,
     mode="vertical",
 )
-ds.header(selected_menu)
+
 details_container = ds.container()
-details_container.write("this is ")
-# for membername in dir(obj):
-#     member = getattr(obj, membername)
-#     print('member', membername)
-# print(getattr(obj, "__doc__", ""))
-# print(getattr(member, "__doc__", ""))
+details_container.header("Welcom to DataStack")
+details_container.divider()
+details_container.subheader("The Fastest way to build apps in python")
+details_container.write(
+    "Datastack is an open-source framework that enables you to easily build real-time web apps, internal tools, dashboards, weekend projects, data entry forms, or prototypes using just Python no frontend experience required."
+)
+page1 = ds.page("page1")
+page1.header("Page 1")

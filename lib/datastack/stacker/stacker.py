@@ -160,7 +160,7 @@ class datastack:
         --------
 
         >>> name = ds.input('Name')
-        >>> ds.write('your name:' + name)
+        >>> ds.write('your name: ' + name)
 
         """
         block = {
@@ -189,7 +189,12 @@ class datastack:
         return value
 
     def divider(self):
-        """A divider line separates different content."""
+        """A divider line separates different content.
+
+        Examples
+        --------
+        >>> ds.divider()
+        """
 
         block = {"id": self.dynamic_widget_id(), "type": "divider", "prop": {}}
         self.append_block(block)
@@ -415,8 +420,8 @@ class datastack:
         Examples
         --------
 
-        >>> list_clicked = ds.list(['python', 'javascript', 'java', 'c++', 'pascal'])
-        >>> ds.write('You clicked: ' + list_clicked)
+        >>> ds.list(['python', 'javascript', 'java', 'c++', 'pascal'])
+
         """
         block = {
             "id": id if id else self.dynamic_widget_id(),
@@ -446,14 +451,14 @@ class datastack:
     def menu(
         self,
         data: Iterable,
-        mode: str = "",
+        mode: str = "horizontal",
         value: Optional[str] = None,
         id: Optional[str] = None,
         on_change: Optional[callable] = None,
     ):
         """Display menu
 
-        parameters
+        Parameters
         ----------
 
         data : Iterable
@@ -557,7 +562,7 @@ class datastack:
     def table(self, data, column_definition: dict = {}, id: Optional[str] = None):
         """Display a dataframe as an interactive table.
 
-        parameters
+        Parameters
         ----------
 
         data : pandas.DataFrame
@@ -574,10 +579,10 @@ class datastack:
 
         >>> import pandas as pd
         >>> data = [
-        ...         {name:'Ikigai', author:'Francesc Miralles and Hector Garcia', rating:4.3 },
-        ...         {name:'psychology of money', author:'Morgan Housel', rating:4.5},
-        ...         {name:'Atomic Habits', author:'James Clear', rating:4.4},
-        ...         {name:'Rework', author:"David Heinemeier Hansson and Jason Fried", rating:4.5}
+        ...         {'name':'Ikigai', 'author':'Francesc Miralles and Hector Garcia', 'rating':4.3 },
+        ...         {'name':'psychology of money', 'author':'Morgan Housel', 'rating':4.5},
+        ...         {'name':'Atomic Habits', 'author':'James Clear', 'rating':4.4},
+        ...         {'name':'Rework', 'author':"David Heinemeier Hansson and Jason Fried", 'rating':4.5}
                     ]
         >>> df = pd.json_normalize(data)
         >>> ds.table(df)
@@ -616,7 +621,7 @@ class datastack:
         ...
         >>> df = pd.DataFrame(np.random.randn(25,10), columns=("col_%d" % i for i in range(10)))
         ...
-        >>> ds.dataframe(df)
+        >>> ds.dataframe(df.round(decimals=3))
         """
         if "id" not in data.columns:
             data["id"] = np.arange(data.shape[0])
@@ -655,8 +660,8 @@ class datastack:
         id : str
             An optional string or integer to use as the unique key for the element.
 
-        Example
-        -------
+        Examples
+        --------
 
         Basic use case
 
@@ -706,7 +711,7 @@ class datastack:
     def markdown(self, data: str, id: Optional[str] = None):
         """Display markdown text
 
-        parameters
+        Parameters
         ----------
 
         data : str
@@ -718,11 +723,10 @@ class datastack:
         Examples
         --------
 
-        >>> ds.markdown(**bold text** *itlic text*)
-        >>> ds.markdown("1. First item
-        ...                 2. Second item
-        ...                 3. Third item
-        ...                 4. Fourth item")
+        >>> ds.markdown("**bold text** *itlic text*")
+        >>> ds.markdown("# A first-level heading")
+        >>> ds.markdown("## A second-level heading")
+        >>> ds.markdown("### A third-level heading")
 
         """
         block = {
@@ -736,11 +740,19 @@ class datastack:
     def tag(self, data: str):
         """Display tag element
 
-        Paramaters
+        Parameters
         ----------
 
         data : str
             text to display inside tag element
+
+        Examples
+        --------
+
+        >>> ds.tag('tag1')
+        >>> ds.tag('tag2')
+        >>> ds.tag('tag3')
+        >>> ds.tag('tag4')
         """
         block = {"id": self.dynamic_widget_id(), "type": "tag", "prop": {"data": data}}
         if not self.replace_block(id, block):
@@ -749,11 +761,21 @@ class datastack:
     def cache_data(self, func: callable):
         """Decorator to cache functions that return data
 
-        parameters
+        Parameters
         ----------
 
         func :  callable
             the function to cache
+
+        Examples
+        --------
+
+        >>> @ds.cache_data
+        >>> def get_data():
+        ...     # fetch data from db
+        ...     return 'some_data'
+        ...
+        >>> get_data()
         """
 
         def inner1(*args, **kwargs):
@@ -855,11 +877,17 @@ class datastack:
     def expander(self, name: str):
         """A content area which can be collapsed and expanded.
 
-        Paramters
-        ---------
+        Parameters
+        ----------
 
         name : str
             name of the expander
+
+        Examples
+        --------
+
+        >>> expander = ds.expander('Expand to view content')
+        >>> expander.write('This content will show inside the expander')
         """
         cls = datastack(type="expander", title=name)
         self.append_block(cls)
@@ -876,6 +904,14 @@ class datastack:
 
         id : str
             An optional string or integer to use as the unique key for the element.
+
+        Examples
+        --------
+
+        >>> col1, col2, col3 = ds.columns(3)
+        >>> col1.write('this is col1')
+        >>> col2.write('this is col2')
+        >>> col3.write('this is col3')
         """
         cols = [datastack(type="column") for x in range(0, col_number)]
         block = {
@@ -898,6 +934,17 @@ class datastack:
 
         id : str
             An optional string or integer to use as the unique key for the element.
+
+        Examples
+        --------
+
+        >>> tab1, tab2, tab3 = ds.tabs(["tab1","tab2", "tab3"])
+        >>> tab1.header('Tab1')
+        >>> tab1.write('this is tab1')
+        >>> tab2.header('Tab2')
+        >>> tab2.write('this is tab2')
+        >>> tab3.header('Tab3')
+        >>> tab3.write('this is tab3')
         """
         tab = [
             datastack(type="tab", title=tab_list[x]) for x in range(0, len(tab_list))
@@ -915,7 +962,7 @@ class datastack:
         self,
         min: int,
         max: int,
-        value: int,
+        value: int = None,
         id: Optional[str] = None,
         on_change: Optional[callable] = None,
     ):
@@ -938,6 +985,11 @@ class datastack:
 
         on_change : callable
             An option callback invoked when this text input's value chnages.
+
+        Examples
+        --------
+
+        >>> ds.slider(min=10, max=100, value=50)
         """
         block = {
             "id": id if id else self.dynamic_widget_id(),
@@ -1007,6 +1059,11 @@ class datastack:
         on_change : callable
             An option callback invoked when this text input's value chnages.
 
+        Examples
+        --------
+
+        >>> ds.date_input()
+
         """
         block = {
             "id": id if id else self.dynamic_widget_id(),
@@ -1048,6 +1105,11 @@ class datastack:
 
         id : str
             An optional string or integer to use as the unique key for the element.
+
+        Examples
+        --------
+
+        >>> ds.success('Data saved')
         """
 
         block = {
@@ -1070,6 +1132,12 @@ class datastack:
 
         id : str
             An optional string or integer to use as the unique key for the element.
+
+        Examples
+        --------
+
+        >>> ds.info('Data saved')
+
         """
         block = {
             "id": id if id else self.dynamic_widget_id(),
@@ -1091,6 +1159,12 @@ class datastack:
 
         id : str
             An optional string or integer to use as the unique key for the element.
+
+        Examples
+        --------
+
+        >>> ds.warning('This is a warning!')
+
         """
 
         block = {
@@ -1113,6 +1187,13 @@ class datastack:
 
         id : str
             An optional string or integer to use as the unique key for the element.
+
+        Examples
+        --------
+
+        >>> ds.error('This is an error!')
+
+
         """
 
         block = {
@@ -1125,7 +1206,16 @@ class datastack:
         self.append_block(block)
 
     def container(self):
-        """Insert a multi-element container."""
+        """Insert a multi-element container.
+
+        Examples
+        --------
+
+        >>> container = ds.container()
+        >>> ds.write('This is outside container')
+        ...
+        >>> container.write('this is inside container' )
+        """
         cls = datastack(type="container")
         self.append_block(cls)
         return cls
@@ -1138,6 +1228,13 @@ class datastack:
 
         path : str
             Path of page
+
+        Examples
+        --------
+
+        >>> page1 = ds.page('page1')
+
+
         """
         cls = datastack(type="page", path=path)
         self.append_block(cls, "pages")
@@ -1153,6 +1250,12 @@ class datastack:
 
         id : str
             An optional string or integer to use as the unique key for the element.
+
+        Examples
+        --------
+
+        >>> ds.code('''def my_function():
+        ...     print('my function')''')
         """
         id = id if id else self.dynamic_widget_id()
         block = {
@@ -1200,6 +1303,14 @@ class datastack:
 
         id : str
             An optional string or integer to use as the unique key for the element.
+
+        Examples
+        --------
+
+        >>> from PIL import Image
+        >>> image = Image.open('images\image-3.png')
+        >>> ds.image(image)
+
         """
         import io
         import base64
@@ -1225,6 +1336,16 @@ class datastack:
         ----------
         fig : Matplotlib Figure
             The figure to plot.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> ds.subheader('PyPlot')
+        >>> arr = np.random.normal(1, 1, size=100)
+        >>> import matplotlib.pyplot as plt
+        >>> fig, ax = plt.subplots()
+        >>> ax.hist(arr, bins=20)
+        >>> ds.pyplot(fig)
         """
         import io
 
@@ -1232,7 +1353,7 @@ class datastack:
         fig.savefig(image)
         self.image(image)
 
-    def iframe(self, url: str, id: Optional[str]):
+    def iframe(self, url: str, id: Optional[str] = None):
         """Display iframe element
 
         Parameters
@@ -1240,6 +1361,18 @@ class datastack:
 
         url : str
             url for iframe
+
+        id : str
+            An optional string or integer to use as the unique key for the element.
+
+        Examples
+        --------
+
+        >>> ds.subheader('Iframe')
+        ...
+        >>> url = 'https://www.wikipedia.org/'
+        >>> ds.iframe(url)
+
         """
         block = {
             "id": id if id else self.dynamic_widget_id(),
@@ -1266,6 +1399,26 @@ class datastack:
         id : str
             An optional string or integer to use as the unique key for the element.
 
+        Examples
+        --------
+
+        >>> import plotly.express as px
+        ...
+        >>> data_canada = px.data.gapminder().query("country == 'Canada'")
+        >>> fig = px.bar(data_canada, x='year', y='pop')
+        ...
+        >>> ds.subheader('Charts')
+        >>> ds.chart(fig)
+
+        >>> import plotly.express as px
+        ...
+        >>> df = px.data.tips()
+        ...
+        >>> fig = px.box(df, x="day", y="total_bill", facet_row="smoker")
+        >>> fig.update_traces(quartilemethod="exclusive", alignmentgroup='df', offsetgroup='offset')
+        >>> fig.update_layout(boxmode='group')
+        ...
+        >>> ds.chart(fig)
         """
         import json
         import plotly.tools
@@ -1328,7 +1481,19 @@ class datastack:
         }
         self.append_block(block)
 
-    def set_page(self, page_name):
+    def set_page(self, page_name: str):
+        """Set which page to display
+
+        Parameters
+        ----------
+        page_name : str
+            page name
+
+        Examples
+        --------
+
+        >>> ds.set_page('page1')
+        """
         self.app["current_page"] = page_name
 
     def sql_connection(self, params):
