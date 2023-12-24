@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setuptools.setup(
     name="pydatastack",
-    version="0.0.7",
+    version="0.0.8",
     author="Vishal Vora, Mayur Pokiya, Karan Doshi",
     description="The Fastes way to build apps in python",
     long_description_content_type="text/markdown",
