@@ -108,8 +108,12 @@ def generate_doc():
                 details_container.subheader("Example")
                 examples = extract_multiline_examples_from_docstring(docstring)
                 for i, example in enumerate(examples, 1):
-                    ex1 = textwrap.dedent(example).replace("ds", "res")
-                    details_container.code(textwrap.dedent(example))
+                    ex1 = (
+                        textwrap.dedent(example)
+                        .replace("ds", "res")
+                        .replace("...", "\n")
+                    )
+                    details_container.code(textwrap.dedent(example.replace("...", "")))
                     res = details_container.container()
                     import tempfile
 
@@ -183,11 +187,21 @@ def extract_multiline_examples_from_docstring(docstring):
 
 def strip_code_prompts(rst_string):
     """Removes >>> and ... prompts from code blocks in examples."""
+    print(rst_string)
+    print("------")
+    print(
+        rst_string.replace("&gt;&gt;&gt; ", "")
+        .replace("&gt;&gt;&gt;\n", "\n")
+        .replace("\n... ", "\n")
+        .replace("\n...", "\n")
+        .replace("...", "\n")
+    )
     return (
         rst_string.replace("&gt;&gt;&gt; ", "")
         .replace("&gt;&gt;&gt;\n", "\n")
         .replace("\n... ", "\n")
         .replace("\n...", "\n")
+        .replace("...", "\n")
     )
 
 

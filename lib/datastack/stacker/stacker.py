@@ -1307,8 +1307,9 @@ class datastack:
         Examples
         --------
 
+        >>> import os
         >>> from PIL import Image
-        >>> image = Image.open('images\image-3.png')
+        >>> image = Image.open(os.path.join('images', 'image-3.png'))
         >>> ds.image(image)
 
         """
