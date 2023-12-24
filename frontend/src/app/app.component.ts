@@ -1,4 +1,4 @@
-import { Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, Renderer2, ViewChild, ViewEncapsulation } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
@@ -27,7 +27,8 @@ interface  g {
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
+  encapsulation: ViewEncapsulation.None,
 })
 
 
@@ -561,6 +562,14 @@ plotly_click(element, event){
   this.req(element,  {value: event.points, action:'chart_click'})
 }
 
+senitized_html(prop){
+  if (prop.allow_unsafe_html){
+    return  this.sanitizer.bypassSecurityTrustHtml(prop.data)
+  }
+  else{
+    return prop.data
+  }
+}
 }
 
 

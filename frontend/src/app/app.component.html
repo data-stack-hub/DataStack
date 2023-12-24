@@ -82,7 +82,7 @@
       </div>
       <div *ngIf="element.type == 'html'">
         <!-- {{element.prop.data}} -->
-        <div [innerHTML]="element.prop.data"></div>
+        <div [innerHTML]="senitized_html(element.prop)"></div>
       </div>
       <div *ngIf="element.type == 'editable_html'">
         <ng-container *ngTemplateOutlet="editable;context:{element:element}"></ng-container>

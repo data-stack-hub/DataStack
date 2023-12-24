@@ -679,13 +679,18 @@ class datastack:
         if not self.replace_block(id, block):
             self.append_block(block)
 
-    def html(self, html: str, id: Optional[str] = None):
+    def html(
+        self, html: str, allow_unsafe_html: bool = False, id: Optional[str] = None
+    ):
         """Diapy html element
 
         Parameters
         ----------
         html : str
             html string
+
+        allow_unsafe_html : bool
+            By default, any HTML tags found in the body will be escaped and therefore treated as pure text. This behavior may be turned off by setting this argument to True.
 
         id : str
             An optional string or integer to use as the unique key for the element.
@@ -703,6 +708,7 @@ class datastack:
             "prop": {
                 "data": html,
                 "data_var": argname("html", vars_only=False, func=self.html),
+                "allow_unsafe_html": allow_unsafe_html,
             },
         }
         if not self.replace_block(id, block):
