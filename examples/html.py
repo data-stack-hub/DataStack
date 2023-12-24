@@ -9,5 +9,5 @@ ds.html(
     """<div style="color:green">
   HTML text
 </div>""",
-    allow_unsafe_html=False,
+    allow_unsafe_html=True,
 )
