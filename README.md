@@ -55,6 +55,13 @@ Open app in browser `localhost:5000`
 
 
 
+
+# Documentation
+
+Visit the [DataStack documentation site](https://data-stack.org) for more examples.
+
+The documentation has been built using DataStack itself. If you have any questions or need assistance, feel free to [raise an issue](https://github.com/data-stack-hub/DataStack/issues).
+
 # DataStack Widgets
 
 
