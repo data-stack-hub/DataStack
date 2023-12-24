@@ -67,7 +67,7 @@ def rerun(cls, my_module, session):
     # my_module.cls = cls
     # class_name = session.class_object_name
     # print('class_name',class_name)
-    print(session.main_class.rerun(a1))
+    # print(session.main_class.rerun(a1))
     return json.dumps(session.main_class.rerun(a1), cls=NpEncoder)
 
 

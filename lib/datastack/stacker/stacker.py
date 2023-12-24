@@ -130,7 +130,7 @@ class datastack:
 
     def input(
         self,
-        label: str,
+        label: str = None,
         value: str | None = "",
         id: Optional[str] = None,
         on_change: Optional[callable] = "",
@@ -167,6 +167,7 @@ class datastack:
             "id": id if id else self.dynamic_widget_id(),
             "type": "input",
             "prop": {
+                "label": label,
                 "value": value,
                 "args": args,
             },
@@ -410,6 +411,12 @@ class datastack:
 
         slot_end : str
             data to be dipalay at the end of the list
+
+        Examples
+        --------
+
+        >>> list_clicked = ds.list(['python', 'javascript', 'java', 'c++', 'pascal'])
+        >>> ds.write('You clicked: ' + list_clicked)
         """
         block = {
             "id": id if id else self.dynamic_widget_id(),
@@ -464,6 +471,11 @@ class datastack:
         on_change : callable
             An option callback invoked when this text input's value chnages.
 
+        Examples
+        --------
+
+        >>> page = ds.menu(['Page1', 'Page2', 'Page3'])
+        >>> ds.header(page)
         """
 
         block = {
@@ -556,6 +568,19 @@ class datastack:
 
         id : str
             An optional string or integer to use as the unique key for the element.
+
+        Examples
+        --------
+
+        >>> import pandas as pd
+        >>> data = [
+        ...         {name:'Ikigai', author:'Francesc Miralles and Hector Garcia', rating:4.3 },
+        ...         {name:'psychology of money', author:'Morgan Housel', rating:4.5},
+        ...         {name:'Atomic Habits', author:'James Clear', rating:4.4},
+        ...         {name:'Rework', author:"David Heinemeier Hansson and Jason Fried", rating:4.5}
+                    ]
+        >>> df = pd.json_normalize(data)
+        >>> ds.table(df)
         """
         block = {
             "id": id if id else self.dynamic_widget_id(),
@@ -582,6 +607,16 @@ class datastack:
 
         id : str
             An optional string or integer to use as the unique key for the element.
+
+        Examples
+        --------
+
+        >>> import pandas as pd
+        >>> import numpy as np
+        ...
+        >>> df = pd.DataFrame(np.random.randn(25,10), columns=("col_%d" % i for i in range(10)))
+        ...
+        >>> ds.dataframe(df)
         """
         if "id" not in data.columns:
             data["id"] = np.arange(data.shape[0])
@@ -649,6 +684,12 @@ class datastack:
 
         id : str
             An optional string or integer to use as the unique key for the element.
+
+        Examples
+        --------
+
+        >>> ds.html("<h1>Header</h1>")
+
         """
 
         block = {
@@ -673,6 +714,16 @@ class datastack:
 
         id : str
             An optional string or integer to use as the unique key for the element.
+
+        Examples
+        --------
+
+        >>> ds.markdown(**bold text** *itlic text*)
+        >>> ds.markdown("1. First item
+        ...                 2. Second item
+        ...                 3. Third item
+        ...                 4. Fourth item")
+
         """
         block = {
             "id": self.dynamic_widget_id(),
@@ -1359,8 +1410,8 @@ class datastack:
 
     def replace_block(self, id, new_block):
         block = self.get_block_by_id(id)
-        if id == "title":
-            print("title block", block)
+        # if id == "title":
+        #     print("title block", block)
         if block:
             block[0].update(new_block)
             return True
@@ -1478,6 +1529,9 @@ class datastack:
                     if c["type"] == "column":
                         for col in c["data"]:
                             _update_state(col)
+                    if c["type"] == "tabs":
+                        for col in c["data"]:
+                            _update_state(col["data"])
                     if c["type"] == "editable_html":
                         default_html = [
                             {
