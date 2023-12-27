@@ -1,7 +1,7 @@
 
 <img src="lib/docs/images/image-3.png" width="100">
 
-# Welcom to DataStack
+# Welcome to DataStack
 
 **The Fastest way to build apps in python**
 

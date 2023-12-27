@@ -171,7 +171,7 @@
 
       <div *ngIf ="element.type == 'menu' ">
         <ul nz-menu [nzMode]="element.prop.mode">
-          <li nz-menu-item *ngFor="let l of element.prop.data" (click)="menu_click(element, l)">{{l}}</li>
+          <li nz-menu-item style="line-height: 35px; height: 35px;" *ngFor="let l of element.prop.data" (click)="menu_click(element, l)">{{l}}</li>
         </ul>
       </div>
 
