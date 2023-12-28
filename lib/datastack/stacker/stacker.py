@@ -68,7 +68,8 @@ class datastack:
         #     runtime.collect_cls(self)
 
     def dynamic_widget_id(self):
-        return str(time.time_ns())
+        # return str(time.time_ns())
+        return str(uuid.uuid4())
 
     def button(
         self,
@@ -394,8 +395,6 @@ class datastack:
         data: Iterable = [],
         on_click: Optional[Callable] = None,
         id: Optional[str] = None,
-        slot_start: Optional[str] = None,
-        slot_end: Optional[str] = None,
     ):
         """Display list element
 
@@ -411,16 +410,11 @@ class datastack:
         id : str
             An optional string or integer to use as the unique key for the element.
 
-        slot_start :  str
-            data top be diplay at the beginning of the list
-
-        slot_end : str
-            data to be dipalay at the end of the list
-
         Examples
         --------
 
-        >>> ds.list(['python', 'javascript', 'java', 'c++', 'pascal'])
+        >>> selected_lan = ds.list(['python', 'javascript', 'java', 'c++', 'pascal'])
+        >>> ds.write('your favourite language: ' + selected_lan)
 
         """
         block = {
@@ -429,8 +423,6 @@ class datastack:
             "prop": {
                 "data": data,
                 "value": "",
-                "slot_start": slot_start,
-                "slot_end": slot_end,
             },
         }
         try:
@@ -447,6 +439,8 @@ class datastack:
 
         if not self.replace_block(id, block):
             self.append_block(block)
+
+        return "none"
 
     def menu(
         self,

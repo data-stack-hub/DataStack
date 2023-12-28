@@ -116,7 +116,7 @@
           <li nz-menu-item *ngFor="let l of element.prop.data" (click)="list_click(element,l)">{{l}}</li>
         </ul> -->
         <nz-list >
-          <nz-list-item *ngFor="let l of element.prop.data" style="align-items: start;">
+          <nz-list-item *ngFor="let l of element.prop.data" style="align-items: start; cursor: pointer;" (click)="list_click(element,l)">
             <div *ngIf = "true">
             <!-- <div>
               <img width="100" alt="logo" *ngIf="l.image" [src]="l.image" />

@@ -328,7 +328,7 @@ selected_menu = ds.sidebar().menu(
 )
 
 details_container = ds.container()
-details_container.header("Welcom to DataStack")
+details_container.header("Welcome to DataStack")
 details_container.divider()
 details_container.subheader("The Fastest way to build apps in python")
 details_container.write(
