@@ -18,9 +18,7 @@ def run(target: str, host, port: int, args=None, **kwargs):
     """
     file_path = os.path.realpath(__file__)
     if target == "docs":
-        target = os.path.join(
-            os.path.dirname(os.path.dirname(file_path)), "docs", "docs.py"
-        )
+        target = os.path.join(os.path.dirname(file_path), "docs.py")
     print(target, port)
     server.start_server(target, host, port)
 
