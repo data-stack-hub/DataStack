@@ -322,7 +322,7 @@ ignor_list = [
 ]
 
 menu = [
-    {"title": "Input elements", "children": ["button", "radio_button", "data_input"]},
+    {"title": "Input elements", "children": ["button", "radio_button", "date_input"]},
     {"title": "cache_data"},
     {"title": "Chart elements", "children": ["chart", "pyplot"]},
     {
