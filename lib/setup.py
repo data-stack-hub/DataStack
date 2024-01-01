@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setuptools.setup(
     name="pydatastack",
-    version="0.0.12",
+    version="0.0.13",
     author="Vishal Vora, Mayur Pokiya, Karan Doshi",
     description="The Fastes way to build apps in python",
     long_description_content_type="text/markdown",
@@ -26,6 +26,9 @@ setuptools.setup(
         "Werkzeug==2.2.2",
         "waitress",
         "gunicorn; sys_platform == 'linux'",
+        "docutils",
+        "docstring_parser",
+        "numpydoc",
     ],
     data_files=[("static", findall("datastack/static/"))],
     include_package_data=True,
