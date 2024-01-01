@@ -320,11 +320,32 @@ ignor_list = [
     "update_state",
     "title",
 ]
+
+menu = [
+    {"title": "Input elements", "children": ["button", "radio_button", "data_input"]},
+    {"title": "cache_data"},
+    {"title": "Chart elements", "children": ["chart", "pyplot"]},
+    {
+        "title": "Layouts",
+        "children": ["columns", "container", "divider", "expander", "sidebar", "tabs"],
+    },
+    {"title": "Data elements", "children": ["dataframe", "table", "list"]},
+    {"title": "Status elements", "children": ["error", "info", "warning", "success"]},
+    {
+        "title": "Text elements",
+        "children": ["header", "subheader", "html", "markdown", "write"],
+    },
+    {"title": "Input elements", "children": ["input", "select", "slider", "tag"]},
+    {"title": "iframe"},
+    {"title": "menu"},
+    {"title": "Media elements", "children": ["image"]},
+    {"title": "Page", "children": ["page", "set_page"]},
+]
 selected_menu = ds.sidebar().menu(
-    [m for m in dir(obj) if not m.startswith("_") and m not in ignor_list],
+    menu,  # [m for m in dir(obj) if not m.startswith("_") and m not in ignor_list],
     value="button",
     on_change=generate_doc,
-    mode="vertical",
+    mode="inline",
 )
 
 details_container = ds.container()

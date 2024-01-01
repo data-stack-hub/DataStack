@@ -6,9 +6,21 @@
 
 
   <!-- sidebar -->
-  <div style="display: block;">
-    <div *ngIf="sidebar?.length > 0"
+  <div style="display: block;" >
+    <div style="    position: fixed;
+    top: 0.5rem;z-index: 99999999;
+    left: 0.25rem;" *ngIf="hide_sidebar" (click)="toggle_sidebar(flase)">
+     <button nz-button nzType="text" ><span nz-icon nzType="menu"></span></button>
+
+    </div>
+
+    <div *ngIf="!hide_sidebar"
       style="display: block; background-color: rgb(240, 242, 246); background-attachment: fixed; height: 100vh;overflow: auto; padding: 6rem 1rem; position: relative;width: 18rem; z-index: 100; margin-left: 0px;">
+      <div style="    position: absolute;
+      top: 0.5rem;z-index: 99999999;
+      right: 0.25rem;" (click)="toggle_sidebar(true)">
+        <button nz-button nzType="text" ><span nz-icon nzType="close"></span></button>
+      </div>
       <ng-container *ngTemplateOutlet="elements; context:{value:sidebar}"></ng-container>
     </div>
   </div>
@@ -170,8 +182,23 @@
       </div>
 
       <div *ngIf ="element.type == 'menu' ">
-        <ul nz-menu [nzMode]="element.prop.mode">
-          <li nz-menu-item style="line-height: 35px; height: 35px;" *ngFor="let l of element.prop.data" (click)="menu_click(element, l)">{{l}}</li>
+        <ul nz-menu [nzMode]="element.prop.mode" >
+          <ng-container *ngFor="let item of element.prop.data">
+            <li *ngIf="!item.children" nz-menu-item  [nzSelected]="item.title == element.prop.value"  (click)="menu_click(element, item.title)">{{item.title}}</li>
+            <li *ngIf="item.children" nz-submenu  [nzTitle]="item.title"  [nzOpen]="is_menu_open(item,element.prop.value)">
+              <ul>
+                <li nz-menu-item *ngFor = "let subitem of item.children"  [nzSelected]="subitem.title == element.prop.value"(click)="menu_click(element, subitem.title)">{{subitem.title}}</li>
+              </ul>
+            </li>
+          </ng-container>
+          <!-- <li nz-menu-item style="line-height: 35px; height: 35px;"  (click)="menu_click(element, item.title)">
+            <span>{{item.title}}</span>
+            <ul *ngIf="item.children" nz-submenu>
+              <li nz-menu-item *ngFor="let subItem of item.children">
+                <span>{{ subItem.title }}</span>
+              </li>
+            </ul>
+          </li> -->
         </ul>
       </div>
 

@@ -77,7 +77,16 @@ export class AppComponent {
   columnDefinitions: Column[] = [];
   gridOptions: GridOption = {};
   dataset: any[] = [];
+  hide_sidebar:boolean = true
 
+  breakpoints = {
+    sm: 576,
+    columns: 640,
+    md: 787,
+    lg: 992,
+    xl: 1200,
+  }
+  windowWidth = 1000
   public graph = {
     data: [
         { x: [1, 2, 3,4,5,6,7,8,9], y: [2, 6, 3,5,4,3,6,8], type: 'scatter', mode: 'lines+markers', marker: {color: 'red'} },
@@ -100,6 +109,12 @@ export class AppComponent {
       port = this.isHttps() ? 443 : 80
     }
 
+    this.windowWidth = window.innerWidth;
+    console.log(this.windowWidth, this.breakpoints.md)
+    if (this.windowWidth > this.breakpoints.md){
+      console.log('hide sidebar')
+      this.hide_sidebar = false
+    }
     let basepath = window.location.pathname.replace("/\/+$/","").replace("/^\/+/","")
     this.url = window.location.protocol + "//" + host +":" + port +"/"
     console.log(window.location.hostname,window.location.port, window.location.pathname )
@@ -568,6 +583,14 @@ senitized_html(prop){
   else{
     return prop.data
   }
+}
+
+toggle_sidebar(value){
+  this.hide_sidebar = value
+}
+
+is_menu_open(item, value){
+  return item.children.some(item => item.title === value)
 }
 }
 

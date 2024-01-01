@@ -477,10 +477,23 @@ class datastack:
         >>> ds.header(page)
         """
 
+        def elements_to_dict(elements):
+            return [
+                {"title": item}
+                if not isinstance(item, dict)
+                else item
+                if not "children" in item
+                else {
+                    "title": item["title"],
+                    "children": elements_to_dict(item["children"]),
+                }
+                for item in elements
+            ]
+
         block = {
             "id": id if id else self.dynamic_widget_id(),
             "type": "menu",
-            "prop": {"data": data, "value": value, "mode": mode},
+            "prop": {"data": elements_to_dict(data), "value": value, "mode": mode},
         }
         try:
             block["prop"]["value_var"] = varname()

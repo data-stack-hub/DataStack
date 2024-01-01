@@ -1,4 +1,4 @@
-import click
+import click, os
 from datastack.server import server
 
 
@@ -16,6 +16,11 @@ def run(target: str, host, port: int, args=None, **kwargs):
     """
     Run a python script
     """
+    file_path = os.path.realpath(__file__)
+    if target == "docs":
+        target = os.path.join(
+            os.path.dirname(os.path.dirname(file_path)), "docs", "docs.py"
+        )
     print(target, port)
     server.start_server(target, host, port)
 

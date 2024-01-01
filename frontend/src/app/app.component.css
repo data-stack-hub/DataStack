@@ -2,28 +2,32 @@
   /* width */
   ::-webkit-scrollbar {
     width: 5px;
- 
+
   }
-  
+
   /* Track */
   ::-webkit-scrollbar-track {
     background:transparent;
 
   }
-  
+
   /* Handle */
   ::-webkit-scrollbar-thumb {
     background: gray;
     border-radius: 100px;
   }
-  
+
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
     /* background: #88dd88; */
 
   }
 
+  nz-menu[nzMode="inline"] > .ant-menu-submenu > .ant-menu-submenu-title{
+    line-height: 35px !important;
+    height: 35px !important;
+  }
   /* .editor {
     height: 20px;
   } */
-  
+
