@@ -10,6 +10,7 @@ import os
 import json
 import numpy as np
 from pathlib import Path
+import platform
 
 static_file_path = os.path.join(
     Path(os.path.dirname(__file__)).parent.absolute(), "static"
@@ -292,21 +293,61 @@ for route in routes:
     app.add_url_rule(route["path"], view_func=fn(route["fn"]), methods=["get", "post"])
 
 
-def start_server(file_path, host="localhost", port=5000):
-    global my_module
-    runtime.set_file_path(file_path)
-    # runtime.run_script(file_path)
-    # my_module = runtime.get_module()
+def run_gunicorn_app(host, port):
 
-    logger.debug("Starting server...")
-    # import webbrowser
-    # webbrowser.open('http://127.0.0.1:4200/')
-    # app.run(host = host, port = port, debug=False, threaded= True)
+    from gunicorn.app.base import BaseApplication
+
+    class FlaskGunicornApp(BaseApplication):
+        def __init__(self, app, options=None):
+            self.application = app
+            self.options = options or {}
+            super().__init__()
+
+        def load_config(self):
+            config = {
+                key: value
+                for key, value in self.options.items()
+                if key in self.cfg.settings and value is not None
+            }
+            for key, value in config.items():
+                self.cfg.set(key.lower(), value)
+
+        def load(self):
+            return self.application
+
+    app_options = {
+        "bind": host
+        + ":"
+        + port,  # 0.0.0.0:8000',  # Change the bind address and port as needed
+        "workers": 4,  # Number of worker processes
+    }
+
+    gunicorn_app = FlaskGunicornApp(app, options=app_options)
+    gunicorn_app.run()
+
+
+def run_waitress_app(host, port):
     host = "localhost" if host == None else host
     port = 5000 if port == None else port
-
     serve(app, host=host, port=port)
-    logger.debug("Server started on port 5000")
+
+
+def run_flask_app(host, port):
+    context1 = (
+        "letsencrypt/live/data-stack.org/cert.pem",
+        "letsencrypt/live/data-stack.org/privkey.pem",
+    )
+    app.run(host=host, port=port, debug=False, threaded=True, ssl_context=context1)
+
+
+def start_server(file_path, host="localhost", port=5000):
+
+    global my_module
+    runtime.set_file_path(file_path)
+    if platform.system() == "Windows":
+        run_waitress_app(host, port)
+    else:
+        run_gunicorn_app(host, port)
 
 
 if __name__ == "__main__":

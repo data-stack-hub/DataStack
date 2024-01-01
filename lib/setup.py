@@ -25,6 +25,7 @@ setuptools.setup(
         "pure_eval",
         "Werkzeug==2.2.2",
         "waitress",
+        "gunicorn; sys_platform == 'linux'",
     ],
     data_files=[("static", findall("datastack/static/"))],
     include_package_data=True,
