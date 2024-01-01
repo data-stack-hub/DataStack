@@ -316,10 +316,8 @@ def run_gunicorn_app(host, port):
             return self.application
 
     app_options = {
-        "bind": host
-        + ":"
-        + port,  # 0.0.0.0:8000',  # Change the bind address and port as needed
-        "workers": 4,  # Number of worker processes
+        "bind": host + ":" + str(port),
+        "workers": 4,
     }
 
     gunicorn_app = FlaskGunicornApp(app, options=app_options)
@@ -344,6 +342,10 @@ def start_server(file_path, host="localhost", port=5000):
 
     global my_module
     runtime.set_file_path(file_path)
+
+    host = "localhost" if host == None else host
+    port = 5000 if port == None else port
+
     if platform.system() == "Windows":
         run_waitress_app(host, port)
     else:
