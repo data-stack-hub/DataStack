@@ -1,64 +1,73 @@
 
 
+<!-- main div -->
+<div style="display: flex; flex-direction: column; height: 100vh;">
+  <!-- top bar -->
+  <div  *ngIf="topbar?.length > 0">
+    <ng-container *ngTemplateOutlet="elements; context:{value:topbar}"></ng-container>
 
-
-<div style="display: flex; flex-direction: row;inset: 0; place-content: flex-start; align-items: stretch; position: absolute; width: 100%;">
-
-
-  <!-- sidebar -->
-  <div style="display: block;" >
-    <div style="    position: fixed;
-    top: 0.5rem;z-index: 99999999;
-    left: 0.25rem;" *ngIf="hide_sidebar" (click)="toggle_sidebar(flase)">
-     <button nz-button nzType="text" ><span nz-icon nzType="menu"></span></button>
-
-    </div>
-
-    <div *ngIf="!hide_sidebar"
-      style="display: block; background-color: rgb(240, 242, 246); background-attachment: fixed; height: 100vh;overflow: auto; padding: 6rem 1rem; position: relative;width: 18rem; z-index: 100; margin-left: 0px;">
-      <div style="    position: absolute;
-      top: 0.5rem;z-index: 99999999;
-      right: 0.25rem;" (click)="toggle_sidebar(true)">
-        <button nz-button nzType="text" ><span nz-icon nzType="close"></span></button>
-      </div>
-      <ng-container *ngTemplateOutlet="elements; context:{value:sidebar}"></ng-container>
-    </div>
   </div>
-  <!-- main app -->
-  <div style="display: flex; flex-direction: column;width: 100%; overflow: auto;align-items: flex-start;">
-    <div style="display: block; width:100%; padding: 6rem 1rem 10rem; /*max-width: 45rem;*/">
-      <ng-container *ngIf = "app_loading">
-        <nz-spin [nzSpinning]="true" [nzDelay]="500">
-          <nz-alert
-            [nzType]="'info'"
-            [nzMessage]="'loading'"
-          ></nz-alert>
-        </nz-spin>
-      </ng-container>
-      <ng-container *ngIf = "app_error">
+  <!-- end top bar -->
 
-          <nz-alert
-            [nzType]="'error'"
-            [nzMessage]="'An error occurred while retrieving the app. Please try refreshing the page.'"
-          ></nz-alert>
+  <div  style="display: flex; flex: 1;flex-direction: row;place-content: flex-start;align-items: stretch;width: 100%;">
 
-      </ng-container>
+    <!-- sidebar -->
+    <div style="display: block;" >
+      <div style="    position: fixed;
+      top: 0.5rem;z-index: 99999999;
+      left: 0.25rem;" *ngIf="hide_sidebar && sidebar?.length > 0" (click)="toggle_sidebar(flase)">
+       <button nz-button nzType="text" ><span nz-icon nzType="menu"></span></button>
 
-      <ng-container
-        *ngTemplateOutlet="elements; context:{value:container}">
-      </ng-container>
-      <div style="    color: rgba(49, 51, 63, 0.7);
-      font-size: 14px;
-      height: 2.5rem;
-      min-width: auto;
-      max-width: initial;
-      padding: 0.5rem 1rem;
-      width: 100%; text-align: center;">Made with DataStack</div>
+      </div>
+
+      <div *ngIf="!hide_sidebar && sidebar?.length > 0"
+        style="display: block; background-color: rgb(240, 242, 246); background-attachment: fixed; height: 100%;overflow: auto; padding: 6rem 1rem; position: relative;width: 18rem; z-index: 100; margin-left: 0px;">
+        <div style="    position: absolute;
+        top: 0.5rem;z-index: 99999999;
+        right: 0.25rem;" (click)="toggle_sidebar(true)">
+          <button nz-button nzType="text" ><span nz-icon nzType="close"></span></button>
+        </div>
+        <ng-container *ngTemplateOutlet="elements; context:{value:sidebar}"></ng-container>
+      </div>
     </div>
-    </div>
+    <!-- end side  bar -->
 
+    <!-- main content -->
+    <div style="display: flex; flex-direction: column;width: 100%; overflow: auto;align-items: flex-start;">
+      <div style="display: block; width:100%; padding: 6rem 1rem 10rem; /*max-width: 45rem;*/">
+        <ng-container *ngIf = "app_loading">
+          <nz-spin [nzSpinning]="true" [nzDelay]="500">
+            <nz-alert
+              [nzType]="'info'"
+              [nzMessage]="'loading'"
+            ></nz-alert>
+          </nz-spin>
+        </ng-container>
+        <ng-container *ngIf = "app_error">
+
+            <nz-alert
+              [nzType]="'error'"
+              [nzMessage]="'An error occurred while retrieving the app. Please try refreshing the page.'"
+            ></nz-alert>
+
+        </ng-container>
+
+        <ng-container
+          *ngTemplateOutlet="elements; context:{value:container}">
+        </ng-container>
+        <div style="    color: rgba(49, 51, 63, 0.7);
+        font-size: 14px;
+        height: 2.5rem;
+        min-width: auto;
+        max-width: initial;
+        padding: 0.5rem 1rem;
+        width: 100%; text-align: center;">Made with DataStack</div>
+      </div>
+      </div>
+  <!-- end main content -->
+
+  </div>
 </div>
-
 
 
 

@@ -45,6 +45,7 @@ class datastack:
         self.app = {
             "current_page": "main_page",
             "sidebar": [],
+            "topbar": [],
             "main_page": [],
             "pages": [],
             "appstate": {
@@ -53,7 +54,7 @@ class datastack:
             },
         }
 
-        self.blocks = {"sidebar": [], "main_page": [], "pages": []}
+        self.blocks = {"sidebar": [], "topbar": [], "main_page": [], "pages": []}
         self.state = {}
 
         if main:
@@ -887,6 +888,12 @@ class datastack:
         self.append_block(cls, "sidebar")
         return cls
 
+    def topbar(self):
+        """Topbar"""
+        cls = datastack(type="topbar")
+        self.append_block(cls, "topbar")
+        return cls
+
     def expander(self, name: str):
         """A content area which can be collapsed and expanded.
 
@@ -1519,7 +1526,7 @@ class datastack:
     def get_app_block_by_id(self, id):
         all_app_blocks = [
             block
-            for page in ["main_page", "sidebar"] + self.app["pages"]
+            for page in ["main_page", "sidebar", "topbar"] + self.app["pages"]
             for block in self.app[page]
         ]
         return_block = ""
@@ -1601,11 +1608,18 @@ class datastack:
         self.app = {
             "current_page": "main_page",
             "sidebar": [],
+            "topbar": [],
             "main_page": [],
             "pages": [],
             "appstate": {"session_id": "default", "notifications": []},
         }
-        self.blocks = {"sidebar": [], "main_page": [], "pages": [], "notifications": []}
+        self.blocks = {
+            "sidebar": [],
+            "topbar": [],
+            "main_page": [],
+            "pages": [],
+            "notifications": [],
+        }
 
     def build_element_from_blocks(self, blocks):
         # with parent
@@ -1741,7 +1755,7 @@ class datastack:
                     logger.error("update state:" + str(e))
                     print(c)
 
-        for location in ["main_page", "sidebar"] + self.app["pages"]:
+        for location in ["main_page", "sidebar" "topbar"] + self.app["pages"]:
             _update_state(self.app[location])
 
     def build_app(self):
@@ -1774,6 +1788,16 @@ class datastack:
         # self.app['sidebar'] = [ item for sublist in _app for item in sublist]
         t = self.build_element_from_blocks([a[0] for a in _app])
         self.app["sidebar"] = t
+
+        topbar_blocks = [
+            x.blocks["main_page"]
+            if isinstance(x, object) and x.__class__.__name__ == "datastack"
+            else [x]
+            for x in self.blocks["topbar"]
+        ]
+        self.app["topbar"] = self.build_element_from_blocks(
+            [a[0] for a in topbar_blocks]
+        )
         self.app["pages"] = np.unique(np.array(self.app["pages"])).tolist()
         return self.app
 

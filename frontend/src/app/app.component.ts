@@ -36,6 +36,7 @@ export class AppComponent {
   title = 'frontend';
   container:any
   sidebar:any
+  topbar:any = []
   appstate:any
   page = '/page1'
   @ViewChild('editableDiv') editableDiv: any;
@@ -189,6 +190,7 @@ export class AppComponent {
     this.container = JSON.parse(JSON.stringify(res[this.page].filter((element:any)=>element.location != 'sidebar')))
     this.sidebar = res[this.page].filter((element:any)=>element.location == 'sidebar')
     this.sidebar = [...this.sidebar, ...res['sidebar']]
+    this.topbar = res["topbar"]
     this.appstate = res['appstate']
     if(this.appstate.notifications && this.appstate.notifications.length > 0){
       this.appstate.notifications.forEach(element => {
