@@ -34,7 +34,7 @@ class datastack:
         True value idenfify the class instance as main class where as false value identify as subclass
     """
 
-    def __init__(self, type="main_page", path="", title="", main=False):
+    def __init__(self, type="main_page", path="", title="", main=False, wide_mode=True):
         """Inserts or updates elements in the datstack apps."""
 
         self.type = type
@@ -51,6 +51,7 @@ class datastack:
             "appstate": {
                 # "session_id": getattr(threading.current_thread(), "session_id"),
                 "notifications": [],
+                "wide_mode": wide_mode,
             },
         }
 
@@ -1755,7 +1756,7 @@ class datastack:
                     logger.error("update state:" + str(e))
                     print(c)
 
-        for location in ["main_page", "sidebar" "topbar"] + self.app["pages"]:
+        for location in ["main_page", "sidebar", "topbar"] + self.app["pages"]:
             _update_state(self.app[location])
 
     def build_app(self):

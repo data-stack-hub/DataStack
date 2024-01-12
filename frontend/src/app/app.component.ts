@@ -1,4 +1,4 @@
-import { Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
+import { Component, HostListener, Renderer2, ViewChild } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
@@ -79,7 +79,7 @@ export class AppComponent {
   gridOptions: GridOption = {};
   dataset: any[] = [];
   hide_sidebar:boolean = true
-
+  wide_mode = false
   breakpoints = {
     sm: 576,
     columns: 640,
@@ -122,6 +122,7 @@ export class AppComponent {
     this.api.get(this.url +'app')
     .subscribe((res:any)=>{
       this.update_app(res)
+      this.wide_mode = res['appstate']['wide_mode']
       this.app_loading= false
     }, (error)=>{
       console.log('error:', error)
@@ -130,6 +131,7 @@ export class AppComponent {
     })
 
     this.prepareGrid();
+
   }
 
 
@@ -540,9 +542,10 @@ prepareGrid() {
   {
     enableAutoResize: true,
     autoResize: {
-      container: '#demo-container',
-      rightPadding: 50
+      container: '#slick-grid-container',
+      rightPadding: 10
     },
+
     enableFiltering: true,
     gridHeight:400,
     enableSorting: true,
@@ -589,11 +592,15 @@ senitized_html(prop){
 
 toggle_sidebar(value){
   this.hide_sidebar = value
+  setTimeout(()=>{ this.angularGrid.resizerService.resizeGrid() }, 50)
 }
 
 is_menu_open(item, value){
   return item.children.some(item => item.title === value)
 }
+
+
+
 }
 
 

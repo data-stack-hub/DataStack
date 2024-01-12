@@ -327,7 +327,15 @@ menu = [
     {"title": "Chart elements", "children": ["chart", "pyplot"]},
     {
         "title": "Layouts",
-        "children": ["columns", "container", "divider", "expander", "sidebar", "tabs"],
+        "children": [
+            "columns",
+            "container",
+            "divider",
+            "expander",
+            "sidebar",
+            "topbar",
+            "tabs",
+        ],
     },
     {"title": "Data elements", "children": ["dataframe", "table", "list"]},
     {"title": "Status elements", "children": ["error", "info", "warning", "success"]},

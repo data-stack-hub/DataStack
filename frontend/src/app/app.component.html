@@ -9,7 +9,7 @@
   </div>
   <!-- end top bar -->
 
-  <div  style="display: flex; flex: 1;flex-direction: row;place-content: flex-start;align-items: stretch;width: 100%;">
+  <div  style="display: flex; flex: 1;flex-direction: row;place-content: flex-start;align-items: stretch;width: 100%;height: 100%;">
 
     <!-- sidebar -->
     <div style="display: block;" >
@@ -33,8 +33,9 @@
     <!-- end side  bar -->
 
     <!-- main content -->
-    <div style="display: flex; flex-direction: column;width: 100%; overflow: auto;align-items: flex-start;">
-      <div style="display: block; width:100%; padding: 6rem 1rem 10rem; /*max-width: 45rem;*/">
+
+    <div style="display: flex; flex-direction: column;width: 100%; overflow: auto;padding: 10px;" [ngStyle]="wide_mode ? { 'align-items': 'flex-start', 'padding-top':'30px '} : { 'align-items': 'center' }" >
+      <div style="display: block; width:100%; "  [ngStyle]="wide_mode ? {  } : {'max-width': '50rem','padding': '6rem 1rem 10rem'}" >
         <ng-container *ngIf = "app_loading">
           <nz-spin [nzSpinning]="true" [nzDelay]="500">
             <nz-alert
@@ -274,12 +275,12 @@
           </tbody>
         </nz-table>
       </div>
-      <div *ngIf="element.type == 'dataframe'" style="margin:5px;">
+      <div *ngIf="element.type == 'dataframe'" style="margin:5px;" id="slick-grid-container">
         <angular-slickgrid [gridId]="element.prop.grid_id"
         [columnDefinitions]="element.prop.columns"
         [gridOptions]="gridOptions"
         (onAngularGridCreated)="angularGridReady($event?.detail)"
-        [dataset]="element.prop.data">
+        [dataset]="element.prop.data" >
 </angular-slickgrid>
       </div>
       <div *ngIf="element.type == 'code'" style="border:1px solid rgba(49, 51, 63, 0.2); border-radius: 0.5rem;">
