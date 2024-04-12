@@ -1,0 +1,19 @@
+<nz-table #basicTable nzSize="small" [nzData]="element.prop.data" nzBordered>
+    <thead>
+      <tr>
+      <th *ngFor ="let h of element.prop.columns">
+        {{h}}
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of basicTable.data">
+        <td *ngFor="let col of element.prop.columns" >
+
+          <div [innerHTML] = data[col]></div>
+          <!-- {{data[col]}} -->
+        </td>
+        <!-- {{data.col1}} -->
+      </tr>
+    </tbody>
+  </nz-table>

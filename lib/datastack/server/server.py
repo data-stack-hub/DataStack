@@ -224,16 +224,24 @@ def run_fn():
     session = seesion_mgr.get_session(request.json["session_id"])
     session.main_class.get_app_block_by_id(request.json["id"])
     my_module = session.my_module
-    print("name space", dir(my_module))
+    # print("name space", dir(my_module))
     main_class = getattr(my_module, session.class_object_name)
-    print(session, main_class, my_module)
+    # print(session, main_class, my_module)
 
     """
     clear notification functionality to be redeveloped with context of app session
     """
     # runtime.get_main_class().clear_notifications()
 
-    on_change_type = ["input", "select", "date_input", "slider", "radio_button", "menu"]
+    on_change_type = [
+        "input",
+        "select",
+        "date_input",
+        "slider",
+        "radio_button",
+        "menu",
+        "code",
+    ]
     if request.json["type"] == "list" and request.json["payload"]["action"] == "click":
         update_var(
             request.json["prop"]["value_var"],
@@ -259,10 +267,10 @@ def run_fn():
     if "on_change" in request.json["prop"] and request.json["prop"]["on_change"]:
         try:
             fn = getattr(my_module, request.json["prop"]["on_change"])
-            print(fn)
+            # print(fn)
             try:
                 block = session.main_class.get_app_block_by_id(request.json["id"])
-                print("block", block)
+                # print("block", block)
                 if block["type"] == "chart":
                     fn(request.json["payload"]["value"])
                 elif "args" in block["prop"] and block["prop"]["args"] is not None:

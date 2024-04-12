@@ -1,4 +1,4 @@
-import { Component, HostListener, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, Renderer2, ViewChild } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
@@ -10,7 +10,6 @@ import { marked } from 'marked';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { AngularGridInstance, Column, GridOption } from 'angular-slickgrid';
 import { ExcelExportService } from '@slickgrid-universal/excel-export';
-
 interface trace {
   x:Array<any>,
   y:Array<any>,
@@ -80,6 +79,7 @@ export class AppComponent {
   dataset: any[] = [];
   hide_sidebar:boolean = true
   wide_mode = false
+  current_page = 'main'
   breakpoints = {
     sm: 576,
     columns: 640,
@@ -97,8 +97,10 @@ export class AppComponent {
     config : {editable:true, responsive: true}
 };
   angularGrid: AngularGridInstance;
-
-  constructor(private api:ApiService, public sanitizer: DomSanitizer, public renderer: Renderer2, public notification:NzNotificationService){
+  @ViewChild('scrollableDiv') scrollableDiv: ElementRef;
+  constructor(private api:ApiService,
+    public sanitizer: DomSanitizer,
+    public renderer: Renderer2, public notification:NzNotificationService){
     console.log(window.location.protocol)
     let host = window.location.hostname
     let port
@@ -180,6 +182,10 @@ export class AppComponent {
 
   update_app(res:any){
     console.log(res)
+    if (this.current_page != res['current_page']){
+      this.scrollToTop()
+      this.current_page = res['current_page']
+    }
     let all_elements = []
     let all_pages = ['main_page'].concat(res['pages'])
     console.log(all_pages)
@@ -599,7 +605,11 @@ is_menu_open(item, value){
   return item.children.some(item => item.title === value)
 }
 
-
+scrollToTop() {
+  console.log('scrolling to top')
+  const scrollableElement = this.scrollableDiv.nativeElement;
+  scrollableElement.scrollTop = 0;
+}
 
 }
 

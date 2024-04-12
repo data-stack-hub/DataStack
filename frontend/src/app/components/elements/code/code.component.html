@@ -1,8 +1,22 @@
 
 <div *ngIf = "show" >
-    <nz-code-editor  [style.height.px]="height" [(ngModel)]="block.prop.code" [nzEditorOption]="{theme:'vs-dark', language: 'python',lineNumbers: 'off',padding: {
-        top: 20
-    },scrollbar: {vertical: 'hidden'} , minimap:{enabled:false}, automaticLayout: true,  wordWrap: 'on', scrollBeyondLastLine: false}" (nzEditorInitialized)="onEditorInit($event)"></nz-code-editor>
+    <nz-code-editor
+        [style.height.px]="height"
+        [(ngModel)]="block.prop.code"
+        [nzEditorOption]="{theme:'vs-dark',
+                            language: 'python',
+                            lineNumbers: 'off',
+                            padding: {
+                                top: 20
+                            },
+                            scrollbar: {vertical: 'hidden'} ,
+                            minimap:{enabled:false},
+                            automaticLayout: true,
+                            wordWrap: 'on',
+                            scrollBeyondLastLine: false}"
+        (nzEditorInitialized)="onEditorInit($event)"
+        (ngModelChange)="onCodeChange(block, $event)"
+        ></nz-code-editor>
     <!-- <button (click)="run_block(block)">run</button>
     <div style="border: 1px solid;">Result:
         <div *ngIf="code_output_type != 'table'">{{code_output}}</div>

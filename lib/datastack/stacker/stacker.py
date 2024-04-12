@@ -326,6 +326,8 @@ class datastack:
 
         if not self.replace_block(id, block):
             self.append_block(block)
+
+        self.state["value_var"] = value
         return value
 
     def radio_button(
@@ -429,10 +431,10 @@ class datastack:
         }
         try:
             block["prop"]["on_change"] = argname(
-                "on_change", vars_only=False, func=self.list
+                "on_click", vars_only=False, func=self.list
             )
-        except:
-            pass
+        except Exception as e:
+            print("Error while adding on_change in list", e)
 
         try:
             block["prop"]["value_var"] = varname()
@@ -568,7 +570,13 @@ class datastack:
     #     else:
     #         return None
 
-    def table(self, data, column_definition: dict = {}, id: Optional[str] = None):
+    def table(
+        self,
+        data,
+        column_definition: dict = {},
+        editable_columns: Optional[str] = None,
+        id: Optional[str] = None,
+    ):
         """Display a dataframe as an interactive table.
 
         Parameters
@@ -580,6 +588,7 @@ class datastack:
         column_defination : dict
             define columns
 
+        editable_columns
         id : str
             An optional string or integer to use as the unique key for the element.
 
@@ -976,7 +985,8 @@ class datastack:
             "data": tab,
             "prop": {"tabs": tab_list},
         }
-        self.append_block(block)
+        if not self.replace_block(id, block):
+            self.append_block(block)
         return tab
 
     def slider(
@@ -1286,6 +1296,11 @@ class datastack:
             "prop": {"code": data},
         }
 
+        try:
+            block["prop"]["value_var"] = varname()
+        except Exception as e:
+            print("code error", e)
+
         with open(
             os.path.join(
                 Path(os.path.dirname(__file__)).parent.absolute(), "static/app.json"
@@ -1302,7 +1317,7 @@ class datastack:
             block["prop"]["code"] = b[id]["block"]["prop"]["code"]
             block["prop"]["last_run_result"] = b[id]["block"]["prop"]["last_run_result"]
         self.append_block(block)
-        return ""
+        return block["prop"]["code"]
 
     def query(self, data, id=""):
         block = {
@@ -1597,8 +1612,6 @@ class datastack:
 
     def replace_block(self, id, new_block):
         block = self.get_block_by_id(id)
-        # if id == "title":
-        #     print("title block", block)
         if block:
             block[0].update(new_block)
             return True
@@ -1622,6 +1635,42 @@ class datastack:
             "notifications": [],
         }
 
+    def b_b(self, block):
+        if block["type"] == "column":
+            block["data"] = [dict(c)["data"] for c in block["data"]]
+        return block
+
+    def __iter__(self):
+        # Yield only the keys you want to expose
+        keys = ["type", "title", "data"]
+        if self.type == "column":
+            keys = ["data"]
+        for key in keys:
+            print(self.type)
+            if key == "data":
+                yield key, [c for c in self.blocks["main_page"]]
+            else:
+                yield key, getattr(self, key)
+
+    def build_element_from_blocks_1(self, blocks):
+        _app = []
+        # def process_blocks(block):
+        #     if block['type'] == 'column':
+        #         block['data'] = [self.build_element_from_blocks_1(dict(c)["data"])
+        #             for c in block["data"]]
+        #     return block
+
+        for block in blocks:
+            print("block before", block)
+            block = dict(block)
+            block = self.b_b(block)
+            print("block after", block)
+            # block = process_blocks(block)
+
+            _app.append(block)
+        # print(_app)
+        return _app
+
     def build_element_from_blocks(self, blocks):
         # with parent
         # return [ dict(each_one, **{'parent':x.type}) for each_one in x.blocks['main_page']]
@@ -1634,7 +1683,8 @@ class datastack:
             else x
             for x in blocks
         ]
-        # for columns and tabs
+        # for columns and tab
+        # print(_app)
         _app = [
             {
                 "id": "",
@@ -1703,6 +1753,8 @@ class datastack:
                         c["prop"]["data"] = eval(c["prop"]["data_var"])
                     if c["type"] == "date_input" or c["type"] == "input":
                         c["prop"]["value"] = eval(c["prop"]["value_var"])
+                    if c["type"] == "code":
+                        c["prop"]["code"] = eval(c["prop"]["value_var"])
                     if c["type"] == "button":
                         c["prop"]["title"] = eval(c["prop"]["title_var"])
                     if c["type"] == "select" or c["type"] == "radio_button":
@@ -1754,7 +1806,7 @@ class datastack:
                         c["prop"]["html"] = html
                 except Exception as e:
                     logger.error("update state:" + str(e))
-                    print(c)
+                    # print(c)
 
         for location in ["main_page", "sidebar", "topbar"] + self.app["pages"]:
             _update_state(self.app[location])
@@ -1800,6 +1852,7 @@ class datastack:
             [a[0] for a in topbar_blocks]
         )
         self.app["pages"] = np.unique(np.array(self.app["pages"])).tolist()
+        # print(self.app)
         return self.app
 
     def rerun(self, my_vars={}, old_app=""):

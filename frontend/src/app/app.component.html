@@ -34,7 +34,7 @@
 
     <!-- main content -->
 
-    <div style="display: flex; flex-direction: column;width: 100%; overflow: auto;padding: 10px;" [ngStyle]="wide_mode ? { 'align-items': 'flex-start', 'padding-top':'30px '} : { 'align-items': 'center' }" >
+    <div #scrollableDiv style="display: flex; flex-direction: column;width: 100%; overflow: auto;padding: 10px;" [ngStyle]="wide_mode ? { 'align-items': 'flex-start', 'padding-top':'30px '} : { 'align-items': 'center' }" >
       <div style="display: block; width:100%; "  [ngStyle]="wide_mode ? {  } : {'max-width': '50rem','padding': '6rem 1rem 10rem'}" >
         <ng-container *ngIf = "app_loading">
           <nz-spin [nzSpinning]="true" [nzDelay]="500">
@@ -83,7 +83,7 @@
       </div>
 
 
-      <div  *ngIf="element.type == 'button'">
+      <div  *ngIf="element.type == 'button'" style="padding: 5px 0;">
         <button nz-button nzType="primary" (click)="click(element)">{{element.prop.title}}</button>
       </div>
       <div  *ngIf="element.type == 'divider'">
@@ -255,25 +255,8 @@
 
       </div>
       <div *ngIf="element.type == 'table'">
-        <nz-table #basicTable nzSize="small" [nzData]="element.prop.data" nzBordered>
-          <thead>
-            <tr>
-            <th *ngFor ="let h of element.prop.columns">
-              {{h}}
-            </th>
-          </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let data of basicTable.data">
-              <td *ngFor="let col of element.prop.columns" >
+        <app-table [element] = "element"></app-table>
 
-                <div [innerHTML] = data[col]></div>
-                <!-- {{data[col]}} -->
-              </td>
-              <!-- {{data.col1}} -->
-            </tr>
-          </tbody>
-        </nz-table>
       </div>
       <div *ngIf="element.type == 'dataframe'" style="margin:5px;" id="slick-grid-container">
         <angular-slickgrid [gridId]="element.prop.grid_id"

@@ -28,6 +28,7 @@ import { NgZorroAntdModule} from './ng-zorro-antd.module';
 import { CodeComponent } from './components/elements/code/code.component';
 import { ExpanderComponent } from './components/elements/expander/expander.component';
 import { EditableComponent } from './components/elements/editable/editable.component'
+import { TableComponent } from './components/elements/table/table.component'
 registerLocaleData(en);
 
 // @dynamic
@@ -37,6 +38,7 @@ registerLocaleData(en);
     CodeComponent,
     ExpanderComponent,
     EditableComponent,
+    TableComponent
     // MyComponentWrapperComponent
   ],
   imports: [
